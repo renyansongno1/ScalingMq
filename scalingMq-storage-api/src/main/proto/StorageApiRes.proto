@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_outer_classname = "StorageApiResWrapper";
+
+message StorageApiRes {
+  // 错误码
+  string errorCode = 1;
+  // 错误信息
+  string errorMsg = 2;
+  // 追加消息响应
+  PutMsgRes putMsgRes = 3;
+
+}
+
+message PutMsgRes {
+
+  // 消息偏移量
+  int64 offset = 1;
+
+  // 消息id
+  string msgId = 2;
+}

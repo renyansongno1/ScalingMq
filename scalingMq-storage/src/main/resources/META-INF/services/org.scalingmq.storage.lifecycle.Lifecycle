@@ -1,0 +1,5 @@
+org.scalingmq.storage.core.storage.impl.DirectBufferStorage
+org.scalingmq.storage.core.storage.impl.PmemStorage
+org.scalingmq.storage.core.storage.impl.DiskStorage
+org.scalingmq.storage.core.storage.impl.SsdStorage
+org.scalingmq.storage.server.StorageNettyServer

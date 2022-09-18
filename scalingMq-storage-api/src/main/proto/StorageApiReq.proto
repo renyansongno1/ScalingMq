@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option java_outer_classname = "StorageApiReqWrapper";
+
+message StorageApiReq {
+
+  enum ApiType{
+    PRODUCT = 0;
+    FETCH = 1;
+    COMMIT = 2;
+  }
+
+  ApiType apiType = 1;
+
+  PutMsgReq putMsgReq = 2;
+
+  message PutMsgReq {
+
+    // 消息主题
+    string topic = 1;
+
+    // 消息集
+    repeated PutMsgReq.MsgItem msgItems = 2;
+
+    // 消息数据
+    message MsgItem {
+      repeated bytes content = 1;
+    }
+  }
+
+}

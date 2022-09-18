@@ -1,0 +1,60 @@
+apply plugin: "com.google.protobuf"
+
+buildscript {
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+    }
+}
+
+dependencies {
+    implementation(
+            'io.grpc:grpc-stub:1.40.2',
+            'io.grpc:grpc-protobuf:1.40.2',
+            'io.grpc:grpc-netty:1.40.2',
+            'io.netty:netty-all:4.1.80.Final',
+
+            project(':scalingMq-common')
+    )
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+tasks.register('cliVersion', Copy) {
+    from 'src/main/resources'
+    into layout.buildDirectory.dir('resouces')
+
+    filter(ReplaceTokens, tokens: [csi_version: '1.0'])
+
+    filteringCharset = 'UTF-8'
+}
+
+protobuf {
+    protoc {
+        if (osdetector.os == "osx") {
+            artifact = 'com.google.protobuf:protoc:3.14.0:osx-x86_64'
+        } else {
+            artifact = 'com.google.protobuf:protoc:3.14.0'
+        }
+    }
+    plugins {
+        grpc {
+            if (osdetector.os == "osx") {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0:osx-x86_64'
+            } else {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0'
+            }
+
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+
+    generatedFilesBaseDir = "$projectDir/gen"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
