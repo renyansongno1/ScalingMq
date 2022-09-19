@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  * 磁盘存储介质实现
@@ -19,13 +18,19 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class DiskStorage implements StorageClass {
 
-    private FileChannel fileChannel = null;
+    private FileChannel msgDataFileChannel = null;
 
-    private MappedByteBuffer mappedByteBuffer = null;
+    private MappedByteBuffer msgDataMappedByteBuffer = null;
+
+    private FileChannel indexFileChannel = null;
+
+    private MappedByteBuffer indexMappedByteBuffer = null;
 
     private long maxFileSize = 0L;
 
-    private final LongAdder wrote = new LongAdder();
+    private long wrote = 0L;
+
+    private long indexWrote = 0L;
 
     public DiskStorage() {
     }
@@ -35,10 +40,16 @@ public class DiskStorage implements StorageClass {
      */
     public void init(String storagePath) {
         try {
-            File file = new File(storagePath + StorageConfig.getInstance().getPartitionFileName());
+            File file = new File(storagePath);
             maxFileSize = file.getTotalSpace();
-            fileChannel = new RandomAccessFile(file, "rw").getChannel();
-            mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileChannel.size());
+
+            File msgDataFile = new File(storagePath + StorageConfig.getInstance().getPartitionFileName());
+            msgDataFileChannel = new RandomAccessFile(msgDataFile, "rw").getChannel();
+            msgDataMappedByteBuffer = msgDataFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, msgDataFileChannel.size());
+
+            File indexFile = new File(storagePath + StorageConfig.getInstance().getPartitionIndexFileName());
+            indexFileChannel = new RandomAccessFile(indexFile, "rw").getChannel();
+            indexMappedByteBuffer = indexFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, indexFileChannel.size());
         } catch (IOException e) {
             // ignore
             return;
@@ -54,17 +65,33 @@ public class DiskStorage implements StorageClass {
     @Override
     public StorageAppendResult append(byte[] msgBody) {
         // TODO: 2022/9/18 4k对齐
-        if (wrote.intValue() + msgBody.length > maxFileSize) {
+        if (wrote + msgBody.length > maxFileSize) {
             return StorageAppendResult.builder()
                     .success(false)
                     .build();
         }
-        mappedByteBuffer.put(msgBody);
-        mappedByteBuffer.force();
-        wrote.add(msgBody.length);
+        msgDataMappedByteBuffer.put(msgBody);
+        msgDataMappedByteBuffer.force();
+        wrote += msgBody.length;
         return StorageAppendResult.builder()
                 .success(true)
-                .offset(wrote.longValue())
+                .offset(wrote)
+                .build();
+    }
+
+    @Override
+    public StorageAppendResult appendIndex(byte[] indexBody) {
+        if (indexWrote + indexBody.length > maxFileSize) {
+            return StorageAppendResult.builder()
+                    .success(false)
+                    .build();
+        }
+        indexMappedByteBuffer.put(indexBody);
+        indexMappedByteBuffer.force();
+        indexWrote += indexBody.length;
+        return StorageAppendResult.builder()
+                .success(true)
+                .offset(indexWrote)
                 .build();
     }
 
@@ -76,7 +103,8 @@ public class DiskStorage implements StorageClass {
     @Override
     public void componentStop() {
         try {
-            fileChannel.force(true);
+            msgDataFileChannel.force(true);
+            indexFileChannel.force(true);
         } catch (IOException e) {
             // ignore
         }

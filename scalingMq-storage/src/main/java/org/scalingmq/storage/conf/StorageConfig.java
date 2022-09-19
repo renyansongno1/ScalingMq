@@ -48,4 +48,14 @@ public class StorageConfig {
      */
     private String partitionFileName;
 
+    /**
+     * 分区索引文件名称
+     */
+    private String partitionIndexFileName;
+
+    /**
+     * 索引默认占比每个存储介质 默认20% 不影响ssd和hdd 默认disk类存储无限
+     */
+    private Integer indexSpaceRatio = 20;
+
 }

@@ -26,14 +26,29 @@ public class DirectBufferStorage implements StorageClass {
     private static ByteBuffer STORAGE_BUFFER;
 
     /**
+     * 索引使用的buffer
+     */
+    private static ByteBuffer INDEX_STORAGE_BUFFER;
+
+    /**
      * 写位点
      */
-    private final LongAdder wrote = new LongAdder();
+    private long wrote = 0L;
+
+    /**
+     * 索引写位点
+     */
+    private long indexWrote = 0L;
 
     /**
      * 最大容量
      */
     private int maxCapacity = 0;
+
+    /**
+     * 索引能够使用的最大容量
+     */
+    private int maxIndexCapacity = 0;
 
     public DirectBufferStorage() {
     }
@@ -57,11 +72,20 @@ public class DirectBufferStorage implements StorageClass {
         long maxMemoryBytes = Runtime.getRuntime().totalMemory();
         long containerRemainingMemory = maxMemoryBytes / (100 - maxJvmUseMemoryPercentage) * 100;
         // 分配可使用的堆外内存
-        maxCapacity = Math.toIntExact(
+        int maxAllCapacity = Math.toIntExact(
                 containerRemainingMemory * StorageConfig.getInstance().getMsgUseMaxDirectMemoryCapacity() / 100
         );
+        // 计算索引文件能够使用的内存
+        maxIndexCapacity = maxAllCapacity * StorageConfig.getInstance().getIndexSpaceRatio() / 100;
+        // 消息数据能够使用的就是剩下的
+        maxCapacity = maxAllCapacity - maxIndexCapacity;
+
         STORAGE_BUFFER = ByteBuffer.allocateDirect(
                 maxCapacity
+        );
+
+        INDEX_STORAGE_BUFFER = ByteBuffer.allocateDirect(
+                maxIndexCapacity
         );
 
         // 注册
@@ -75,19 +99,32 @@ public class DirectBufferStorage implements StorageClass {
 
     @Override
     public StorageAppendResult append(byte[] msgBody) {
-        synchronized (this) {
-            if (wrote.intValue() + msgBody.length > maxCapacity) {
-                return StorageAppendResult.builder()
-                        .success(false)
-                        .build();
-            }
-            wrote.add(msgBody.length);
-            STORAGE_BUFFER.put(msgBody);
+        if (wrote+ msgBody.length > maxCapacity) {
             return StorageAppendResult.builder()
-                    .success(true)
-                    .offset(wrote.longValue())
+                    .success(false)
                     .build();
         }
+        wrote += msgBody.length;
+        STORAGE_BUFFER.put(msgBody);
+        return StorageAppendResult.builder()
+                .success(true)
+                .offset(wrote)
+                .build();
+    }
+
+    @Override
+    public StorageAppendResult appendIndex(byte[] indexBody) {
+        if (indexWrote+ indexBody.length > maxIndexCapacity) {
+            return StorageAppendResult.builder()
+                    .success(false)
+                    .build();
+        }
+        indexWrote += indexBody.length;
+        INDEX_STORAGE_BUFFER.put(indexBody);
+        return StorageAppendResult.builder()
+                .success(true)
+                .offset(indexWrote)
+                .build();
     }
 
     @Override

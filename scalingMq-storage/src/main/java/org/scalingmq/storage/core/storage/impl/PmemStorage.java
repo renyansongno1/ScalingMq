@@ -8,7 +8,6 @@ import org.scalingmq.storage.core.PartitionMsgStorage;
 import org.scalingmq.storage.core.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
 import java.io.File;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  * 持久内存存储实现
@@ -16,11 +15,17 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class PmemStorage implements StorageClass {
 
-    private TransactionalHeap heap = null;
+    private TransactionalHeap msgHeap = null;
 
-    private long pmemTotalSize = 0L;
+    private TransactionalHeap indexHeap = null;
 
-    private final LongAdder wrote = new LongAdder();
+    private long pmemMsgSize = 0L;
+
+    private long pmemIndexSize = 0L;
+
+    private long wrote = 0L;
+
+    private long indexWrote = 0L;
 
     public PmemStorage() {
     }
@@ -32,13 +37,21 @@ public class PmemStorage implements StorageClass {
         }
         pmemMountPath += StorageConfig.getInstance().getPartitionFileName();
 
-        // 构造持久内存
-        heap = TransactionalHeap.exists(pmemMountPath)
-                ? TransactionalHeap.openHeap(pmemMountPath)
-                : TransactionalHeap.createHeap(pmemMountPath);
-
         File file = new File(pmemMountPath);
-        pmemTotalSize = file.getTotalSpace();
+        long pmemTotalSize = file.getTotalSpace();
+
+        pmemIndexSize = pmemTotalSize * StorageConfig.getInstance().getIndexSpaceRatio() / 100;
+        pmemMsgSize = pmemTotalSize - pmemIndexSize;
+
+        // 构造持久内存
+        msgHeap = TransactionalHeap.exists(pmemMountPath)
+                ? TransactionalHeap.openHeap(pmemMountPath)
+                : TransactionalHeap.createHeap(pmemMountPath, pmemMsgSize);
+
+        indexHeap = TransactionalHeap.exists(pmemMountPath)
+                ? TransactionalHeap.openHeap(pmemMountPath)
+                : TransactionalHeap.createHeap(pmemMountPath, pmemIndexSize);
+
 
         PartitionMsgStorage.getInstance().addStorageClass(storagePriority(), this);
     }
@@ -50,19 +63,37 @@ public class PmemStorage implements StorageClass {
 
     @Override
     public StorageAppendResult append(byte[] msgBody) {
-        if (wrote.intValue() + msgBody.length > pmemTotalSize) {
+        if (wrote + msgBody.length > pmemMsgSize) {
             return StorageAppendResult.builder()
                     .success(false)
                     .build();
         }
-        TransactionalMemoryBlock block = heap.allocateMemoryBlock(256);
-        Transaction.create(heap, () -> {
+        TransactionalMemoryBlock block = msgHeap.allocateMemoryBlock(256);
+        Transaction.create(msgHeap, () -> {
             block.copyFromArray(msgBody, 0, 0, msgBody.length);
         });
-        wrote.add(msgBody.length);
+        wrote += msgBody.length;
         return StorageAppendResult.builder()
                 .success(true)
-                .offset(wrote.longValue())
+                .offset(wrote)
+                .build();
+    }
+
+    @Override
+    public StorageAppendResult appendIndex(byte[] indexBody) {
+        if (indexWrote + indexBody.length > pmemIndexSize) {
+            return StorageAppendResult.builder()
+                    .success(false)
+                    .build();
+        }
+        TransactionalMemoryBlock block = indexHeap.allocateMemoryBlock(256);
+        Transaction.create(indexHeap, () -> {
+            block.copyFromArray(indexBody, 0, 0, indexBody.length);
+        });
+        indexWrote += indexBody.length;
+        return StorageAppendResult.builder()
+                .success(true)
+                .offset(indexWrote)
                 .build();
     }
 

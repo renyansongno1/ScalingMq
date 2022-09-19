@@ -1,7 +1,11 @@
 package org.scalingmq.storage.core;
 
+import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
+import org.scalingmq.storage.core.cons.PutIndexEntry;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
+import org.scalingmq.storage.lifecycle.Lifecycle;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -9,9 +13,13 @@ import java.util.TreeMap;
  * 分区消息存储实现
  * @author renyansong
  */
-public class PartitionMsgStorage {
+public class PartitionMsgStorage implements Lifecycle {
 
     private static final PartitionMsgStorage INSTANCE = new PartitionMsgStorage();
+
+    private final MpscArrayQueue<PutIndexEntry> putIndexEntryMpscArrayQueue = new MpscArrayQueue<>(100000);
+
+    private static volatile boolean STOP = false;
 
     /**
      * k -> 存储优先级
@@ -46,19 +54,101 @@ public class PartitionMsgStorage {
      * @return 消息物理偏移量
      */
     public long append(byte[] msgBody) {
-        for (Map.Entry<Integer, StorageClass> storageClassEntry : STORAGE_CLASS_MAP.entrySet()) {
-            StorageAppendResult appendResult = storageClassEntry.getValue().append(msgBody);
-            if (!appendResult.getSuccess()) {
-                continue;
+        long appendOffset = 0L;
+        int storageFlag = 0;
+        synchronized (this) {
+            for (Map.Entry<Integer, StorageClass> storageClassEntry : STORAGE_CLASS_MAP.entrySet()) {
+                StorageAppendResult appendResult = storageClassEntry.getValue().append(msgBody);
+                if (!appendResult.getSuccess()) {
+                    continue;
+                }
+                // 成功
+                appendOffset = appendResult.getOffset();
+                storageFlag = storageClassEntry.getKey();
+                break;
             }
-            // index
-
-            // replicate
-
-            // 成功
+        }
+        if (appendOffset == 0L) {
             return 0L;
         }
+        // put index
+        putIndexEntryMpscArrayQueue.offer(PutIndexEntry.builder()
+                .storagePriorityFlag(storageFlag)
+                .msgSize(msgBody.length)
+                .storageOffset(appendOffset)
+                .build());
+        // replicate
+
         return 0L;
+    }
+
+    @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
+    @Override
+    public void componentStart() {
+        new Thread(new AppendIndexTask(), "smq-append-index-thread").start();
+    }
+
+    @Override
+    public void componentStop() {
+        STOP = true;
+    }
+
+    /**
+     * index put的异步任务
+     */
+    private class AppendIndexTask implements Runnable {
+
+        private static final int STORAGE_PRIORITY_FLAG = 4;
+
+        private static final int STORAGE_PHYSICAL_OFFSET = 8;
+
+        private static final int STORAGE_MSG_SIZE = 4;
+
+        private static final int INDEX_SIZE = STORAGE_PRIORITY_FLAG + STORAGE_PHYSICAL_OFFSET + STORAGE_MSG_SIZE;
+
+        private long globalIndexWrote = 0L;
+
+        @Override
+        public void run() {
+            while (!STOP) {
+                PutIndexEntry putIndexEntry = putIndexEntryMpscArrayQueue.poll();
+                if (putIndexEntry == null) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                    continue;
+                }
+                putIndex(putIndexEntry);
+            }
+
+            // 将队列剩余的index 刷进存储
+            while (putIndexEntryMpscArrayQueue.peek() != null) {
+                PutIndexEntry putIndexEntry = putIndexEntryMpscArrayQueue.poll();
+                putIndex(putIndexEntry);
+            }
+        }
+
+        /**
+         * 将索引存储起来
+         * @param putIndexEntry 索引项
+         */
+        private void putIndex(PutIndexEntry putIndexEntry) {
+            ByteBuffer indexBuf = ByteBuffer.allocate(INDEX_SIZE);
+            indexBuf.putInt(putIndexEntry.getStoragePriorityFlag());
+            indexBuf.putLong(putIndexEntry.getStorageOffset());
+            indexBuf.putInt(putIndexEntry.getMsgSize());
+            for (Map.Entry<Integer, StorageClass> storageClassEntry : STORAGE_CLASS_MAP.entrySet()) {
+                StorageAppendResult appendResult = storageClassEntry.getValue().append(indexBuf.array());
+                if (!appendResult.getSuccess()) {
+                    continue;
+                }
+                globalIndexWrote += putIndexEntry.getMsgSize();
+                break;
+            }
+        }
+
     }
 
 }

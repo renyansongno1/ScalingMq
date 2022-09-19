@@ -22,4 +22,11 @@ public interface StorageClass extends Lifecycle{
      */
     StorageAppendResult append(byte[] msgBody);
 
+    /**
+     * 追加索引数据
+     * @param indexBody 索引内容
+     * @return 追加结果
+     */
+    StorageAppendResult appendIndex(byte[] indexBody);
+
 }

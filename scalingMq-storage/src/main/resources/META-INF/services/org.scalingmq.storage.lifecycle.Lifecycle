@@ -3,3 +3,4 @@ org.scalingmq.storage.core.storage.impl.PmemStorage
 org.scalingmq.storage.core.storage.impl.DiskStorage
 org.scalingmq.storage.core.storage.impl.SsdStorage
 org.scalingmq.storage.server.StorageNettyServer
+org.scalingmq.storage.core.PartitionMsgStorage
