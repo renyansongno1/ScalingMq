@@ -77,7 +77,9 @@ public class PartitionMsgStorage implements Lifecycle {
                 .msgSize(msgBody.length)
                 .storageOffset(appendOffset)
                 .build());
+
         // replicate
+
 
         return 0L;
     }
@@ -106,6 +108,8 @@ public class PartitionMsgStorage implements Lifecycle {
 
         private static final int INDEX_SIZE = STORAGE_PRIORITY_FLAG + STORAGE_PHYSICAL_OFFSET + STORAGE_MSG_SIZE;
 
+        private static final TreeMap<Long, Integer> INDEX_STORAGE_MAP = new TreeMap<>();
+
         private long globalIndexWrote = 0L;
 
         @Override
@@ -128,6 +132,8 @@ public class PartitionMsgStorage implements Lifecycle {
                 PutIndexEntry putIndexEntry = putIndexEntryMpscArrayQueue.poll();
                 putIndex(putIndexEntry);
             }
+
+            // TODO: 2022/9/19 持久化索引元数据 INDEX_STORAGE_MAP
         }
 
         /**
@@ -145,6 +151,14 @@ public class PartitionMsgStorage implements Lifecycle {
                     continue;
                 }
                 globalIndexWrote += putIndexEntry.getMsgSize();
+                Map.Entry<Long, Integer> offsetStorageFlagEntry = INDEX_STORAGE_MAP.lastEntry();
+                if (offsetStorageFlagEntry == null) {
+                    INDEX_STORAGE_MAP.put(globalIndexWrote, storageClassEntry.getKey());
+                    break;
+                }
+                if (!offsetStorageFlagEntry.getValue().equals(storageClassEntry.getKey())) {
+                    INDEX_STORAGE_MAP.put(globalIndexWrote, storageClassEntry.getKey());
+                }
                 break;
             }
         }
