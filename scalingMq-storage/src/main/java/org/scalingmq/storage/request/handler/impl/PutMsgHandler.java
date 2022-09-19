@@ -1,6 +1,7 @@
 package org.scalingmq.storage.request.handler.impl;
 
 import org.scalingmq.storage.api.StorageApiReqWrapper;
+import org.scalingmq.storage.api.StorageApiResWrapper;
 import org.scalingmq.storage.request.handler.RequestHandler;
 import org.scalingmq.storage.request.handler.RequestHandlerFactory;
 

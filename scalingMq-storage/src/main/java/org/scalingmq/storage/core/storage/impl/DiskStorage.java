@@ -4,7 +4,6 @@ import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.PartitionMsgStorage;
 import org.scalingmq.storage.core.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -50,7 +49,7 @@ public class DiskStorage implements StorageClass {
             File indexFile = new File(storagePath + StorageConfig.getInstance().getPartitionIndexFileName());
             indexFileChannel = new RandomAccessFile(indexFile, "rw").getChannel();
             indexMappedByteBuffer = indexFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, indexFileChannel.size());
-        } catch (IOException e) {
+        } catch (Exception e) {
             // ignore
             return;
         }

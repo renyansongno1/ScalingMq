@@ -27,10 +27,10 @@ public class PartitionMsgStorage implements Lifecycle {
      */
     private static final Map<Integer, StorageClass> STORAGE_CLASS_MAP = new TreeMap<>();
 
-    private PartitionMsgStorage() {
-        if (INSTANCE != null) {
+    public PartitionMsgStorage() {
+        /*if (INSTANCE != null) {
             throw new RuntimeException("not support reflect invoke");
-        }
+        }*/
     }
 
     public static PartitionMsgStorage getInstance() {

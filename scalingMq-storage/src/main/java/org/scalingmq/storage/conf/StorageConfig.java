@@ -2,6 +2,7 @@ package org.scalingmq.storage.conf;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.scalingmq.common.config.EnvironmentVariable;
 
 /**
  * 相关的配置
@@ -57,5 +58,23 @@ public class StorageConfig {
      * 索引默认占比每个存储介质 默认20% 不影响ssd和hdd 默认disk类存储无限
      */
     private Integer indexSpaceRatio = 20;
+
+    /**
+     * 当前pod的hostname
+     */
+    @EnvironmentVariable("HOSTNAME")
+    private String hostname;
+
+    /**
+     * 当前pod所属的service name
+     */
+    @EnvironmentVariable("SERVICE_NAME")
+    private String serviceName;
+
+    /**
+     * 当前pod所属的namespace
+     */
+    @EnvironmentVariable("POD_NAMESPACE")
+    private String namespace;
 
 }

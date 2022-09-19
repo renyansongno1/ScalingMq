@@ -13,7 +13,6 @@ import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.api.StorageApiReqWrapper;
 import org.scalingmq.storage.lifecycle.Lifecycle;
 import org.scalingmq.storage.request.handler.NetworkHandler;
@@ -22,7 +21,6 @@ import org.scalingmq.storage.request.handler.NetworkHandler;
  * netty实现的存储层服务器
  * @author renyansong
  */
-@Slf4j
 public class StorageNettyServer implements Lifecycle {
 
     private volatile boolean isClosing = false;
