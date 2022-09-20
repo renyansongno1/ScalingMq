@@ -3,14 +3,12 @@ package org.scalingmq.storage.core.replicate.raft;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.lifecycle.Lifecycle;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
+import org.xbill.DNS.*;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.lookup.LookupSession;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -58,23 +56,29 @@ public class PeerFinder implements Lifecycle {
      */
     private void find() {
         log.info("查询SRV:{} 下所有的域名服务", SRV_SERVICE);
-        Hashtable<String, String> env = new Hashtable<>(2);
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
 
+        LookupSession s = LookupSession.defaultBuilder().build();
         try {
-            DirContext ctx = new InitialDirContext(env);
-            Attributes attributes = ctx.getAttributes("_" + StorageConfig.getInstance().getServiceName() + "._tcp." + SRV_NAME_SUFFIX,
-                    new String [] { "SRV" });
-
-            for (Enumeration<? extends Attribute> e = attributes.getAll(); e.hasMoreElements();) {
-                Attribute a = e.nextElement();
-                int size = a.size();
-                for (int i = 0; i < size; i++) {
-                    PEER_HOST_SET.add((String) a.get(i));
-                }
-            }
-        } catch (NamingException e) {
-            log.error("naming srv error..", e);
+            Name mxLookup = Name.fromString(SRV_SERVICE);
+            s.lookupAsync(mxLookup, Type.SRV)
+                    .whenComplete(
+                            (answers, ex) -> {
+                                if (ex == null) {
+                                    if (!answers.getRecords().isEmpty()) {
+                                        for (Record rec : answers.getRecords()) {
+                                            SRVRecord mx = ((SRVRecord) rec);
+                                            log.info("Host " + mx.getTarget() + " has preference " + mx.getPriority());
+                                            PEER_HOST_SET.add(mx.getTarget().toString());
+                                        }
+                                    }
+                                } else {
+                                    log.error("dns naming error...", ex);
+                                }
+                            })
+                    .toCompletableFuture()
+                    .get();
+        } catch (TextParseException | InterruptedException | ExecutionException e) {
+            log.error("dns java error", e);
         }
         log.info("当前所有的peer域名:{}",Arrays.toString(PEER_HOST_SET.toArray()));
     }

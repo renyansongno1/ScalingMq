@@ -22,6 +22,8 @@ dependencies {
             'com.intel.pmem:llpl:1.2.1-release',
             'ch.qos.logback:logback-core:1.2.3',
             'ch.qos.logback:logback-classic:1.2.3',
+            // https://mvnrepository.com/artifact/dnsjava/dnsjava
+            'dnsjava:dnsjava:3.5.1',
 
             project(":scalingMq-storage-api"),
             project(":scalingMq-common")

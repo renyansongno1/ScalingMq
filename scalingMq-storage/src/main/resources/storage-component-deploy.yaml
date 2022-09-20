@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: scalingmq-storage
+  name: storage
   labels:
     app: scalingmq-storage
 spec:
@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9876
-              name: server-port
+              name: storage
           env:
             - name: SERVICE_NAME
               value: "scalingmq-storage-service-headless"
@@ -48,12 +48,12 @@ kind: Service
 metadata:
   name: scalingmq-storage-service-headless
   labels:
-    app: scalingmq-storage
+    app: scalingmq-storage-service-headless
 spec:
   selector:
-    app: scalingmq-storage-service-headless
+    app: scalingmq-storage
   ports:
     - port: 9876
-      name: scalingmq-storage-service
+      name: storage
   clusterIP: None
 ---
