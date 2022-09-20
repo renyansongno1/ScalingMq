@@ -40,10 +40,12 @@ public class ConfigParseUtil {
                     envKey = value;
                 }
                 String envValue = System.getenv(envKey);
-                try {
-                    field.set(config, envValue);
-                } catch (IllegalAccessException e) {
-                    // ignore
+                if (envValue != null && !"".equals(envValue)) {
+                    try {
+                        field.set(config, envValue);
+                    } catch (IllegalAccessException e) {
+                        // ignore
+                    }
                 }
             }
             // TODO: 2022/9/19 other config case

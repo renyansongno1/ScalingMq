@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: scalingmq-storage
+  labels:
+    app: scalingmq-storage
+spec:
+  serviceName: "scalingmq-storage-service-headless"
+  replicas: 2
+  template:
+    metadata:
+      name: scalingmq-storage
+      labels:
+        app: scalingmq-storage
+    spec:
+      containers:
+        - name: scalingmq-storage
+          image: scalingmq-storage-component:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9876
+              name: server-port
+          env:
+            - name: SERVICE_NAME
+              value: "scalingmq-storage-service-headless"
+            - name: LANG
+              value: C.utf8
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: scalingmq-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scalingmq-storage-service-headless
+  labels:
+    app: scalingmq-storage
+spec:
+  selector:
+    app: scalingmq-storage-service-headless
+  ports:
+    - port: 9876
+      name: scalingmq-storage-service
+  clusterIP: None
+---

@@ -2,6 +2,7 @@ package org.scalingmq.storage.conf;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.scalingmq.common.config.EnvironmentVariable;
 
 /**
@@ -10,6 +11,7 @@ import org.scalingmq.common.config.EnvironmentVariable;
  */
 @Getter
 @Setter
+@ToString
 public class StorageConfig {
 
     private static final StorageConfig INSTANCE = new StorageConfig();
@@ -75,6 +77,6 @@ public class StorageConfig {
      * 当前pod所属的namespace
      */
     @EnvironmentVariable("POD_NAMESPACE")
-    private String namespace;
+    private String namespace = "default";
 
 }

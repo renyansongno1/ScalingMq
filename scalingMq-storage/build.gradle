@@ -1,3 +1,18 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+        classpath('com.bmuschko:gradle-docker-plugin:7.4.0')
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'com.bmuschko.docker-java-application'
+
 dependencies {
     implementation(
             'io.grpc:grpc-stub:1.40.2',
@@ -5,8 +20,26 @@ dependencies {
             'io.netty:netty-all:4.1.80.Final',
             // https://mvnrepository.com/artifact/com.intel.pmem/llpl
             'com.intel.pmem:llpl:1.2.1-release',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
 
             project(":scalingMq-storage-api"),
             project(":scalingMq-common")
     )
+}
+
+shadowJar {
+    zip64 true
+    manifest {
+        attributes 'Main-Class': 'org.scalingmq.storage.ScalingMqStorageApplication'
+    }
+}
+
+docker {
+    javaApplication {
+        baseImage = 'prasadlvi/openjdk-17-jre'
+        ports = [9876]
+        images = ['scalingmq-storage-component:v1.0', 'scalingmq-storage-component:latest']
+        jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
+    }
 }

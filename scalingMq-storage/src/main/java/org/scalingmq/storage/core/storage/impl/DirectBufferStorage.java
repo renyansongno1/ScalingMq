@@ -1,34 +1,26 @@
 package org.scalingmq.storage.core.storage.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.PartitionMsgStorage;
 import org.scalingmq.storage.core.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
-
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 直接内存存储实现
  * @author renyansong
  */
+@Slf4j
 public class DirectBufferStorage implements StorageClass {
 
     /**
      * jvm在容器环境最大可以使用的内存比例
      */
     private static final String MAX_RAM_PERCENTAGE = "MaxRAMPercentage";
-
-    /**
-     * 堆外内存buffer
-     */
-    private static ByteBuffer STORAGE_BUFFER;
-
-    /**
-     * 索引使用的buffer
-     */
-    private static ByteBuffer INDEX_STORAGE_BUFFER;
 
     /**
      * 写位点
@@ -56,7 +48,9 @@ public class DirectBufferStorage implements StorageClass {
     private void init() {
         // 查询可以使用的空间
         int maxJvmUseMemoryPercentage = 0;
-        for (String vmArgument : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+        List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
+        log.info("当前系统的jvm参数: {}", Arrays.toString(new List[]{inputArguments}));
+        for (String vmArgument : inputArguments) {
             if (vmArgument.contains(MAX_RAM_PERCENTAGE)) {
                 String[] percentageSplit = vmArgument.split("=");
                 maxJvmUseMemoryPercentage = Integer.parseInt(percentageSplit[1]);
@@ -67,9 +61,12 @@ public class DirectBufferStorage implements StorageClass {
             // 不能使用内存来存储 不清楚大小
             return;
         }
+        log.info("开启直接内存存储数据...");
 
         // 获取当前系统的最大可使用的内存 bytes
         long maxMemoryBytes = Runtime.getRuntime().totalMemory();
+        log.info("当前系统最大可使用内存:{} bytes",  maxMemoryBytes);
+
         long containerRemainingMemory = maxMemoryBytes / (100 - maxJvmUseMemoryPercentage) * 100;
         // 分配可使用的堆外内存
         int maxAllCapacity = Math.toIntExact(
@@ -80,13 +77,8 @@ public class DirectBufferStorage implements StorageClass {
         // 消息数据能够使用的就是剩下的
         maxCapacity = maxAllCapacity - maxIndexCapacity;
 
-        STORAGE_BUFFER = ByteBuffer.allocateDirect(
-                maxCapacity
-        );
-
-        INDEX_STORAGE_BUFFER = ByteBuffer.allocateDirect(
-                maxIndexCapacity
-        );
+        log.info("消息存储可以使用的内存:{} bytes", maxCapacity);
+        log.info("索引存储可以使用的内存:{} bytes", maxIndexCapacity);
 
         // 注册
         PartitionMsgStorage.getInstance().addStorageClass(storagePriority(), this);
@@ -105,7 +97,7 @@ public class DirectBufferStorage implements StorageClass {
                     .build();
         }
         wrote += msgBody.length;
-        STORAGE_BUFFER.put(msgBody);
+        ByteBuffer.allocateDirect(msgBody.length).put(msgBody);
         return StorageAppendResult.builder()
                 .success(true)
                 .offset(wrote)
@@ -120,7 +112,7 @@ public class DirectBufferStorage implements StorageClass {
                     .build();
         }
         indexWrote += indexBody.length;
-        INDEX_STORAGE_BUFFER.put(indexBody);
+        ByteBuffer.allocateDirect(indexBody.length).put(indexBody);
         return StorageAppendResult.builder()
                 .success(true)
                 .offset(indexWrote)

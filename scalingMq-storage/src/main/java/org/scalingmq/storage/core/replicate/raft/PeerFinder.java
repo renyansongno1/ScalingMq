@@ -1,5 +1,6 @@
 package org.scalingmq.storage.core.replicate.raft;
 
+import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.lifecycle.Lifecycle;
 import javax.naming.Context;
@@ -8,10 +9,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -20,15 +18,22 @@ import java.util.concurrent.TimeUnit;
  * 找到所有的pods
  * @author renyansong
  */
+@Slf4j
 public class PeerFinder implements Lifecycle {
 
     private static final PeerFinder INSTANCE = new PeerFinder();
 
     /**
      * SRV的后缀
-     * <hostname>.<service name>.<namespace>.svc.cluster.local
+     * <service name>.<namespace>.svc.cluster.local
      */
     private static final String SRV_NAME_SUFFIX = ".svc.cluster.local";
+
+    private final String SRV_SERVICE =
+            StorageConfig.getInstance().getServiceName()
+            + "."
+            + StorageConfig.getInstance().getNamespace()
+            + SRV_NAME_SUFFIX;
 
     /**
      * 存储所有的peer的域名set
@@ -52,17 +57,13 @@ public class PeerFinder implements Lifecycle {
      * 开始查找
      */
     private void find() {
+        log.info("查询SRV:{} 下所有的域名服务", SRV_SERVICE);
         Hashtable<String, String> env = new Hashtable<>(2);
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
 
         try {
             DirContext ctx = new InitialDirContext(env);
-            Attributes attributes = ctx.getAttributes(StorageConfig.getInstance().getHostname()
-                    + "."
-                    + StorageConfig.getInstance().getServiceName()
-                    + "."
-                    + StorageConfig.getInstance().getNamespace()
-                    + SRV_NAME_SUFFIX,
+            Attributes attributes = ctx.getAttributes("_" + StorageConfig.getInstance().getServiceName() + "._tcp." + SRV_NAME_SUFFIX,
                     new String [] { "SRV" });
 
             for (Enumeration<? extends Attribute> e = attributes.getAll(); e.hasMoreElements();) {
@@ -73,8 +74,9 @@ public class PeerFinder implements Lifecycle {
                 }
             }
         } catch (NamingException e) {
-            // TODO: 2022/9/19 log error
+            log.error("naming srv error..", e);
         }
+        log.info("当前所有的peer域名:{}",Arrays.toString(PEER_HOST_SET.toArray()));
     }
 
     /**
