@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_outer_classname = "org.scalingmq.storage.core.replicate.raft.entity.RaftVoteReqWrapper";
+option java_outer_classname = "RaftVoteReqWrapper";
 
 message RaftVoteReq {
   // 要投票给谁

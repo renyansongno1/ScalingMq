@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_outer_classname = "RaftHeartbeatReqWrapper";
+
+message RaftHeartbeatReq {
+
+  // 当前leader的ID
+  int32 leaderId = 1;
+
+  // 期数
+  int64 term = 2;
+}

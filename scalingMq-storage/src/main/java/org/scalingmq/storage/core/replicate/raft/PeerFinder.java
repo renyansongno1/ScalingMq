@@ -38,6 +38,11 @@ public class PeerFinder implements Lifecycle {
      */
     private static final CopyOnWriteArraySet<String> PEER_HOST_SET = new CopyOnWriteArraySet<>();
 
+    /**
+     * 监听节点变动的listener集合
+     */
+    private static final CopyOnWriteArraySet<PeerChangeListener> PEER_CHANGE_LISTENERS = new CopyOnWriteArraySet<>();
+
     private static final ScheduledThreadPoolExecutor TIMER = new ScheduledThreadPoolExecutor(1,
             r -> new Thread(r, "peer-find-timer"));
 
@@ -56,7 +61,7 @@ public class PeerFinder implements Lifecycle {
      */
     private void find() {
         log.info("查询SRV:{} 下所有的域名服务", SRV_SERVICE);
-
+        int startSize = PEER_HOST_SET.size();
         LookupSession s = LookupSession.defaultBuilder().build();
         try {
             Name mxLookup = Name.fromString(SRV_SERVICE);
@@ -81,6 +86,12 @@ public class PeerFinder implements Lifecycle {
             log.error("dns java error", e);
         }
         log.info("当前所有的peer域名:{}",Arrays.toString(PEER_HOST_SET.toArray()));
+        if (PEER_HOST_SET.size() != startSize) {
+            // 通知所有的listener
+            for (PeerChangeListener peerChangeListener : PEER_CHANGE_LISTENERS) {
+                peerChangeListener.allPeer(getPeers());
+            }
+        }
     }
 
     /**
@@ -89,6 +100,14 @@ public class PeerFinder implements Lifecycle {
      */
     public Set<String> getPeers() {
         return Collections.unmodifiableSet(PEER_HOST_SET);
+    }
+
+    /**
+     * 订阅节点变化
+     * @param peerChangeListener 节点变动监听者
+     */
+    public void listenPeer(PeerChangeListener peerChangeListener) {
+        PEER_CHANGE_LISTENERS.add(peerChangeListener);
     }
 
     /**
@@ -103,6 +122,8 @@ public class PeerFinder implements Lifecycle {
         return validPeer.contains(StorageConfig.getInstance().getHostname() + "." + SRV_SERVICE);
     }
 
+
+
     @Override
     public void componentStart() {
         find();
@@ -113,4 +134,18 @@ public class PeerFinder implements Lifecycle {
     public void componentStop() {
 
     }
+
+    /**
+     * 节点变动的监听接口
+     */
+    public interface PeerChangeListener {
+
+        /**
+         * 返回节点信息
+         * @param peerSet 当前节点set
+         */
+        void allPeer(Set<String> peerSet);
+
+    }
+
 }

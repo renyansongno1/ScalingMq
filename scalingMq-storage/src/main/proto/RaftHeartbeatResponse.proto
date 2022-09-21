@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_outer_classname = "RaftHeartbeatResWrapper";
+
+message RaftHeartbeatRes {
+
+  enum ResponseType {
+    // 接受心跳
+    OK = 0;
+    // 期数不匹配
+    TERM_EXPIRED = 1;
+  }
+
+  ResponseType resType = 1;
+
+}

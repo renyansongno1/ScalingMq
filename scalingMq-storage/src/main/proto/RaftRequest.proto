@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_outer_classname = "RaftReqWrapper";
+
+import "RaftVoteRequest.proto";
+import "RaftHeartbeatRequest.proto";
+
+message RaftReq{
+
+  enum ReqType{
+    VOTE = 0;
+    HEARTBEAT = 1;
+  }
+  // 请求类型
+  ReqType reqType = 1;
+
+  // 选票请求
+  RaftVoteReq voteReq = 2;
+
+  // 心跳请求
+  RaftHeartbeatReq heartbeatReq = 3;
+}

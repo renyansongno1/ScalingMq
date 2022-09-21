@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_outer_classname = "org.scalingmq.storage.core.replicate.raft.entity.RaftVoteResWrapper";
+option java_outer_classname = "RaftVoteResWrapper";
 
 message RaftVoteRes {
   enum Result{

@@ -25,7 +25,7 @@ public final class RaftVoteResWrapper {
      * <code>.RaftVoteRes.Result result = 1;</code>
      * @return The result.
      */
-    RaftVoteResWrapper.RaftVoteRes.Result getResult();
+    RaftVoteRes.Result getResult();
   }
   /**
    * Protobuf type {@code RaftVoteRes}
@@ -43,14 +43,14 @@ public final class RaftVoteResWrapper {
       result_ = 0;
     }
 
-    @java.lang.Override
+    @Override
     @SuppressWarnings({"unused"})
-    protected java.lang.Object newInstance(
+    protected Object newInstance(
         UnusedPrivateParameter unused) {
       return new RaftVoteRes();
     }
 
-    @java.lang.Override
+    @Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -61,7 +61,7 @@ public final class RaftVoteResWrapper {
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException();
       }
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -103,12 +103,12 @@ public final class RaftVoteResWrapper {
       return RaftVoteResWrapper.internal_static_RaftVoteRes_descriptor;
     }
 
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    @Override
+    protected FieldAccessorTable
         internalGetFieldAccessorTable() {
       return RaftVoteResWrapper.internal_static_RaftVoteRes_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              RaftVoteResWrapper.RaftVoteRes.class, RaftVoteResWrapper.RaftVoteRes.Builder.class);
+              RaftVoteRes.class, Builder.class);
     }
 
     /**
@@ -147,7 +147,7 @@ public final class RaftVoteResWrapper {
 
       public final int getNumber() {
         if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
+          throw new IllegalArgumentException(
               "Can't get the number of an unknown enum value.");
         }
         return value;
@@ -158,7 +158,7 @@ public final class RaftVoteResWrapper {
        * @return The enum associated with the given numeric wire value.
        * @deprecated Use {@link #forNumber(int)} instead.
        */
-      @java.lang.Deprecated
+      @Deprecated
       public static Result valueOf(int value) {
         return forNumber(value);
       }
@@ -191,7 +191,7 @@ public final class RaftVoteResWrapper {
       public final com.google.protobuf.Descriptors.EnumValueDescriptor
           getValueDescriptor() {
         if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalStateException(
+          throw new IllegalStateException(
               "Can't get the descriptor of an unrecognized enum value.");
         }
         return getDescriptor().getValues().get(ordinal());
@@ -202,7 +202,7 @@ public final class RaftVoteResWrapper {
       }
       public static final com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptor() {
-        return RaftVoteResWrapper.RaftVoteRes.getDescriptor().getEnumTypes().get(0);
+        return RaftVoteRes.getDescriptor().getEnumTypes().get(0);
       }
 
       private static final Result[] VALUES = values();
@@ -210,7 +210,7 @@ public final class RaftVoteResWrapper {
       public static Result valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
         if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
+          throw new IllegalArgumentException(
             "EnumValueDescriptor is not for this type.");
         }
         if (desc.getIndex() == -1) {
@@ -234,21 +234,21 @@ public final class RaftVoteResWrapper {
      * <code>.RaftVoteRes.Result result = 1;</code>
      * @return The enum numeric value on the wire for result.
      */
-    @java.lang.Override public int getResultValue() {
+    @Override public int getResultValue() {
       return result_;
     }
     /**
      * <code>.RaftVoteRes.Result result = 1;</code>
      * @return The result.
      */
-    @java.lang.Override public RaftVoteResWrapper.RaftVoteRes.Result getResult() {
+    @Override public Result getResult() {
       @SuppressWarnings("deprecation")
-      RaftVoteResWrapper.RaftVoteRes.Result result = RaftVoteResWrapper.RaftVoteRes.Result.valueOf(result_);
-      return result == null ? RaftVoteResWrapper.RaftVoteRes.Result.UNRECOGNIZED : result;
+      Result result = Result.valueOf(result_);
+      return result == null ? Result.UNRECOGNIZED : result;
     }
 
     private byte memoizedIsInitialized = -1;
-    @java.lang.Override
+    @Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -258,22 +258,22 @@ public final class RaftVoteResWrapper {
       return true;
     }
 
-    @java.lang.Override
+    @Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (result_ != RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT.getNumber()) {
+      if (result_ != Result.ACCEPT.getNumber()) {
         output.writeEnum(1, result_);
       }
       unknownFields.writeTo(output);
     }
 
-    @java.lang.Override
+    @Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (result_ != RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT.getNumber()) {
+      if (result_ != Result.ACCEPT.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, result_);
       }
@@ -282,22 +282,22 @@ public final class RaftVoteResWrapper {
       return size;
     }
 
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
+    @Override
+    public boolean equals(final Object obj) {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof RaftVoteResWrapper.RaftVoteRes)) {
+      if (!(obj instanceof RaftVoteRes)) {
         return super.equals(obj);
       }
-      RaftVoteResWrapper.RaftVoteRes other = (RaftVoteResWrapper.RaftVoteRes) obj;
+      RaftVoteRes other = (RaftVoteRes) obj;
 
       if (result_ != other.result_) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
 
-    @java.lang.Override
+    @Override
     public int hashCode() {
       if (memoizedHashCode != 0) {
         return memoizedHashCode;
@@ -311,69 +311,69 @@ public final class RaftVoteResWrapper {
       return hash;
     }
 
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(byte[] data)
+    public static RaftVoteRes parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(java.io.InputStream input)
+    public static RaftVoteRes parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseDelimitedFrom(java.io.InputStream input)
+    public static RaftVoteRes parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseDelimitedFrom(
+    public static RaftVoteRes parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static RaftVoteResWrapper.RaftVoteRes parseFrom(
+    public static RaftVoteRes parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -381,23 +381,23 @@ public final class RaftVoteResWrapper {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    @java.lang.Override
+    @Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(RaftVoteResWrapper.RaftVoteRes prototype) {
+    public static Builder newBuilder(RaftVoteRes prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-    @java.lang.Override
+    @Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
     }
 
-    @java.lang.Override
+    @Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -407,27 +407,27 @@ public final class RaftVoteResWrapper {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:RaftVoteRes)
-        RaftVoteResWrapper.RaftVoteResOrBuilder {
+        RaftVoteResOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return RaftVoteResWrapper.internal_static_RaftVoteRes_descriptor;
       }
 
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      @Override
+      protected FieldAccessorTable
           internalGetFieldAccessorTable() {
         return RaftVoteResWrapper.internal_static_RaftVoteRes_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                RaftVoteResWrapper.RaftVoteRes.class, RaftVoteResWrapper.RaftVoteRes.Builder.class);
+                RaftVoteRes.class, Builder.class);
       }
 
-      // Construct using org.scalingmq.storage.core.replicate.raft.entity.RaftVoteResWrapper.RaftVoteRes.newBuilder()
+      // Construct using RaftVoteResWrapper.RaftVoteRes.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
@@ -436,7 +436,7 @@ public final class RaftVoteResWrapper {
                 .alwaysUseFieldBuilders) {
         }
       }
-      @java.lang.Override
+      @Override
       public Builder clear() {
         super.clear();
         result_ = 0;
@@ -444,78 +444,78 @@ public final class RaftVoteResWrapper {
         return this;
       }
 
-      @java.lang.Override
+      @Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return RaftVoteResWrapper.internal_static_RaftVoteRes_descriptor;
       }
 
-      @java.lang.Override
-      public RaftVoteResWrapper.RaftVoteRes getDefaultInstanceForType() {
-        return RaftVoteResWrapper.RaftVoteRes.getDefaultInstance();
+      @Override
+      public RaftVoteRes getDefaultInstanceForType() {
+        return RaftVoteRes.getDefaultInstance();
       }
 
-      @java.lang.Override
-      public RaftVoteResWrapper.RaftVoteRes build() {
-        RaftVoteResWrapper.RaftVoteRes result = buildPartial();
+      @Override
+      public RaftVoteRes build() {
+        RaftVoteRes result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      @java.lang.Override
-      public RaftVoteResWrapper.RaftVoteRes buildPartial() {
-        RaftVoteResWrapper.RaftVoteRes result = new RaftVoteResWrapper.RaftVoteRes(this);
+      @Override
+      public RaftVoteRes buildPartial() {
+        RaftVoteRes result = new RaftVoteRes(this);
         result.result_ = result_;
         onBuilt();
         return result;
       }
 
-      @java.lang.Override
+      @Override
       public Builder clone() {
         return super.clone();
       }
-      @java.lang.Override
+      @Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
+          Object value) {
         return super.setField(field, value);
       }
-      @java.lang.Override
+      @Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
-      @java.lang.Override
+      @Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
-      @java.lang.Override
+      @Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
+          int index, Object value) {
         return super.setRepeatedField(field, index, value);
       }
-      @java.lang.Override
+      @Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
+          Object value) {
         return super.addRepeatedField(field, value);
       }
-      @java.lang.Override
+      @Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof RaftVoteResWrapper.RaftVoteRes) {
-          return mergeFrom((RaftVoteResWrapper.RaftVoteRes)other);
+        if (other instanceof RaftVoteRes) {
+          return mergeFrom((RaftVoteRes)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(RaftVoteResWrapper.RaftVoteRes other) {
-        if (other == RaftVoteResWrapper.RaftVoteRes.getDefaultInstance()) return this;
+      public Builder mergeFrom(RaftVoteRes other) {
+        if (other == RaftVoteRes.getDefaultInstance()) return this;
         if (other.result_ != 0) {
           setResultValue(other.getResultValue());
         }
@@ -524,21 +524,21 @@ public final class RaftVoteResWrapper {
         return this;
       }
 
-      @java.lang.Override
+      @Override
       public final boolean isInitialized() {
         return true;
       }
 
-      @java.lang.Override
+      @Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        RaftVoteResWrapper.RaftVoteRes parsedMessage = null;
+        RaftVoteRes parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (RaftVoteResWrapper.RaftVoteRes) e.getUnfinishedMessage();
+          parsedMessage = (RaftVoteRes) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -553,7 +553,7 @@ public final class RaftVoteResWrapper {
        * <code>.RaftVoteRes.Result result = 1;</code>
        * @return The enum numeric value on the wire for result.
        */
-      @java.lang.Override public int getResultValue() {
+      @Override public int getResultValue() {
         return result_;
       }
       /**
@@ -571,18 +571,18 @@ public final class RaftVoteResWrapper {
        * <code>.RaftVoteRes.Result result = 1;</code>
        * @return The result.
        */
-      @java.lang.Override
-      public RaftVoteResWrapper.RaftVoteRes.Result getResult() {
+      @Override
+      public Result getResult() {
         @SuppressWarnings("deprecation")
-        RaftVoteResWrapper.RaftVoteRes.Result result = RaftVoteResWrapper.RaftVoteRes.Result.valueOf(result_);
-        return result == null ? RaftVoteResWrapper.RaftVoteRes.Result.UNRECOGNIZED : result;
+        Result result = Result.valueOf(result_);
+        return result == null ? Result.UNRECOGNIZED : result;
       }
       /**
        * <code>.RaftVoteRes.Result result = 1;</code>
        * @param value The result to set.
        * @return This builder for chaining.
        */
-      public Builder setResult(RaftVoteResWrapper.RaftVoteRes.Result value) {
+      public Builder setResult(Result value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -601,13 +601,13 @@ public final class RaftVoteResWrapper {
         onChanged();
         return this;
       }
-      @java.lang.Override
+      @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
-      @java.lang.Override
+      @Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -618,18 +618,18 @@ public final class RaftVoteResWrapper {
     }
 
     // @@protoc_insertion_point(class_scope:RaftVoteRes)
-    private static final RaftVoteResWrapper.RaftVoteRes DEFAULT_INSTANCE;
+    private static final RaftVoteRes DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new RaftVoteResWrapper.RaftVoteRes();
+      DEFAULT_INSTANCE = new RaftVoteRes();
     }
 
-    public static RaftVoteResWrapper.RaftVoteRes getDefaultInstance() {
+    public static RaftVoteRes getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
     private static final com.google.protobuf.Parser<RaftVoteRes>
         PARSER = new com.google.protobuf.AbstractParser<RaftVoteRes>() {
-      @java.lang.Override
+      @Override
       public RaftVoteRes parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -642,13 +642,13 @@ public final class RaftVoteResWrapper {
       return PARSER;
     }
 
-    @java.lang.Override
+    @Override
     public com.google.protobuf.Parser<RaftVoteRes> getParserForType() {
       return PARSER;
     }
 
-    @java.lang.Override
-    public RaftVoteResWrapper.RaftVoteRes getDefaultInstanceForType() {
+    @Override
+    public RaftVoteRes getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -667,7 +667,7 @@ public final class RaftVoteResWrapper {
   private static  com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
-    java.lang.String[] descriptorData = {
+    String[] descriptorData = {
       "\n\026RaftVoteResponse.proto\"a\n\013RaftVoteRes\022" +
       "#\n\006result\030\001 \001(\0162\023.RaftVoteRes.Result\"-\n\006" +
       "Result\022\n\n\006ACCEPT\020\000\022\n\n\006REJECT\020\001\022\013\n\007UNKNOW" +
@@ -682,7 +682,7 @@ public final class RaftVoteResWrapper {
     internal_static_RaftVoteRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RaftVoteRes_descriptor,
-        new java.lang.String[] { "Result", });
+        new String[] { "Result", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

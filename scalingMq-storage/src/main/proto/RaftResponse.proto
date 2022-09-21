@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_outer_classname = "RaftResWrapper";
+
+import "RaftHeartbeatResponse.proto";
+import "RaftVoteResponse.proto";
+
+message RaftRes {
+
+  enum ResType {
+    // 选票
+    VOTE_RES = 0;
+    // 心跳
+    HEART_RES = 1;
+  }
+
+  ResType resType = 1;
+
+  RaftVoteRes raftVoteRes = 2;
+
+  RaftHeartbeatRes raftHeartbeatRes = 3;
+
+}
