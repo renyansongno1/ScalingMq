@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_outer_classname = "org.scalingmq.storage.core.replicate.raft.entity.RaftVoteReqWrapper";
+
+message RaftVoteReq {
+  // 要投票给谁
+  int32 leaderId = 1;
+  // 期数
+  int64 term = 2;
+}

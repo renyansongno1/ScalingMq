@@ -1,4 +1,4 @@
-package org.scalingmq.common;
+package org.scalingmq.common.utils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

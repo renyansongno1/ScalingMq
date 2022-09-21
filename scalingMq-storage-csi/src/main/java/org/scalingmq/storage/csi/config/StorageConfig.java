@@ -1,6 +1,6 @@
 package org.scalingmq.storage.csi.config;
 
-import org.scalingmq.common.PropertiesUtil;
+import org.scalingmq.common.utils.PropertiesUtil;
 
 import java.util.Properties;
 

@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.scalingmq.common.config.EnvironmentVariable;
 
+import java.util.List;
+
 /**
  * 相关的配置
  * @author renyansong
@@ -78,5 +80,16 @@ public class StorageConfig {
      */
     @EnvironmentVariable("POD_NAMESPACE")
     private String namespace = "default";
+
+    /**
+     * 协调者节点编号
+     */
+    private List<Integer> coordinatorNums;
+
+    /**
+     * raft通信端口
+     */
+    @EnvironmentVariable("RAFT_PORT")
+    private Integer raftPort;
 
 }

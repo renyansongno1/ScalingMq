@@ -91,6 +91,18 @@ public class PeerFinder implements Lifecycle {
         return Collections.unmodifiableSet(PEER_HOST_SET);
     }
 
+    /**
+     * 验证传入的peer字符串是不是本节点
+     *
+     * 验证的节点可能是最后带一个. 所以需要用全包含来验证
+     *
+     * @param validPeer 需要验证的节点
+     * @return 是否本节点
+     */
+    public boolean isSelf(String validPeer) {
+        return validPeer.contains(StorageConfig.getInstance().getHostname() + "." + SRV_SERVICE);
+    }
+
     @Override
     public void componentStart() {
         find();

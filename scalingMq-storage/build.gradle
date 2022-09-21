@@ -7,11 +7,13 @@ buildscript {
     dependencies {
         classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
         classpath('com.bmuschko:gradle-docker-plugin:7.4.0')
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
     }
 }
 
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: 'com.bmuschko.docker-java-application'
+apply plugin: "com.google.protobuf"
 
 dependencies {
     implementation(
@@ -44,4 +46,36 @@ docker {
         images = ['scalingmq-storage-component:v1.0', 'scalingmq-storage-component:latest']
         jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
     }
+}
+
+protobuf {
+    protoc {
+        if (osdetector.os == "osx") {
+            artifact = 'com.google.protobuf:protoc:3.15.0:osx-x86_64'
+        } else {
+            artifact = 'com.google.protobuf:protoc:3.15.0'
+        }
+
+    }
+    plugins {
+        grpc {
+            if (osdetector.os == "osx") {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0:osx-x86_64'
+            } else {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0'
+            }
+
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+
+    generatedFilesBaseDir = "$projectDir/gen"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
 }
