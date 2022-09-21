@@ -3,7 +3,7 @@ package org.scalingmq.storage.core;
 import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
 import org.scalingmq.storage.core.cons.PutIndexEntry;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
-import org.scalingmq.storage.lifecycle.Lifecycle;
+import org.scalingmq.common.lifecycle.Lifecycle;
 
 import java.nio.ByteBuffer;
 import java.util.Map;

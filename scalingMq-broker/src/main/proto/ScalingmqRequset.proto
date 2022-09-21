@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_outer_classname = "ScalingmqReqWrapper";
+
+message ScalingmqReq {
+
+  enum ApiType {
+    // 生产消息
+    PRODUCE = 0;
+    // 消费获取消息
+    FETCH = 1;
+  }
+
+  ApiType apiType = 1;
+
+}

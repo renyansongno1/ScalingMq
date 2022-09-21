@@ -1,4 +1,4 @@
-package org.scalingmq.storage.lifecycle;
+package org.scalingmq.common.lifecycle;
 
 /**
  * 组件生命周期接口

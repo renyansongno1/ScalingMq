@@ -7,7 +7,7 @@ import org.scalingmq.storage.core.replicate.raft.entity.RaftReqWrapper;
 import org.scalingmq.storage.core.replicate.raft.entity.RaftResWrapper;
 import org.scalingmq.storage.core.replicate.raft.entity.RaftVoteReqWrapper;
 import org.scalingmq.storage.core.replicate.raft.entity.RaftVoteResWrapper;
-import org.scalingmq.storage.lifecycle.Lifecycle;
+import org.scalingmq.common.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
 import java.util.Iterator;

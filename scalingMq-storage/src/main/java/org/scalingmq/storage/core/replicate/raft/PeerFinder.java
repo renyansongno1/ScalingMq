@@ -2,7 +2,7 @@ package org.scalingmq.storage.core.replicate.raft;
 
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.lifecycle.Lifecycle;
+import org.scalingmq.common.lifecycle.Lifecycle;
 import org.xbill.DNS.*;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.lookup.LookupSession;

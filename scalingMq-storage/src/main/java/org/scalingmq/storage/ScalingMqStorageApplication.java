@@ -3,7 +3,7 @@ package org.scalingmq.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.config.ConfigParseUtil;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.lifecycle.Lifecycle;
+import org.scalingmq.common.lifecycle.Lifecycle;
 
 import java.util.ServiceLoader;
 

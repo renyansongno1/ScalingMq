@@ -14,7 +14,7 @@ import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.scalingmq.storage.api.StorageApiReqWrapper;
-import org.scalingmq.storage.lifecycle.Lifecycle;
+import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.storage.request.handler.NetworkHandler;
 
 /**
@@ -25,7 +25,7 @@ public class StorageNettyServer implements Lifecycle {
 
     private volatile boolean isClosing = false;
 
-    public void start() {
+    private void start() {
         initEventLoop();
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();

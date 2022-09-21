@@ -1,0 +1,53 @@
+apply plugin: "com.google.protobuf"
+
+buildscript {
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+    }
+}
+
+dependencies {
+    implementation(
+            'io.grpc:grpc-stub:1.40.2',
+            'io.grpc:grpc-protobuf:1.40.2',
+            'io.netty:netty-all:4.1.80.Final',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
+            // https://mvnrepository.com/artifact/com.google.code.gson/gson
+            'com.google.code.gson:gson:2.9.1',
+
+            project(':scalingMq-common')
+    )
+}
+
+protobuf {
+    protoc {
+        if (osdetector.os == "osx") {
+            artifact = 'com.google.protobuf:protoc:3.15.0:osx-x86_64'
+        } else {
+            artifact = 'com.google.protobuf:protoc:3.15.0'
+        }
+
+    }
+    plugins {
+        grpc {
+            if (osdetector.os == "osx") {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0:osx-x86_64'
+            } else {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0'
+            }
+
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+
+    generatedFilesBaseDir = "$projectDir/gen"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}

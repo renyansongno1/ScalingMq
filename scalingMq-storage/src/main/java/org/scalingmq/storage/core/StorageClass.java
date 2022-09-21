@@ -1,7 +1,7 @@
 package org.scalingmq.storage.core;
 
 import org.scalingmq.storage.core.cons.StorageAppendResult;
-import org.scalingmq.storage.lifecycle.Lifecycle;
+import org.scalingmq.common.lifecycle.Lifecycle;
 
 /**
  * 存储介质接口
