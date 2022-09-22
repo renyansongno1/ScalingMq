@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scalingmq-broker
+  labels:
+    app: scalingmq-broker
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: scalingmq-broker
+      labels:
+        app: scalingmq-broker
+    spec:
+      containers:
+        - name: scalingmq-broker
+          image: scalingmq-broker-component:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7654
+              name: http-port
+            - containerPort: 6543
+              name: rpc-port
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          env:
+            - name: ROUTE_SERVER_ADDR
+              value: "scaling-route-service"
+            - name: ROUTE_SERVER_PORT
+              value: "4321"
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: scalingmq-broker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scalingmq-broker-service
+spec:
+  selector:
+    app: scalingmq-broker-service
+  ports:
+    - port: 7654
+      name: http-port
+    - port: 6543
+      name: rpc-port
+  type: NodePort

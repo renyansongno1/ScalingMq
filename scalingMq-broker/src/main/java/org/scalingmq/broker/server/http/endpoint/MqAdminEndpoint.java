@@ -23,7 +23,15 @@ public class MqAdminEndpoint implements EndpointProcessor {
     public CreateTopicResponse createTopic(@RequestBody CreateTopicReq createTopicReq) {
         log.info("创建topic API, 收到请求:{}", createTopicReq.toString());
         // create
-        MqAdminOperator.getInstance().createTopic(createTopicReq);
+        try {
+            MqAdminOperator.getInstance().createTopic(createTopicReq);
+        } catch (Exception e) {
+            return CreateTopicResponse.builder()
+                    .success(false)
+                    .errMsg(e.getMessage())
+                    .topicName(createTopicReq.getTopicName())
+                    .build();
+        }
         // response
         return CreateTopicResponse.builder()
                 .success(true)

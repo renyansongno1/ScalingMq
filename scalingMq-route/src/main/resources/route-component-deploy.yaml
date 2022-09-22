@@ -44,6 +44,31 @@ spec:
     - name: scalingmq-route
       image: scalingmq-route-component:v1.0
       imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 5432
+      env:
+        - name: SERVER_PORT
+          value: "5432"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
   serviceAccountName: k8s-api-sa
   restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scaling-route-service
+  labels:
+    app: scaling-route-service
+spec:
+  selector:
+    app: scaling-route
+  ports:
+    - port: 5432
+  type: NodePort
 ---

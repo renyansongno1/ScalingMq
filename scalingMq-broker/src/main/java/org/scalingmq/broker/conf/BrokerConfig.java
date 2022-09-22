@@ -36,4 +36,21 @@ public class BrokerConfig {
         return INSTANCE;
     }
 
+    /**
+     * route server的地址
+     */
+    @EnvironmentVariable("ROUTE_SERVER_ADDR")
+    private String routeServerAddr;
+
+    /**
+     * route server的端口
+     */
+    @EnvironmentVariable("ROUTE_SERVER_PORT")
+    private Integer routeServerPort;
+
+    /**
+     * route client的线程数量
+     */
+    private Integer routeClientThreadCount = 10;
+
 }

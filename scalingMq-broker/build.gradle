@@ -1,8 +1,15 @@
 apply plugin: "com.google.protobuf"
+apply plugin: 'com.bmuschko.docker-java-application'
 
 buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
     dependencies {
         classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+        classpath('com.bmuschko:gradle-docker-plugin:7.4.0')
     }
 }
 
@@ -16,7 +23,8 @@ dependencies {
             // https://mvnrepository.com/artifact/com.google.code.gson/gson
             'com.google.code.gson:gson:2.9.1',
 
-            project(':scalingMq-common')
+            project(':scalingMq-common'),
+            project(':scalingMq-route-client')
     )
 }
 
@@ -46,6 +54,15 @@ protobuf {
     }
 
     generatedFilesBaseDir = "$projectDir/gen"
+}
+
+docker {
+    javaApplication {
+        baseImage = 'prasadlvi/openjdk-17-jre'
+        ports = [7654,6543]
+        images = ['scalingmq-broker-component:v1.0', 'scalingmq-broker-component:latest']
+        jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
+    }
 }
 
 clean {
