@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_outer_classname = "RouteReqWrapper";
+
+import 'FetchTopicMetadataReq.proto';
+import 'PutTopicMetadataReq.proto';
+
+message RouteReq {
+
+  enum ReqType {
+    // 获取topic的元数据
+    FETCH_TOPIC_METADATA = 0;
+    // 创建topic的元数据
+    PUT_TOPIC_METADATA = 1;
+  }
+
+  // 请求类型
+  ReqType reqType = 1;
+
+  // 获取topic元数据请求
+  FetchTopicMetadataReq fetchTopicMetadataReq = 2;
+
+  // 创建topic元数据请求
+  PutTopicMetadataReq putTopicMetadataReq = 3;
+
+}

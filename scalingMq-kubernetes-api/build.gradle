@@ -1,0 +1,8 @@
+dependencies {
+    implementation(
+            // https://mvnrepository.com/artifact/io.kubernetes/client-java
+            'io.kubernetes:client-java:16.0.0',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
+    )
+}

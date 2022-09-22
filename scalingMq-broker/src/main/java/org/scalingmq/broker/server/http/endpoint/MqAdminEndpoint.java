@@ -1,6 +1,7 @@
 package org.scalingmq.broker.server.http.endpoint;
 
 import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.broker.admin.MqAdminOperator;
 import org.scalingmq.broker.server.http.EndpointProcessor;
 import org.scalingmq.broker.server.http.HttpEndpoint;
 import org.scalingmq.broker.server.http.RequestBody;
@@ -21,10 +22,12 @@ public class MqAdminEndpoint implements EndpointProcessor {
     @HttpEndpoint("/scalingmq/v1/topic/createTopic")
     public CreateTopicResponse createTopic(@RequestBody CreateTopicReq createTopicReq) {
         log.info("创建topic API, 收到请求:{}", createTopicReq.toString());
-
+        // create
+        MqAdminOperator.getInstance().createTopic(createTopicReq);
+        // response
         return CreateTopicResponse.builder()
                 .success(true)
-                .topicName("")
+                .topicName(createTopicReq.getTopicName())
                 .build();
     }
 

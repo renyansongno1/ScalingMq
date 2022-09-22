@@ -43,7 +43,7 @@ public class ScalingMqBrokerApplication {
                     Map<Method, Object> methodObjectMap = new HashMap<>(2);
                     methodObjectMap.put(declaredMethod, endpointProcessor);
                     BrokerHttpNetEventHandler.getInstance().addUrlMapping(declaredAnnotation.value(), methodObjectMap);
-                    log.info("加载 http endpoint.. url:{}", declaredAnnotation.value());
+                    log.info("加载 http endpoint, url:{}", declaredAnnotation.value());
                 }
             }
         }

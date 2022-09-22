@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_outer_classname = "FetchTopicMetadataResultWrapper";
+
+message FetchTopicMetadataResult {
+
+  // 主题名称
+  string topicName = 1;
+
+  // 分区数量
+  int32 partitionNums = 2;
+
+  // 分区相关的元数据
+  repeated PartitionMetadata partitionMetadataList = 3;
+
+  // 分区元数据
+  message PartitionMetadata {
+
+    // 分区号
+    int32 partitionNum = 1;
+
+    // 存储pod的序号集合
+    repeated int32 storagePodNums = 2;
+
+    // in sync replicator 的pod序号集合
+    repeated int32 isrStoragePodNums = 3;
+
+  }
+
+}

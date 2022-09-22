@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option java_outer_classname = "RouteResWrapper";
+
+import 'FetchTopicMetadataResult.proto';
+
+message RouteApiRes {
+
+  enum ErrorCode {
+    // 未知错误
+    UNKNOWN = 0;
+    // 创建topic元数据失败
+    CREATE_TOPIC_METADATA_FAIL = 1;
+  }
+  // 错误code
+  ErrorCode errorCode = 1;
+
+  // 错误信息
+  string errorMsg = 2;
+
+  // topic元数据创建结果
+  bool createTopicMetadataRes = 3;
+
+  // 获取元数据的响应结果
+  FetchTopicMetadataResult fetchTopicMetadataResult = 4;
+
+}

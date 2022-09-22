@@ -1,19 +1,36 @@
-plugins {
-    id 'java'
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath('com.bmuschko:gradle-docker-plugin:7.4.0')
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+    }
 }
 
-group 'org.scalingmq'
-version '1.0.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
+apply plugin: 'com.bmuschko.docker-java-application'
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation(
+            'io.grpc:grpc-stub:1.40.2',
+            'io.grpc:grpc-protobuf:1.40.2',
+            'io.netty:netty-all:4.1.80.Final',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
+
+            project(':scalingMq-common'),
+            project(':scalingMq-kubernetes-api'),
+            project(':scalingMq-route-client')
+    )
 }
 
-test {
-    useJUnitPlatform()
+docker {
+    javaApplication {
+        baseImage = 'prasadlvi/openjdk-17-jre'
+        ports = [5432]
+        images = ['scalingmq-route-component:v1.0', 'scalingmq-route-component:latest']
+        jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
+    }
 }

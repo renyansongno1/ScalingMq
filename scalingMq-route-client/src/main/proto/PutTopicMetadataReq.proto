@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_outer_classname = "PutTopicMetadataReqWrapper";
+
+message PutTopicMetadataReq {
+
+  // topic名称
+  string topicName = 1;
+
+  // 分区数量
+  int32 partitionNum = 2;
+
+}

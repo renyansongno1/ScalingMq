@@ -1,0 +1,53 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+    }
+}
+
+apply plugin: "com.google.protobuf"
+
+dependencies {
+    implementation(
+            'io.grpc:grpc-stub:1.40.2',
+            'io.grpc:grpc-protobuf:1.40.2',
+
+            project(':scalingMq-common')
+    )
+}
+
+protobuf {
+    protoc {
+        if (osdetector.os == "osx") {
+            artifact = 'com.google.protobuf:protoc:3.15.0:osx-x86_64'
+        } else {
+            artifact = 'com.google.protobuf:protoc:3.15.0'
+        }
+
+    }
+    plugins {
+        grpc {
+            if (osdetector.os == "osx") {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0:osx-x86_64'
+            } else {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0'
+            }
+
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+
+    generatedFilesBaseDir = "$projectDir/gen"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
