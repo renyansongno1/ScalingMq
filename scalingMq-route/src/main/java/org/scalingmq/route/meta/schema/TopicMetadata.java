@@ -29,10 +29,10 @@ public class TopicMetadata {
     /**
      * 分区数量
      */
-    private String partitionNums;
+    private Integer partitionNums;
 
     /**
      * 分区相关的元数据
      */
-    private List<PartitionMetadata> partitionMetadataList;
+    private String partitionMetadataList;
 }

@@ -1,11 +1,9 @@
 package org.scalingmq.common.utils;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -16,31 +14,16 @@ import java.util.Map;
 @Slf4j
 public class PojoUtil {
 
+    private static final Gson GSON = new Gson();
+
     private PojoUtil() {}
 
     /**
      * map 转 pojo
      */
     public static <T> T mapToObject(Map<String, String> map, Class<T> beanClass) {
-        if (map == null) {
-            return null;
-        }
-
         try {
-            Object obj = beanClass.getDeclaredConstructor().newInstance();
-
-            Field[] fields = obj.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                int mod = field.getModifiers();
-                if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
-                    continue;
-                }
-
-                field.setAccessible(true);
-                field.set(obj, map.get(field.getName()));
-            }
-
-            return (T) obj;
+            return GSON.fromJson(GSON.toJson(map), beanClass);
         } catch (Exception e) {
             log.error("map error", e);
             return null;
@@ -52,18 +35,7 @@ public class PojoUtil {
      */
     public static Map<String, String> objectToMap(Object obj) {
         try {
-            if(obj == null){
-                return null;
-            }
-
-            Map<String, String> map = new HashMap<>();
-
-            Field[] declaredFields = obj.getClass().getDeclaredFields();
-            for (Field field : declaredFields) {
-                field.setAccessible(true);
-                map.put(field.getName(), String.valueOf(field.get(obj)));
-            }
-            return map;
+            return GSON.fromJson(GSON.toJson(obj), new TypeToken<Map<String,String>>(){}.getType());
         } catch (Exception e) {
             log.error("obj to map error", e);
             return null;

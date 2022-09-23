@@ -25,6 +25,8 @@ public class K8sApiClient {
 
     private static final CoreV1Api CORE_V1_API = new CoreV1Api();
 
+    private static final int NOT_FOUND = 404;
+
     private K8sApiClient() {
         if (INSTANCE != null) {
             throw new RuntimeException("not support reflect invoke");
@@ -104,6 +106,9 @@ public class K8sApiClient {
             }
             return v1ConfigMap.getData();
         } catch (ApiException e) {
+            if (e.getCode() == NOT_FOUND) {
+                return null;
+            }
             log.error("查询:{}.{} configmap 异常 code:{}", namespace, name, e.getCode(), e);
             return null;
         }

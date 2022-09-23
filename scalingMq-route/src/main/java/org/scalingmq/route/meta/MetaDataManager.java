@@ -55,8 +55,7 @@ public class MetaDataManager {
                     return true;
                 }
                 topicMetadata = TopicMetadata.builder()
-                        .partitionMetadataList(new ArrayList<>())
-                        .partitionNums(String.valueOf(partitionNums))
+                        .partitionNums(partitionNums)
                         .topicName(topicName)
                         .build();
                 return METADATA_STORAGE.storageMetadata(
@@ -84,6 +83,9 @@ public class MetaDataManager {
                 return null;
             }
             TopicMetadata topicMetadata = PojoUtil.mapToObject(metadata, TopicMetadata.class);
+            if (topicMetadata == null) {
+                return null;
+            }
             log.debug("topic:{}, metadata:{}", topicName, topicMetadata.toString());
             return topicMetadata;
         } finally {
