@@ -21,10 +21,7 @@ public class K8sMetadataStorageImpl implements MetaDataStorage {
      */
     @Override
     public Map<String, String> getMetadata(String namespace, String name) {
-        long startTime = System.currentTimeMillis();
-        log.debug("k8s client init start...");
         K8sApiClient k8sApiClient = K8sApiClient.getInstance();
-        log.debug("k8s client started cost:{}ms", System.currentTimeMillis() - startTime);
         if (k8sApiClient == null) {
             return null;
         }

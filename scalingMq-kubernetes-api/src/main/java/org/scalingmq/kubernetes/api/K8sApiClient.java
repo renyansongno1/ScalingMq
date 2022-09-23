@@ -37,6 +37,7 @@ public class K8sApiClient {
             synchronized (K8sApiClient.class) {
                 if (!CLIENT_INIT) {
                     log.debug("k8s client init....");
+                    long startTime = System.currentTimeMillis();
                     try {
                         // loading the in-cluster config, including:
                         //   1. service-account CA
@@ -56,6 +57,7 @@ public class K8sApiClient {
                         log.error("k8s client init error", e);
                         return null;
                     }
+                    log.debug("k8s client started cost:{}ms", System.currentTimeMillis() - startTime);
                     CLIENT_INIT = true;
                 }
             }
