@@ -33,10 +33,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: AFT_PORT
-              valueFrom:
-                resourceFieldRef:
-                  containerName: scalingmq-storage
-                  resource: ports[0].containerPort
+              value: '9876'
           resources:
             requests:
               cpu: "500m"

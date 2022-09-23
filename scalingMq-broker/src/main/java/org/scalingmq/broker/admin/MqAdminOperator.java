@@ -11,6 +11,7 @@ import org.scalingmq.route.client.conf.RouteClientConfig;
 import org.scalingmq.route.client.entity.FetchTopicMetadataReqWrapper;
 import org.scalingmq.route.client.entity.FetchTopicMetadataResultWrapper;
 import org.scalingmq.route.client.entity.PutTopicMetadataReqWrapper;
+import org.scalingmq.route.client.entity.SchedStoragePodReqWrapper;
 
 /**
  * admin类操作
@@ -55,9 +56,9 @@ public class MqAdminOperator implements Lifecycle {
         try {
             FetchTopicMetadataResultWrapper.FetchTopicMetadataResult fetchTopicMetadataResult
                     = ROUTE_APP_CLIENT.fetchTopicMetadata(
-                            FetchTopicMetadataReqWrapper.FetchTopicMetadataReq.newBuilder()
-                                .setTopicName(createTopicReq.getTopicName())
-                                .build());
+                    FetchTopicMetadataReqWrapper.FetchTopicMetadataReq.newBuilder()
+                            .setTopicName(createTopicReq.getTopicName())
+                            .build());
             log.debug("获取topic metadata为:{}", fetchTopicMetadataResult.toString());
             String topicName = fetchTopicMetadataResult.getTopicName();
             if (!"".equals(topicName)) {
@@ -71,8 +72,10 @@ public class MqAdminOperator implements Lifecycle {
             if (!createResult) {
                 throw new TopicCreateFailException();
             }
-            // TODO: 2022/9/22 调用创建存储pod
-            return true;
+            // 调用创建存储pod
+            return ROUTE_APP_CLIENT.schedStoragePods(SchedStoragePodReqWrapper.SchedStoragePodReq.newBuilder()
+                    .setTopicName(createTopicReq.getTopicName())
+                    .build());
         } catch (TopicAlreadyExistException | TopicCreateFailException te) {
             throw te;
         } catch (Exception e) {

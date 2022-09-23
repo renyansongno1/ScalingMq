@@ -24,6 +24,7 @@ public class NetworkHandler extends SimpleChannelInboundHandler<RouteReqWrapper.
                 switch (msg.getReqType().getNumber()) {
                     case RouteReqWrapper.RouteReq.ReqType.FETCH_TOPIC_METADATA_VALUE -> msg.getFetchTopicMetadataReq();
                     case RouteReqWrapper.RouteReq.ReqType.PUT_TOPIC_METADATA_VALUE -> msg.getPutTopicMetadataReq();
+                    case RouteReqWrapper.RouteReq.ReqType.SCHED_STORAGE_POD_VALUE -> msg.getSchedStoragePodReq();
                     default -> null;
                 };
         if (req == null) {

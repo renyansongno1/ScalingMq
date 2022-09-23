@@ -24,4 +24,7 @@ message RouteApiRes {
   // 获取元数据的响应结果
   FetchTopicMetadataResult fetchTopicMetadataResult = 4;
 
+  // 调度创建存储pod结果
+  bool schedStoragePodRes = 5;
+
 }

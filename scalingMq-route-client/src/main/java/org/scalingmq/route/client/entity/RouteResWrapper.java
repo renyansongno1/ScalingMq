@@ -91,6 +91,16 @@ public final class RouteResWrapper {
      * <code>.FetchTopicMetadataResult fetchTopicMetadataResult = 4;</code>
      */
     FetchTopicMetadataResultWrapper.FetchTopicMetadataResultOrBuilder getFetchTopicMetadataResultOrBuilder();
+
+    /**
+     * <pre>
+     * 调度创建存储pod结果
+     * </pre>
+     *
+     * <code>bool schedStoragePodRes = 5;</code>
+     * @return The schedStoragePodRes.
+     */
+    boolean getSchedStoragePodRes();
   }
   /**
    * Protobuf type {@code RouteApiRes}
@@ -167,6 +177,11 @@ public final class RouteResWrapper {
                 fetchTopicMetadataResult_ = subBuilder.buildPartial();
               }
 
+              break;
+            }
+            case 40: {
+
+              schedStoragePodRes_ = input.readBool();
               break;
             }
             default: {
@@ -451,6 +466,21 @@ public final class RouteResWrapper {
       return getFetchTopicMetadataResult();
     }
 
+    public static final int SCHEDSTORAGEPODRES_FIELD_NUMBER = 5;
+    private boolean schedStoragePodRes_;
+    /**
+     * <pre>
+     * 调度创建存储pod结果
+     * </pre>
+     *
+     * <code>bool schedStoragePodRes = 5;</code>
+     * @return The schedStoragePodRes.
+     */
+    @Override
+    public boolean getSchedStoragePodRes() {
+      return schedStoragePodRes_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -477,6 +507,9 @@ public final class RouteResWrapper {
       if (fetchTopicMetadataResult_ != null) {
         output.writeMessage(4, getFetchTopicMetadataResult());
       }
+      if (schedStoragePodRes_ != false) {
+        output.writeBool(5, schedStoragePodRes_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -500,6 +533,10 @@ public final class RouteResWrapper {
       if (fetchTopicMetadataResult_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(4, getFetchTopicMetadataResult());
+      }
+      if (schedStoragePodRes_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(5, schedStoragePodRes_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -526,6 +563,8 @@ public final class RouteResWrapper {
         if (!getFetchTopicMetadataResult()
             .equals(other.getFetchTopicMetadataResult())) return false;
       }
+      if (getSchedStoragePodRes()
+          != other.getSchedStoragePodRes()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -548,6 +587,9 @@ public final class RouteResWrapper {
         hash = (37 * hash) + FETCHTOPICMETADATARESULT_FIELD_NUMBER;
         hash = (53 * hash) + getFetchTopicMetadataResult().hashCode();
       }
+      hash = (37 * hash) + SCHEDSTORAGEPODRES_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getSchedStoragePodRes());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -693,6 +735,8 @@ public final class RouteResWrapper {
           fetchTopicMetadataResult_ = null;
           fetchTopicMetadataResultBuilder_ = null;
         }
+        schedStoragePodRes_ = false;
+
         return this;
       }
 
@@ -727,6 +771,7 @@ public final class RouteResWrapper {
         } else {
           result.fetchTopicMetadataResult_ = fetchTopicMetadataResultBuilder_.build();
         }
+        result.schedStoragePodRes_ = schedStoragePodRes_;
         onBuilt();
         return result;
       }
@@ -787,6 +832,9 @@ public final class RouteResWrapper {
         }
         if (other.hasFetchTopicMetadataResult()) {
           mergeFetchTopicMetadataResult(other.getFetchTopicMetadataResult());
+        }
+        if (other.getSchedStoragePodRes() != false) {
+          setSchedStoragePodRes(other.getSchedStoragePodRes());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -1184,6 +1232,49 @@ public final class RouteResWrapper {
         }
         return fetchTopicMetadataResultBuilder_;
       }
+
+      private boolean schedStoragePodRes_ ;
+      /**
+       * <pre>
+       * 调度创建存储pod结果
+       * </pre>
+       *
+       * <code>bool schedStoragePodRes = 5;</code>
+       * @return The schedStoragePodRes.
+       */
+      @Override
+      public boolean getSchedStoragePodRes() {
+        return schedStoragePodRes_;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod结果
+       * </pre>
+       *
+       * <code>bool schedStoragePodRes = 5;</code>
+       * @param value The schedStoragePodRes to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSchedStoragePodRes(boolean value) {
+        
+        schedStoragePodRes_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod结果
+       * </pre>
+       *
+       * <code>bool schedStoragePodRes = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSchedStoragePodRes() {
+        
+        schedStoragePodRes_ = false;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1252,13 +1343,14 @@ public final class RouteResWrapper {
   static {
     String[] descriptorData = {
       "\n\026RouteAPIResponse.proto\032\036FetchTopicMeta" +
-      "dataResult.proto\"\341\001\n\013RouteApiRes\022)\n\terro" +
+      "dataResult.proto\"\375\001\n\013RouteApiRes\022)\n\terro" +
       "rCode\030\001 \001(\0162\026.RouteApiRes.ErrorCode\022\020\n\010e" +
       "rrorMsg\030\002 \001(\t\022\036\n\026createTopicMetadataRes\030" +
       "\003 \001(\010\022;\n\030fetchTopicMetadataResult\030\004 \001(\0132" +
-      "\031.FetchTopicMetadataResult\"8\n\tErrorCode\022" +
-      "\013\n\007UNKNOWN\020\000\022\036\n\032CREATE_TOPIC_METADATA_FA" +
-      "IL\020\001B\021B\017RouteResWrapperb\006proto3"
+      "\031.FetchTopicMetadataResult\022\032\n\022schedStora" +
+      "gePodRes\030\005 \001(\010\"8\n\tErrorCode\022\013\n\007UNKNOWN\020\000" +
+      "\022\036\n\032CREATE_TOPIC_METADATA_FAIL\020\001B\021B\017Rout" +
+      "eResWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -1270,7 +1362,7 @@ public final class RouteResWrapper {
     internal_static_RouteApiRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RouteApiRes_descriptor,
-        new String[] { "ErrorCode", "ErrorMsg", "CreateTopicMetadataRes", "FetchTopicMetadataResult", });
+        new String[] { "ErrorCode", "ErrorMsg", "CreateTopicMetadataRes", "FetchTopicMetadataResult", "SchedStoragePodRes", });
     FetchTopicMetadataResultWrapper.getDescriptor();
   }
 

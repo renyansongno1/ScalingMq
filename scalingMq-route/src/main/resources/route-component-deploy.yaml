@@ -16,7 +16,7 @@ rules:
 
 - apiGroups: [ "apps"]
   resources: ["deployments", "daemonsets", "statefulsets","replicasets"]
-  verbs: ["get", "list", "watch"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -74,6 +74,14 @@ spec:
               value: Asia/Shanghai
             - name: LANG
               value: en_US.UTF-8
+            - name: SCHEDULE_STORAGE_POD_PORT
+              value: "9876"
+            - name: SCHEDULE_STORAGE_POD_IMAGE
+              value: "scalingmq-storage-component:v1.0"
+            - name: SCHEDULE_STORAGE_POD_CPU
+              value: "500m"
+            - name: SCHEDULE_STORAGE_POD_MEM
+              value: "1Gi"
           resources:
             requests:
               cpu: "500m"

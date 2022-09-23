@@ -88,6 +88,33 @@ public final class RouteReqWrapper {
      * <code>.PutTopicMetadataReq putTopicMetadataReq = 3;</code>
      */
     PutTopicMetadataReqWrapper.PutTopicMetadataReqOrBuilder getPutTopicMetadataReqOrBuilder();
+
+    /**
+     * <pre>
+     * 调度创建存储pod请求
+     * </pre>
+     *
+     * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+     * @return Whether the schedStoragePodReq field is set.
+     */
+    boolean hasSchedStoragePodReq();
+    /**
+     * <pre>
+     * 调度创建存储pod请求
+     * </pre>
+     *
+     * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+     * @return The schedStoragePodReq.
+     */
+    SchedStoragePodReqWrapper.SchedStoragePodReq getSchedStoragePodReq();
+    /**
+     * <pre>
+     * 调度创建存储pod请求
+     * </pre>
+     *
+     * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+     */
+    SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder getSchedStoragePodReqOrBuilder();
   }
   /**
    * Protobuf type {@code RouteReq}
@@ -167,6 +194,19 @@ public final class RouteReqWrapper {
 
               break;
             }
+            case 34: {
+              SchedStoragePodReqWrapper.SchedStoragePodReq.Builder subBuilder = null;
+              if (schedStoragePodReq_ != null) {
+                subBuilder = schedStoragePodReq_.toBuilder();
+              }
+              schedStoragePodReq_ = input.readMessage(SchedStoragePodReqWrapper.SchedStoragePodReq.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(schedStoragePodReq_);
+                schedStoragePodReq_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
             default: {
               if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
@@ -220,6 +260,14 @@ public final class RouteReqWrapper {
        * <code>PUT_TOPIC_METADATA = 1;</code>
        */
       PUT_TOPIC_METADATA(1),
+      /**
+       * <pre>
+       * 调度生成存储pod
+       * </pre>
+       *
+       * <code>SCHED_STORAGE_POD = 2;</code>
+       */
+      SCHED_STORAGE_POD(2),
       UNRECOGNIZED(-1),
       ;
 
@@ -239,6 +287,14 @@ public final class RouteReqWrapper {
        * <code>PUT_TOPIC_METADATA = 1;</code>
        */
       public static final int PUT_TOPIC_METADATA_VALUE = 1;
+      /**
+       * <pre>
+       * 调度生成存储pod
+       * </pre>
+       *
+       * <code>SCHED_STORAGE_POD = 2;</code>
+       */
+      public static final int SCHED_STORAGE_POD_VALUE = 2;
 
 
       public final int getNumber() {
@@ -267,6 +323,7 @@ public final class RouteReqWrapper {
         switch (value) {
           case 0: return FETCH_TOPIC_METADATA;
           case 1: return PUT_TOPIC_METADATA;
+          case 2: return SCHED_STORAGE_POD;
           default: return null;
         }
       }
@@ -426,6 +483,44 @@ public final class RouteReqWrapper {
       return getPutTopicMetadataReq();
     }
 
+    public static final int SCHEDSTORAGEPODREQ_FIELD_NUMBER = 4;
+    private SchedStoragePodReqWrapper.SchedStoragePodReq schedStoragePodReq_;
+    /**
+     * <pre>
+     * 调度创建存储pod请求
+     * </pre>
+     *
+     * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+     * @return Whether the schedStoragePodReq field is set.
+     */
+    @Override
+    public boolean hasSchedStoragePodReq() {
+      return schedStoragePodReq_ != null;
+    }
+    /**
+     * <pre>
+     * 调度创建存储pod请求
+     * </pre>
+     *
+     * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+     * @return The schedStoragePodReq.
+     */
+    @Override
+    public SchedStoragePodReqWrapper.SchedStoragePodReq getSchedStoragePodReq() {
+      return schedStoragePodReq_ == null ? SchedStoragePodReqWrapper.SchedStoragePodReq.getDefaultInstance() : schedStoragePodReq_;
+    }
+    /**
+     * <pre>
+     * 调度创建存储pod请求
+     * </pre>
+     *
+     * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+     */
+    @Override
+    public SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder getSchedStoragePodReqOrBuilder() {
+      return getSchedStoragePodReq();
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -449,6 +544,9 @@ public final class RouteReqWrapper {
       if (putTopicMetadataReq_ != null) {
         output.writeMessage(3, getPutTopicMetadataReq());
       }
+      if (schedStoragePodReq_ != null) {
+        output.writeMessage(4, getSchedStoragePodReq());
+      }
       unknownFields.writeTo(output);
     }
 
@@ -469,6 +567,10 @@ public final class RouteReqWrapper {
       if (putTopicMetadataReq_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, getPutTopicMetadataReq());
+      }
+      if (schedStoragePodReq_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getSchedStoragePodReq());
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -496,6 +598,11 @@ public final class RouteReqWrapper {
         if (!getPutTopicMetadataReq()
             .equals(other.getPutTopicMetadataReq())) return false;
       }
+      if (hasSchedStoragePodReq() != other.hasSchedStoragePodReq()) return false;
+      if (hasSchedStoragePodReq()) {
+        if (!getSchedStoragePodReq()
+            .equals(other.getSchedStoragePodReq())) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -516,6 +623,10 @@ public final class RouteReqWrapper {
       if (hasPutTopicMetadataReq()) {
         hash = (37 * hash) + PUTTOPICMETADATAREQ_FIELD_NUMBER;
         hash = (53 * hash) + getPutTopicMetadataReq().hashCode();
+      }
+      if (hasSchedStoragePodReq()) {
+        hash = (37 * hash) + SCHEDSTORAGEPODREQ_FIELD_NUMBER;
+        hash = (53 * hash) + getSchedStoragePodReq().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -664,6 +775,12 @@ public final class RouteReqWrapper {
           putTopicMetadataReq_ = null;
           putTopicMetadataReqBuilder_ = null;
         }
+        if (schedStoragePodReqBuilder_ == null) {
+          schedStoragePodReq_ = null;
+        } else {
+          schedStoragePodReq_ = null;
+          schedStoragePodReqBuilder_ = null;
+        }
         return this;
       }
 
@@ -700,6 +817,11 @@ public final class RouteReqWrapper {
           result.putTopicMetadataReq_ = putTopicMetadataReq_;
         } else {
           result.putTopicMetadataReq_ = putTopicMetadataReqBuilder_.build();
+        }
+        if (schedStoragePodReqBuilder_ == null) {
+          result.schedStoragePodReq_ = schedStoragePodReq_;
+        } else {
+          result.schedStoragePodReq_ = schedStoragePodReqBuilder_.build();
         }
         onBuilt();
         return result;
@@ -757,6 +879,9 @@ public final class RouteReqWrapper {
         }
         if (other.hasPutTopicMetadataReq()) {
           mergePutTopicMetadataReq(other.getPutTopicMetadataReq());
+        }
+        if (other.hasSchedStoragePodReq()) {
+          mergeSchedStoragePodReq(other.getSchedStoragePodReq());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -1170,6 +1295,161 @@ public final class RouteReqWrapper {
         }
         return putTopicMetadataReqBuilder_;
       }
+
+      private SchedStoragePodReqWrapper.SchedStoragePodReq schedStoragePodReq_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          SchedStoragePodReqWrapper.SchedStoragePodReq, SchedStoragePodReqWrapper.SchedStoragePodReq.Builder, SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder> schedStoragePodReqBuilder_;
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       * @return Whether the schedStoragePodReq field is set.
+       */
+      public boolean hasSchedStoragePodReq() {
+        return schedStoragePodReqBuilder_ != null || schedStoragePodReq_ != null;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       * @return The schedStoragePodReq.
+       */
+      public SchedStoragePodReqWrapper.SchedStoragePodReq getSchedStoragePodReq() {
+        if (schedStoragePodReqBuilder_ == null) {
+          return schedStoragePodReq_ == null ? SchedStoragePodReqWrapper.SchedStoragePodReq.getDefaultInstance() : schedStoragePodReq_;
+        } else {
+          return schedStoragePodReqBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      public Builder setSchedStoragePodReq(SchedStoragePodReqWrapper.SchedStoragePodReq value) {
+        if (schedStoragePodReqBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          schedStoragePodReq_ = value;
+          onChanged();
+        } else {
+          schedStoragePodReqBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      public Builder setSchedStoragePodReq(
+          SchedStoragePodReqWrapper.SchedStoragePodReq.Builder builderForValue) {
+        if (schedStoragePodReqBuilder_ == null) {
+          schedStoragePodReq_ = builderForValue.build();
+          onChanged();
+        } else {
+          schedStoragePodReqBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      public Builder mergeSchedStoragePodReq(SchedStoragePodReqWrapper.SchedStoragePodReq value) {
+        if (schedStoragePodReqBuilder_ == null) {
+          if (schedStoragePodReq_ != null) {
+            schedStoragePodReq_ =
+              SchedStoragePodReqWrapper.SchedStoragePodReq.newBuilder(schedStoragePodReq_).mergeFrom(value).buildPartial();
+          } else {
+            schedStoragePodReq_ = value;
+          }
+          onChanged();
+        } else {
+          schedStoragePodReqBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      public Builder clearSchedStoragePodReq() {
+        if (schedStoragePodReqBuilder_ == null) {
+          schedStoragePodReq_ = null;
+          onChanged();
+        } else {
+          schedStoragePodReq_ = null;
+          schedStoragePodReqBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      public SchedStoragePodReqWrapper.SchedStoragePodReq.Builder getSchedStoragePodReqBuilder() {
+        
+        onChanged();
+        return getSchedStoragePodReqFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      public SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder getSchedStoragePodReqOrBuilder() {
+        if (schedStoragePodReqBuilder_ != null) {
+          return schedStoragePodReqBuilder_.getMessageOrBuilder();
+        } else {
+          return schedStoragePodReq_ == null ?
+              SchedStoragePodReqWrapper.SchedStoragePodReq.getDefaultInstance() : schedStoragePodReq_;
+        }
+      }
+      /**
+       * <pre>
+       * 调度创建存储pod请求
+       * </pre>
+       *
+       * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          SchedStoragePodReqWrapper.SchedStoragePodReq, SchedStoragePodReqWrapper.SchedStoragePodReq.Builder, SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder> 
+          getSchedStoragePodReqFieldBuilder() {
+        if (schedStoragePodReqBuilder_ == null) {
+          schedStoragePodReqBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              SchedStoragePodReqWrapper.SchedStoragePodReq, SchedStoragePodReqWrapper.SchedStoragePodReq.Builder, SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder>(
+                  getSchedStoragePodReq(),
+                  getParentForChildren(),
+                  isClean());
+          schedStoragePodReq_ = null;
+        }
+        return schedStoragePodReqBuilder_;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1238,29 +1518,33 @@ public final class RouteReqWrapper {
   static {
     String[] descriptorData = {
       "\n\025RouteApiRequest.proto\032\033FetchTopicMetad" +
-      "ataReq.proto\032\031PutTopicMetadataReq.proto\"" +
-      "\325\001\n\010RouteReq\022\"\n\007reqType\030\001 \001(\0162\021.RouteReq" +
-      ".ReqType\0225\n\025fetchTopicMetadataReq\030\002 \001(\0132" +
-      "\026.FetchTopicMetadataReq\0221\n\023putTopicMetad" +
-      "ataReq\030\003 \001(\0132\024.PutTopicMetadataReq\";\n\007Re" +
-      "qType\022\030\n\024FETCH_TOPIC_METADATA\020\000\022\026\n\022PUT_T" +
-      "OPIC_METADATA\020\001B\021B\017RouteReqWrapperb\006prot" +
-      "o3"
+      "ataReq.proto\032\031PutTopicMetadataReq.proto\032" +
+      "\030SchedStoragePodReq.proto\"\235\002\n\010RouteReq\022\"" +
+      "\n\007reqType\030\001 \001(\0162\021.RouteReq.ReqType\0225\n\025fe" +
+      "tchTopicMetadataReq\030\002 \001(\0132\026.FetchTopicMe" +
+      "tadataReq\0221\n\023putTopicMetadataReq\030\003 \001(\0132\024" +
+      ".PutTopicMetadataReq\022/\n\022schedStoragePodR" +
+      "eq\030\004 \001(\0132\023.SchedStoragePodReq\"R\n\007ReqType" +
+      "\022\030\n\024FETCH_TOPIC_METADATA\020\000\022\026\n\022PUT_TOPIC_" +
+      "METADATA\020\001\022\025\n\021SCHED_STORAGE_POD\020\002B\021B\017Rou" +
+      "teReqWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           FetchTopicMetadataReqWrapper.getDescriptor(),
           PutTopicMetadataReqWrapper.getDescriptor(),
+          SchedStoragePodReqWrapper.getDescriptor(),
         });
     internal_static_RouteReq_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_RouteReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RouteReq_descriptor,
-        new String[] { "ReqType", "FetchTopicMetadataReq", "PutTopicMetadataReq", });
+        new String[] { "ReqType", "FetchTopicMetadataReq", "PutTopicMetadataReq", "SchedStoragePodReq", });
     FetchTopicMetadataReqWrapper.getDescriptor();
     PutTopicMetadataReqWrapper.getDescriptor();
+    SchedStoragePodReqWrapper.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

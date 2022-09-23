@@ -1,2 +1,3 @@
 org.scalingmq.route.server.handler.impl.FetchTopicMetadataHandler
 org.scalingmq.route.server.handler.impl.PutTopicMetadataHandler
+org.scalingmq.route.server.handler.impl.SchedStoragePodHandler

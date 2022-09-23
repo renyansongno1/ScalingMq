@@ -106,6 +106,24 @@ public class RouteAppClient {
     }
 
     /**
+     * 调度storage pod
+     * @param req 请求
+     * @return 操作结果
+     */
+    public boolean schedStoragePods(SchedStoragePodReqWrapper.SchedStoragePodReq req) throws Exception {
+        RouteReqWrapper.RouteReq routeReq = RouteReqWrapper.RouteReq.newBuilder()
+                .setReqType(RouteReqWrapper.RouteReq.ReqType.SCHED_STORAGE_POD)
+                .setSchedStoragePodReq(req)
+                .build();
+        RouteResWrapper.RouteApiRes res = netThreadPool.submit(new NetCallTask(routeReq)).get();
+        if (!"".equals(res.getErrorMsg())) {
+            log.error("调度storage pods异常:{}", res.getErrorMsg());
+            return false;
+        }
+        return res.getSchedStoragePodRes();
+    }
+
+    /**
      * 异步调用任务
      */
     private class NetCallTask implements Callable<RouteResWrapper.RouteApiRes> {

@@ -38,4 +38,28 @@ public class RouteConfig {
     @EnvironmentVariable("SERVER_PORT")
     private String serverPort;
 
+    /**
+     * 动态生成的storage pod的端口
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_PORT")
+    private String scheduleStoragePodPort;
+
+    /**
+     * 动态生成的storage pod image
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_IMAGE")
+    private String scheduleStoragePodImage;
+
+    /**
+     * 动态生成的storage pod cpu限制
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_CPU")
+    private String scheduleStoragePodCpu;
+
+    /**
+     * 动态生成的storage pod 内存限制
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_MEM")
+    private String scheduleStoragePodMem;
+
 }

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_outer_classname = "SchedStoragePodReqWrapper";
+
+message SchedStoragePodReq {
+
+  string topicName = 1;
+
+}

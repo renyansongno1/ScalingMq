@@ -4,6 +4,7 @@ option java_outer_classname = "RouteReqWrapper";
 
 import 'FetchTopicMetadataReq.proto';
 import 'PutTopicMetadataReq.proto';
+import 'SchedStoragePodReq.proto';
 
 message RouteReq {
 
@@ -12,6 +13,8 @@ message RouteReq {
     FETCH_TOPIC_METADATA = 0;
     // 创建topic的元数据
     PUT_TOPIC_METADATA = 1;
+    // 调度生成存储pod
+    SCHED_STORAGE_POD = 2;
   }
 
   // 请求类型
@@ -22,5 +25,8 @@ message RouteReq {
 
   // 创建topic元数据请求
   PutTopicMetadataReq putTopicMetadataReq = 3;
+
+  // 调度创建存储pod请求
+  SchedStoragePodReq schedStoragePodReq = 4;
 
 }

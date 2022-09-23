@@ -1,16 +1,17 @@
 package org.scalingmq.kubernetes.api;
 
+import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
+import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.ClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 /**
  * k8s的client
@@ -25,7 +26,13 @@ public class K8sApiClient {
 
     private static final CoreV1Api CORE_V1_API = new CoreV1Api();
 
+    private static final AppsV1Api APPS_V_1_API = new AppsV1Api();
+
     private static final int NOT_FOUND = 404;
+
+    private static final int ALREADY_EXIST = 409;
+
+    private static ApiClient CLIENT = null;
 
     private K8sApiClient() {
         if (INSTANCE != null) {
@@ -46,13 +53,14 @@ public class K8sApiClient {
                         //   2. service-account bearer-token
                         //   3. service-account namespace
                         //   4. master endpoints(ip, port) from pre-set environment variables
-                        ApiClient client = ClientBuilder.cluster().build();
+                        CLIENT = ClientBuilder.cluster().build();
 
                         // if you prefer not to refresh service account token, please use:
                         // ApiClient client = ClientBuilder.oldCluster().build();
                         // set the global default api-client to the in-cluster one from above
-                        Configuration.setDefaultApiClient(client);
-                        CORE_V1_API.setApiClient(client);
+                        Configuration.setDefaultApiClient(CLIENT);
+                        CORE_V1_API.setApiClient(CLIENT);
+                        APPS_V_1_API.setApiClient(CLIENT);
 
                         log.debug("k8s client completion of initialization");
                     } catch (IOException e) {
@@ -85,7 +93,7 @@ public class K8sApiClient {
             CORE_V1_API.createNamespacedConfigMap(namespace, v1ConfigMap, Boolean.TRUE.toString(), null, null, null);
             return true;
         } catch (ApiException e) {
-            log.error("创建configMap失败, api exception, code:{}", e.getCode(), e);
+            log.error("创建configMap失败, api exception, msg:{}", e.getResponseBody(), e);
             return false;
         }
     }
@@ -109,8 +117,156 @@ public class K8sApiClient {
             if (e.getCode() == NOT_FOUND) {
                 return null;
             }
-            log.error("查询:{}.{} configmap 异常 code:{}", namespace, name, e.getCode(), e);
+            log.error("查询:{}.{} configmap 异常信息:{}", namespace, name, e.getResponseBody(), e);
             return null;
+        }
+    }
+
+    /**
+     * 创建pod
+     */
+    @SuppressWarnings("AlibabaMethodTooLong")
+    public boolean createPods(String namespace,
+                              String podName,
+                              Map<String, String> podMetadataLabelMap,
+                              Integer replicas,
+                              String serviceName,
+                              Map<String, String> specLabelMap,
+                              String templateMetadataName,
+                              Map<String, String> templateMetadataLabelMap,
+                              String containerName,
+                              String imageName,
+                              Integer containerPort,
+                              Map<String, String> envMap,
+                              String cpuResource,
+                              String memoryResource) {
+        try {
+            V1StatefulSet statefulSet = new V1StatefulSet();
+            // header
+            statefulSet.setApiVersion("apps/v1");
+            statefulSet.setKind("StatefulSet");
+
+            // metadata
+            V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
+            v1ObjectMeta.setLabels(podMetadataLabelMap);
+            v1ObjectMeta.setName(podName);
+            v1ObjectMeta.setNamespace(namespace);
+            statefulSet.setMetadata(v1ObjectMeta);
+
+            // spec
+            V1StatefulSetSpec v1StatefulSetSpec = new V1StatefulSetSpec();
+            v1StatefulSetSpec.setReplicas(replicas);
+            // selector
+            V1LabelSelector v1LabelSelector = new V1LabelSelector();
+            v1LabelSelector.setMatchLabels(specLabelMap);
+            v1StatefulSetSpec.setSelector(v1LabelSelector);
+
+            v1StatefulSetSpec.setServiceName(serviceName);
+            // template
+            V1PodTemplateSpec v1PodTemplateSpec = new V1PodTemplateSpec();
+            V1ObjectMeta templateMetadata = new V1ObjectMeta();
+            templateMetadata.setName(templateMetadataName);
+            templateMetadata.setLabels(templateMetadataLabelMap);
+            v1PodTemplateSpec.setMetadata(templateMetadata);
+
+            V1PodSpec v1PodSpec = new V1PodSpec();
+            V1Container v1Container = new V1Container();
+            v1Container.setName(containerName);
+            v1Container.setImage(imageName);
+            v1Container.setImagePullPolicy("IfNotPresent");
+
+            V1ContainerPort v1ContainerPort = new V1ContainerPort();
+            v1ContainerPort.setContainerPort(containerPort);
+
+            v1Container.setPorts(Collections.singletonList(v1ContainerPort));
+
+            List<V1EnvVar> envVarList = new ArrayList<>();
+            for (Map.Entry<String, String> stringStringEntry : envMap.entrySet()) {
+                V1EnvVar v1EnvVar = new V1EnvVar();
+                v1EnvVar.setName(stringStringEntry.getKey());
+                v1EnvVar.setValue(stringStringEntry.getValue());
+                envVarList.add(v1EnvVar);
+            }
+            // 补充默认env
+            V1EnvVar v1EnvVar = new V1EnvVar();
+            v1EnvVar.setName("POD_NAMESPACE");
+            V1EnvVarSource v1EnvVarSource = new V1EnvVarSource();
+            V1ObjectFieldSelector v1ObjectFieldSelector = new V1ObjectFieldSelector();
+            v1ObjectFieldSelector.setFieldPath("metadata.namespace");
+            v1ObjectFieldSelector.setApiVersion("v1");
+            v1EnvVarSource.setFieldRef(v1ObjectFieldSelector);
+            v1EnvVar.setValueFrom(v1EnvVarSource);
+            envVarList.add(v1EnvVar);
+            v1Container.setEnv(envVarList);
+
+            V1ResourceRequirements v1ResourceRequirements = new V1ResourceRequirements();
+            Map<String, Quantity> resourceMap = new HashMap<>();
+            resourceMap.put("cpu", Quantity.fromString(cpuResource));
+            resourceMap.put("memory", Quantity.fromString(memoryResource));
+            v1ResourceRequirements.setLimits(resourceMap);
+            v1ResourceRequirements.setRequests(resourceMap);
+
+            v1Container.setResources(v1ResourceRequirements);
+
+            v1PodSpec.setContainers(
+                    Collections.singletonList(
+                            v1Container
+                    )
+            );
+            v1PodSpec.setRestartPolicy("Always");
+            v1PodTemplateSpec.setSpec(v1PodSpec);
+
+            v1StatefulSetSpec.setTemplate(v1PodTemplateSpec);
+
+            statefulSet.setSpec(v1StatefulSetSpec);
+            APPS_V_1_API.createNamespacedStatefulSet(namespace, statefulSet, Boolean.TRUE.toString(), null, null, null);
+            return true;
+        } catch (ApiException e) {
+            if (e.getCode() == ALREADY_EXIST) {
+                return true;
+            }
+            log.error("创建:{}.{} pod 异常信息:{}", namespace, podName, e.getResponseBody(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 创建service
+     */
+    public boolean createService(String namespace,
+                                 String name,
+                                 Map<String, String> specSelectorMap,
+                                 Integer port,
+                                 String clusterIp) {
+        try {
+            V1Service v1Service = new V1Service();
+            v1Service.setApiVersion("v1");
+            v1Service.setKind("Service");
+            V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
+            v1ObjectMeta.setName(name);
+            v1ObjectMeta.setNamespace(namespace);
+            v1Service.setMetadata(v1ObjectMeta);
+
+            V1ServiceSpec v1ServiceSpec = new V1ServiceSpec();
+            v1ServiceSpec.setSelector(specSelectorMap);
+
+            List<V1ServicePort> ports = new ArrayList<>();
+            V1ServicePort v1ServicePort = new V1ServicePort();
+            v1ServicePort.setPort(port);
+            ports.add(v1ServicePort);
+
+            v1ServiceSpec.setPorts(ports);
+            v1ServiceSpec.setClusterIP(clusterIp);
+
+            v1Service.setSpec(v1ServiceSpec);
+            CORE_V1_API.createNamespacedService(namespace, v1Service, Boolean.TRUE.toString(), null, null, null);
+            return true;
+        } catch (ApiException e) {
+            if (e.getCode() == ALREADY_EXIST) {
+                return true;
+            }
+            log.error("创建:{}.{} service 异常信息:{}", namespace, name, e.getResponseBody(), e);
+            return false;
         }
     }
 
