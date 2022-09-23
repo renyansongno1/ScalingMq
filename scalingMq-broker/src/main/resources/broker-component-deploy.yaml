@@ -2,6 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: scalingmq
   name: scalingmq-broker
   labels:
     app: scalingmq-broker
@@ -31,9 +32,13 @@ spec:
               memory: "1Gi"
           env:
             - name: ROUTE_SERVER_ADDR
-              value: "scaling-route-service"
+              value: "scalingmq-route-service"
             - name: ROUTE_SERVER_PORT
-              value: "4321"
+              value: "5432"
+            - name: TZ
+              value: Asia/Shanghai
+            - name: LANG
+              value: en_US.UTF-8
       restartPolicy: Always
   selector:
     matchLabels:
@@ -42,10 +47,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: scalingmq
   name: scalingmq-broker-service
+  labels:
+    app: scalingmq-broker
 spec:
   selector:
-    app: scalingmq-broker-service
+    app: scalingmq-broker
   ports:
     - port: 7654
       name: http-port

@@ -60,7 +60,7 @@ public class PeerFinder implements Lifecycle {
      * 开始查找
      */
     private void find() {
-        log.info("查询SRV:{} 下所有的域名服务", SRV_SERVICE);
+        log.debug("查询SRV:{} 下所有的域名服务", SRV_SERVICE);
         int startSize = PEER_HOST_SET.size();
         LookupSession s = LookupSession.defaultBuilder().build();
         try {
@@ -72,7 +72,7 @@ public class PeerFinder implements Lifecycle {
                                     if (!answers.getRecords().isEmpty()) {
                                         for (Record rec : answers.getRecords()) {
                                             SRVRecord mx = ((SRVRecord) rec);
-                                            log.info("Host " + mx.getTarget() + " has preference " + mx.getPriority());
+                                            log.debug("Host " + mx.getTarget() + " has preference " + mx.getPriority());
                                             PEER_HOST_SET.add(mx.getTarget().toString());
                                         }
                                     }
@@ -85,7 +85,7 @@ public class PeerFinder implements Lifecycle {
         } catch (TextParseException | InterruptedException | ExecutionException e) {
             log.error("dns java error", e);
         }
-        log.info("当前所有的peer域名:{}",Arrays.toString(PEER_HOST_SET.toArray()));
+        log.debug("当前所有的peer域名:{}",Arrays.toString(PEER_HOST_SET.toArray()));
         if (PEER_HOST_SET.size() != startSize) {
             // 通知所有的listener
             for (PeerChangeListener peerChangeListener : PEER_CHANGE_LISTENERS) {

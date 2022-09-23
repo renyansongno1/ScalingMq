@@ -46,7 +46,7 @@ public class BrokerConfig {
      * route server的端口
      */
     @EnvironmentVariable("ROUTE_SERVER_PORT")
-    private Integer routeServerPort;
+    private String routeServerPort;
 
     /**
      * route client的线程数量

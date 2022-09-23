@@ -25,7 +25,7 @@ public class ScalingMqBrokerApplication {
     public static void main(String[] args) {
         // 加载配置文件
         ConfigParseUtil.getInstance().parse(BrokerConfig.getInstance());
-        log.info("broker 加载的配置信息:{}", BrokerConfig.getInstance().toString());
+        log.debug("broker 加载的配置信息:{}", BrokerConfig.getInstance().toString());
 
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
@@ -43,7 +43,7 @@ public class ScalingMqBrokerApplication {
                     Map<Method, Object> methodObjectMap = new HashMap<>(2);
                     methodObjectMap.put(declaredMethod, endpointProcessor);
                     BrokerHttpNetEventHandler.getInstance().addUrlMapping(declaredAnnotation.value(), methodObjectMap);
-                    log.info("加载 http endpoint, url:{}", declaredAnnotation.value());
+                    log.debug("加载 http endpoint, url:{}", declaredAnnotation.value());
                 }
             }
         }

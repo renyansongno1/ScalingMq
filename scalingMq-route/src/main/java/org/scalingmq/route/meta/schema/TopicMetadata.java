@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class TopicMetadata {
 
     /**
@@ -28,7 +29,7 @@ public class TopicMetadata {
     /**
      * 分区数量
      */
-    private Integer partitionNums;
+    private String partitionNums;
 
     /**
      * 分区相关的元数据

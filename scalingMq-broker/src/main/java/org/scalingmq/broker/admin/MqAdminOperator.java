@@ -5,6 +5,7 @@ import org.scalingmq.broker.conf.BrokerConfig;
 import org.scalingmq.broker.exception.TopicAlreadyExistException;
 import org.scalingmq.broker.exception.TopicCreateFailException;
 import org.scalingmq.broker.server.http.req.CreateTopicReq;
+import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.route.client.RouteAppClient;
 import org.scalingmq.route.client.conf.RouteClientConfig;
 import org.scalingmq.route.client.entity.FetchTopicMetadataReqWrapper;
@@ -17,16 +18,16 @@ import org.scalingmq.route.client.entity.PutTopicMetadataReqWrapper;
  * @author renyansong
  */
 @Slf4j
-public class MqAdminOperator {
+public class MqAdminOperator implements Lifecycle {
 
     private static final MqAdminOperator INSTANCE = new MqAdminOperator();
 
     private static final RouteAppClient ROUTE_APP_CLIENT = RouteAppClient.getInstance();
 
     private MqAdminOperator() {
-        if (INSTANCE != null) {
+        /*if (INSTANCE != null) {
             throw new RuntimeException("not support reflect invoke");
-        }
+        }*/
         init();
     }
 
@@ -35,10 +36,10 @@ public class MqAdminOperator {
     }
 
     private void init() {
-        ROUTE_APP_CLIENT.initConfig(
+        RouteAppClient.getInstance().initConfig(
                 RouteClientConfig.builder()
                         .serverAddr(BrokerConfig.getInstance().getRouteServerAddr())
-                        .serverPort(BrokerConfig.getInstance().getRouteServerPort())
+                        .serverPort(Integer.valueOf(BrokerConfig.getInstance().getRouteServerPort()))
                         .threadCount(BrokerConfig.getInstance().getRouteClientThreadCount())
                         .build()
         );
@@ -49,7 +50,7 @@ public class MqAdminOperator {
      *
      * @param createTopicReq req
      */
-    public void createTopic(CreateTopicReq createTopicReq) throws Exception {
+    public boolean createTopic(CreateTopicReq createTopicReq) throws Exception {
         // 查询是否存在topic了
         try {
             FetchTopicMetadataResultWrapper.FetchTopicMetadataResult fetchTopicMetadataResult
@@ -57,7 +58,9 @@ public class MqAdminOperator {
                             FetchTopicMetadataReqWrapper.FetchTopicMetadataReq.newBuilder()
                                 .setTopicName(createTopicReq.getTopicName())
                                 .build());
-            if (fetchTopicMetadataResult != null) {
+            log.debug("获取topic metadata为:{}", fetchTopicMetadataResult.toString());
+            String topicName = fetchTopicMetadataResult.getTopicName();
+            if (!"".equals(topicName)) {
                 throw new TopicAlreadyExistException();
             }
             // 新建topic
@@ -69,11 +72,22 @@ public class MqAdminOperator {
                 throw new TopicCreateFailException();
             }
             // TODO: 2022/9/22 调用创建存储pod
+            return true;
         } catch (TopicAlreadyExistException | TopicCreateFailException te) {
             throw te;
         } catch (Exception e) {
             log.error("创建topic失败, 请求:{}", createTopicReq.toString(), e);
+            return false;
         }
     }
 
+    @Override
+    public void componentStart() {
+        init();
+    }
+
+    @Override
+    public void componentStop() {
+
+    }
 }

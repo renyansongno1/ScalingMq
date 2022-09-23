@@ -32,7 +32,7 @@ public class PojoUtil {
             Field[] fields = obj.getClass().getDeclaredFields();
             for (Field field : fields) {
                 int mod = field.getModifiers();
-                if(Modifier.isStatic(mod) || Modifier.isFinal(mod)){
+                if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
                     continue;
                 }
 

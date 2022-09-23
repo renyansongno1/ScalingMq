@@ -49,7 +49,7 @@ public class RouteNettyServer implements Lifecycle {
                         }
                     })
                     .childOption(ChannelOption.TCP_NODELAY, true);
-            ChannelFuture f = bootstrap.bind(RouteConfig.getInstance().getServerPort()).sync();
+            ChannelFuture f = bootstrap.bind(Integer.parseInt(RouteConfig.getInstance().getServerPort())).sync();
             f.channel().closeFuture().sync();
             stop();
         } catch (Throwable e) {

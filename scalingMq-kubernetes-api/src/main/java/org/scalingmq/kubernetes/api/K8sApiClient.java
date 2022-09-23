@@ -36,6 +36,7 @@ public class K8sApiClient {
         if (!CLIENT_INIT) {
             synchronized (K8sApiClient.class) {
                 if (!CLIENT_INIT) {
+                    log.debug("k8s client init....");
                     try {
                         // loading the in-cluster config, including:
                         //   1. service-account CA
@@ -48,6 +49,9 @@ public class K8sApiClient {
                         // ApiClient client = ClientBuilder.oldCluster().build();
                         // set the global default api-client to the in-cluster one from above
                         Configuration.setDefaultApiClient(client);
+                        CORE_V1_API.setApiClient(client);
+
+                        log.debug("k8s client completion of initialization");
                     } catch (IOException e) {
                         log.error("k8s client init error", e);
                         return null;
@@ -77,7 +81,7 @@ public class K8sApiClient {
             CORE_V1_API.createNamespacedConfigMap(namespace, v1ConfigMap, Boolean.TRUE.toString(), null, null, null);
             return true;
         } catch (ApiException e) {
-            log.error("创建configMap失败", e);
+            log.error("创建configMap失败, api exception, code:{}", e.getCode(), e);
             return false;
         }
     }
@@ -91,13 +95,14 @@ public class K8sApiClient {
      */
     public Map<String, String> getConfigMapByNsAndName(String namespace, String name) {
         try {
+            log.debug("k8s client 查询configmap, ns:{}, name:{}", namespace, name);
             V1ConfigMap v1ConfigMap = CORE_V1_API.readNamespacedConfigMap(name, namespace, Boolean.TRUE.toString());
             if (v1ConfigMap == null) {
                 return null;
             }
             return v1ConfigMap.getData();
         } catch (ApiException e) {
-            log.error("查询:{}.{} configmap 异常", namespace, name, e);
+            log.error("查询:{}.{} configmap 异常 code:{}", namespace, name, e.getCode(), e);
             return null;
         }
     }

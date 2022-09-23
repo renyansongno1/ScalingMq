@@ -15,6 +15,8 @@ dependencies {
     implementation(
             'io.grpc:grpc-stub:1.40.2',
             'io.grpc:grpc-protobuf:1.40.2',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
 
             project(':scalingMq-common')
     )

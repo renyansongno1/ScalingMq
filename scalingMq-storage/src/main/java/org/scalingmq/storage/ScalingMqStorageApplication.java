@@ -19,7 +19,7 @@ public class ScalingMqStorageApplication {
     public static void main(String[] args) {
         // 先加载配置文件
         ConfigParseUtil.getInstance().parse(StorageConfig.getInstance());
-        log.info("当前存储系统配置:{}", StorageConfig.getInstance());
+        log.debug("当前存储系统配置:{}", StorageConfig.getInstance());
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
         for (Lifecycle lifecycle : serviceLoader) {

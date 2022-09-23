@@ -22,7 +22,7 @@ public class ScalingMqRouteApplication {
     public static void main(String[] args) {
         // 先加载配置文件
         ConfigParseUtil.getInstance().parse(RouteConfig.getInstance());
-        log.info("当前路由系统配置:{}", RouteConfig.getInstance());
+        log.debug("当前路由系统配置:{}", RouteConfig.getInstance());
 
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);

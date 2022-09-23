@@ -36,6 +36,6 @@ public class RouteConfig {
      * 通信端口
      */
     @EnvironmentVariable("SERVER_PORT")
-    private Integer serverPort;
+    private String serverPort;
 
 }

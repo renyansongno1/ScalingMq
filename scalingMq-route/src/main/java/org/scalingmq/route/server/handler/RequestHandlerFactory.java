@@ -1,5 +1,8 @@
 package org.scalingmq.route.server.handler;
 
+import org.scalingmq.route.server.handler.impl.PutTopicMetadataHandler;
+import org.scalingmq.route.client.entity.*;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -44,10 +47,9 @@ public class RequestHandlerFactory {
     public RequestHandler getHandler(Class clazz) {
         // TODO: 2022/9/18 cache support
         for (RequestHandler handler : HANDLERS) {
-            Type type = handler.getClass().getGenericSuperclass();
-            if (type instanceof ParameterizedType) {
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                System.out.println(parameterizedType.getActualTypeArguments()[0]);
+            Type[] types = handler.getClass().getGenericInterfaces();
+            Type type = types[0];
+            if (type instanceof ParameterizedType parameterizedType) {
                 if (parameterizedType.getActualTypeArguments()[0].equals(clazz)) {
                     return handler;
                 }

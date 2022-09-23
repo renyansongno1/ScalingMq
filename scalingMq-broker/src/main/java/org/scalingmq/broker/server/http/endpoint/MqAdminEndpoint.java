@@ -21,10 +21,11 @@ public class MqAdminEndpoint implements EndpointProcessor {
      */
     @HttpEndpoint("/scalingmq/v1/topic/createTopic")
     public CreateTopicResponse createTopic(@RequestBody CreateTopicReq createTopicReq) {
-        log.info("创建topic API, 收到请求:{}", createTopicReq.toString());
+        log.debug("创建topic API, 收到请求:{}", createTopicReq.toString());
         // create
+        boolean result;
         try {
-            MqAdminOperator.getInstance().createTopic(createTopicReq);
+            result = MqAdminOperator.getInstance().createTopic(createTopicReq);
         } catch (Exception e) {
             return CreateTopicResponse.builder()
                     .success(false)
@@ -34,7 +35,7 @@ public class MqAdminEndpoint implements EndpointProcessor {
         }
         // response
         return CreateTopicResponse.builder()
-                .success(true)
+                .success(result)
                 .topicName(createTopicReq.getTopicName())
                 .build();
     }
