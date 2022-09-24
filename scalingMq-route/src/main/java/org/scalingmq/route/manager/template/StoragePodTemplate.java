@@ -65,4 +65,8 @@ public class StoragePodTemplate {
 
     private String memoryResource = RouteConfig.getInstance().getScheduleStoragePodMem();
 
+    public void addCoordinatorConfig(String str) {
+        ENV_MAP.put("COORDINATOR_NUMS", str);
+    }
+
 }

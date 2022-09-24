@@ -45,6 +45,7 @@ public class RouteManager {
         boolean schedRes = scheduleStoragePods0(topicName, topicMetadata.getPartitionNums());
         if (schedRes) {
             // TODO: 2022/9/23 更新元数据
+
         }
         return schedRes;
     }
@@ -71,6 +72,18 @@ public class RouteManager {
 
         StoragePodTemplate storagePodTemplate = new StoragePodTemplate(storageServiceTemplate);
         storagePodTemplate.setReplicas(partitions);
+        String scheduleStorageCoordinatorRatio = RouteConfig.getInstance().getScheduleStorageCoordinatorRatio();
+        if (scheduleStorageCoordinatorRatio != null && !"".equals(scheduleStorageCoordinatorRatio)) {
+            int coordinatorNums = partitions * Integer.parseInt(scheduleStorageCoordinatorRatio) / 100;
+            if (coordinatorNums > 0) {
+                storagePodTemplate.setReplicas(partitions + coordinatorNums);
+                StringBuilder coordinatorStr = new StringBuilder();
+                for (int i = partitions; i < partitions + coordinatorNums; i++) {
+                    coordinatorStr.append(",").append(i + 1);
+                }
+                storagePodTemplate.addCoordinatorConfig(coordinatorStr.toString());
+            }
+        }
         return instance.createPods(
                 RouteConfig.getInstance().getNamespace(),
                 storagePodTemplate.getPodName(),

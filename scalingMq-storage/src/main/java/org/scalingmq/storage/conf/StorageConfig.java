@@ -84,7 +84,8 @@ public class StorageConfig {
     /**
      * 协调者节点编号
      */
-    private List<Integer> coordinatorNums;
+    @EnvironmentVariable("COORDINATOR_NUMS")
+    private String coordinatorNums;
 
     /**
      * raft通信端口

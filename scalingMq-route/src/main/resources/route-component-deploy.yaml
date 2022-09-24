@@ -82,6 +82,8 @@ spec:
               value: "500m"
             - name: SCHEDULE_STORAGE_POD_MEM
               value: "1Gi"
+            - name: SCHEDULE_STORAGE_COORDINATOR_RATIO
+              value: "30"
           resources:
             requests:
               cpu: "500m"

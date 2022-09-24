@@ -62,4 +62,11 @@ public class RouteConfig {
     @EnvironmentVariable("SCHEDULE_STORAGE_POD_MEM")
     private String scheduleStoragePodMem;
 
+    /**
+     * 创建出来的storage pod需要的coordinator的比例
+     * 不会影响原来本身的数量
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_COORDINATOR_RATIO")
+    private String scheduleStorageCoordinatorRatio;
+
 }

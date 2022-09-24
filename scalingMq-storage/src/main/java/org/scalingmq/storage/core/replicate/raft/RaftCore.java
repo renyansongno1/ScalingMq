@@ -10,6 +10,7 @@ import org.scalingmq.storage.core.replicate.raft.entity.RaftVoteResWrapper;
 import org.scalingmq.common.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
@@ -102,8 +103,10 @@ public class RaftCore implements Lifecycle {
         } else {
             return;
         }
-        if (storageConfig.getCoordinatorNums() != null && storageConfig.getCoordinatorNums().size() > 0) {
-            if (storageConfig.getCoordinatorNums().contains(peerId)) {
+        if (storageConfig.getCoordinatorNums() != null && !"".equals(storageConfig.getCoordinatorNums())) {
+            String[] coordinators = storageConfig.getCoordinatorNums().split(",");
+            List<String> coordinatorList = Arrays.asList(coordinators);
+            if (coordinatorList.contains(String.valueOf(peerId))) {
                 // 当前节点是协调节点
                 state = RaftStateEnum.COORDINATOR;
             }
