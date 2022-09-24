@@ -3,6 +3,7 @@ package org.scalingmq.storage.core.storage.impl;
 import com.intel.pmem.llpl.Transaction;
 import com.intel.pmem.llpl.TransactionalHeap;
 import com.intel.pmem.llpl.TransactionalMemoryBlock;
+import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.PartitionMsgStorage;
 import org.scalingmq.storage.core.StorageClass;
@@ -53,7 +54,7 @@ public class PmemStorage implements StorageClass {
                 : TransactionalHeap.createHeap(pmemMountPath, pmemIndexSize);
 
 
-        PartitionMsgStorage.getInstance().addStorageClass(storagePriority(), this);
+        IocContainer.getInstance().getObj(PartitionMsgStorage.class).addStorageClass(storagePriority(), this);
     }
 
     @Override

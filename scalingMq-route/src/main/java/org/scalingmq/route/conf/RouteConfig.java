@@ -39,10 +39,28 @@ public class RouteConfig {
     private String serverPort;
 
     /**
-     * 动态生成的storage pod的端口
+     * 动态生成的storage pod的msg端口
      */
     @EnvironmentVariable("SCHEDULE_STORAGE_POD_PORT")
     private String scheduleStoragePodPort;
+
+    /**
+     * 动态生成的storage pod的msg端口名称
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_PORT_NAME")
+    private String scheduleStoragePodPortName;
+
+    /**
+     * 动态生成的storage pod的raft端口
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_RAFT_PORT")
+    private String scheduleStoragePodRaftPort;
+
+    /**
+     * 动态生成的storage pod的raft端口名称
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_POD_RAFT_PORT_NAME")
+    private String scheduleStoragePodRaftPortName;
 
     /**
      * 动态生成的storage pod image

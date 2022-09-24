@@ -7,6 +7,7 @@ import org.scalingmq.broker.server.http.HttpEndpoint;
 import org.scalingmq.broker.server.http.RequestBody;
 import org.scalingmq.broker.server.http.req.CreateTopicReq;
 import org.scalingmq.broker.server.http.vo.CreateTopicResponse;
+import org.scalingmq.common.ioc.IocContainer;
 
 /**
  * admin相关的操作端点
@@ -25,7 +26,7 @@ public class MqAdminEndpoint implements EndpointProcessor {
         // create
         boolean result;
         try {
-            result = MqAdminOperator.getInstance().createTopic(createTopicReq);
+            result = IocContainer.getInstance().getObj(MqAdminOperator.class).createTopic(createTopicReq);
         } catch (Exception e) {
             return CreateTopicResponse.builder()
                     .success(false)

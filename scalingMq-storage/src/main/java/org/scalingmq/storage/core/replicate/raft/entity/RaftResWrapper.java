@@ -18,6 +18,26 @@ public final class RaftResWrapper {
 
     /**
      * <pre>
+     * 错误信息
+     * </pre>
+     *
+     * <code>string errorMsg = 1;</code>
+     * @return The errorMsg.
+     */
+    String getErrorMsg();
+    /**
+     * <pre>
+     * 错误信息
+     * </pre>
+     *
+     * <code>string errorMsg = 1;</code>
+     * @return The bytes for errorMsg.
+     */
+    com.google.protobuf.ByteString
+        getErrorMsgBytes();
+
+    /**
+     * <pre>
      * 选票响应
      * </pre>
      *
@@ -83,6 +103,7 @@ public final class RaftResWrapper {
       super(builder);
     }
     private RaftRes() {
+      errorMsg_ = "";
     }
 
     @Override
@@ -115,6 +136,12 @@ public final class RaftResWrapper {
             case 0:
               done = true;
               break;
+            case 10: {
+              String s = input.readStringRequireUtf8();
+
+              errorMsg_ = s;
+              break;
+            }
             case 18: {
               RaftVoteResWrapper.RaftVoteRes.Builder subBuilder = null;
               if (raftVoteRes_ != null) {
@@ -171,6 +198,52 @@ public final class RaftResWrapper {
       return RaftResWrapper.internal_static_RaftRes_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               RaftRes.class, Builder.class);
+    }
+
+    public static final int ERRORMSG_FIELD_NUMBER = 1;
+    private volatile Object errorMsg_;
+    /**
+     * <pre>
+     * 错误信息
+     * </pre>
+     *
+     * <code>string errorMsg = 1;</code>
+     * @return The errorMsg.
+     */
+    @Override
+    public String getErrorMsg() {
+      Object ref = errorMsg_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        errorMsg_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 错误信息
+     * </pre>
+     *
+     * <code>string errorMsg = 1;</code>
+     * @return The bytes for errorMsg.
+     */
+    @Override
+    public com.google.protobuf.ByteString
+        getErrorMsgBytes() {
+      Object ref = errorMsg_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (String) ref);
+        errorMsg_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int RAFTVOTERES_FIELD_NUMBER = 2;
@@ -263,6 +336,9 @@ public final class RaftResWrapper {
     @Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (!getErrorMsgBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, errorMsg_);
+      }
       if (raftVoteRes_ != null) {
         output.writeMessage(2, getRaftVoteRes());
       }
@@ -278,6 +354,9 @@ public final class RaftResWrapper {
       if (size != -1) return size;
 
       size = 0;
+      if (!getErrorMsgBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, errorMsg_);
+      }
       if (raftVoteRes_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, getRaftVoteRes());
@@ -301,6 +380,8 @@ public final class RaftResWrapper {
       }
       RaftRes other = (RaftRes) obj;
 
+      if (!getErrorMsg()
+          .equals(other.getErrorMsg())) return false;
       if (hasRaftVoteRes() != other.hasRaftVoteRes()) return false;
       if (hasRaftVoteRes()) {
         if (!getRaftVoteRes()
@@ -322,6 +403,8 @@ public final class RaftResWrapper {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + ERRORMSG_FIELD_NUMBER;
+      hash = (53 * hash) + getErrorMsg().hashCode();
       if (hasRaftVoteRes()) {
         hash = (37 * hash) + RAFTVOTERES_FIELD_NUMBER;
         hash = (53 * hash) + getRaftVoteRes().hashCode();
@@ -463,6 +546,8 @@ public final class RaftResWrapper {
       @Override
       public Builder clear() {
         super.clear();
+        errorMsg_ = "";
+
         if (raftVoteResBuilder_ == null) {
           raftVoteRes_ = null;
         } else {
@@ -501,6 +586,7 @@ public final class RaftResWrapper {
       @Override
       public RaftRes buildPartial() {
         RaftRes result = new RaftRes(this);
+        result.errorMsg_ = errorMsg_;
         if (raftVoteResBuilder_ == null) {
           result.raftVoteRes_ = raftVoteRes_;
         } else {
@@ -559,6 +645,10 @@ public final class RaftResWrapper {
 
       public Builder mergeFrom(RaftRes other) {
         if (other == RaftRes.getDefaultInstance()) return this;
+        if (!other.getErrorMsg().isEmpty()) {
+          errorMsg_ = other.errorMsg_;
+          onChanged();
+        }
         if (other.hasRaftVoteRes()) {
           mergeRaftVoteRes(other.getRaftVoteRes());
         }
@@ -591,6 +681,102 @@ public final class RaftResWrapper {
             mergeFrom(parsedMessage);
           }
         }
+        return this;
+      }
+
+      private Object errorMsg_ = "";
+      /**
+       * <pre>
+       * 错误信息
+       * </pre>
+       *
+       * <code>string errorMsg = 1;</code>
+       * @return The errorMsg.
+       */
+      public String getErrorMsg() {
+        Object ref = errorMsg_;
+        if (!(ref instanceof String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          String s = bs.toStringUtf8();
+          errorMsg_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 错误信息
+       * </pre>
+       *
+       * <code>string errorMsg = 1;</code>
+       * @return The bytes for errorMsg.
+       */
+      public com.google.protobuf.ByteString
+          getErrorMsgBytes() {
+        Object ref = errorMsg_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (String) ref);
+          errorMsg_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 错误信息
+       * </pre>
+       *
+       * <code>string errorMsg = 1;</code>
+       * @param value The errorMsg to set.
+       * @return This builder for chaining.
+       */
+      public Builder setErrorMsg(
+          String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        errorMsg_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 错误信息
+       * </pre>
+       *
+       * <code>string errorMsg = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearErrorMsg() {
+        
+        errorMsg_ = getDefaultInstance().getErrorMsg();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 错误信息
+       * </pre>
+       *
+       * <code>string errorMsg = 1;</code>
+       * @param value The bytes for errorMsg to set.
+       * @return This builder for chaining.
+       */
+      public Builder setErrorMsgBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        errorMsg_ = value;
+        onChanged();
         return this;
       }
 
@@ -971,10 +1157,11 @@ public final class RaftResWrapper {
   static {
     String[] descriptorData = {
       "\n\022RaftResponse.proto\032\033RaftHeartbeatRespo" +
-      "nse.proto\032\026RaftVoteResponse.proto\"Y\n\007Raf" +
-      "tRes\022!\n\013raftVoteRes\030\002 \001(\0132\014.RaftVoteRes\022" +
-      "+\n\020raftHeartbeatRes\030\003 \001(\0132\021.RaftHeartbea" +
-      "tResB\020B\016RaftResWrapperb\006proto3"
+      "nse.proto\032\026RaftVoteResponse.proto\"k\n\007Raf" +
+      "tRes\022\020\n\010errorMsg\030\001 \001(\t\022!\n\013raftVoteRes\030\002 " +
+      "\001(\0132\014.RaftVoteRes\022+\n\020raftHeartbeatRes\030\003 " +
+      "\001(\0132\021.RaftHeartbeatResB\020B\016RaftResWrapper" +
+      "b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -987,7 +1174,7 @@ public final class RaftResWrapper {
     internal_static_RaftRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RaftRes_descriptor,
-        new String[] { "RaftVoteRes", "RaftHeartbeatRes", });
+        new String[] { "ErrorMsg", "RaftVoteRes", "RaftHeartbeatRes", });
     RaftHeartbeatResWrapper.getDescriptor();
     RaftVoteResWrapper.getDescriptor();
   }

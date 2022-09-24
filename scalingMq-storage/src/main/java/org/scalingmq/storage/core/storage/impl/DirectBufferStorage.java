@@ -1,6 +1,7 @@
 package org.scalingmq.storage.core.storage.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.PartitionMsgStorage;
 import org.scalingmq.storage.core.StorageClass;
@@ -81,7 +82,7 @@ public class DirectBufferStorage implements StorageClass {
         log.debug("索引存储可以使用的内存:{} bytes", maxIndexCapacity);
 
         // 注册
-        PartitionMsgStorage.getInstance().addStorageClass(storagePriority(), this);
+        IocContainer.getInstance().getObj(PartitionMsgStorage.class).addStorageClass(storagePriority(), this);
     }
 
     @Override

@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 网络客户端实现
@@ -87,10 +88,14 @@ public class NetworkClient {
             CountDownLatch waitConnected = new CountDownLatch(1);
             connect(addr, port, messageLite, waitConnected);
             try {
-                waitConnected.await();
+                boolean await = waitConnected.await(60000L, TimeUnit.MILLISECONDS);
+                if (!await) {
+                    // TODO: 2022/9/24 重连机制
+                    log.error("network client 建立连接失败:{}", connection);
+                    return null;
+                }
             } catch (InterruptedException e) {
                 // ignore
-                // TODO: 2022/9/21 超时连接 超时响应
             }
             return sendReq(req, addr, port, messageLite);
         }

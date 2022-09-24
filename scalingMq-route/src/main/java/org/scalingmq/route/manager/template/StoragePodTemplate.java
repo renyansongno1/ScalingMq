@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.scalingmq.route.conf.RouteConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,12 +61,17 @@ public class StoragePodTemplate {
 
     private String imageName = RouteConfig.getInstance().getScheduleStoragePodImage();
 
-    private Integer containerPort = Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodPort());
+    private List<Integer> containerPorts = new ArrayList<>();
+
+    private List<String> containerPortNames = new ArrayList<>();
 
     private String cpuResource = RouteConfig.getInstance().getScheduleStoragePodCpu();
 
     private String memoryResource = RouteConfig.getInstance().getScheduleStoragePodMem();
 
+    /**
+     * 添加coordinator的环境变量配置
+     */
     public void addCoordinatorConfig(String str) {
         ENV_MAP.put("COORDINATOR_NUMS", str);
     }

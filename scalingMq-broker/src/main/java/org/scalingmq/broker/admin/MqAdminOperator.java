@@ -21,19 +21,10 @@ import org.scalingmq.route.client.entity.SchedStoragePodReqWrapper;
 @Slf4j
 public class MqAdminOperator implements Lifecycle {
 
-    private static final MqAdminOperator INSTANCE = new MqAdminOperator();
-
     private static final RouteAppClient ROUTE_APP_CLIENT = RouteAppClient.getInstance();
 
-    private MqAdminOperator() {
-        /*if (INSTANCE != null) {
-            throw new RuntimeException("not support reflect invoke");
-        }*/
+    public MqAdminOperator() {
         init();
-    }
-
-    public static MqAdminOperator getInstance() {
-        return INSTANCE;
     }
 
     private void init() {

@@ -58,12 +58,18 @@ public class RouteManager {
 
         // 创建service
         StorageServiceTemplate storageServiceTemplate = new StorageServiceTemplate(topicName);
+        storageServiceTemplate.getPorts().add(Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodPort()));
+        storageServiceTemplate.getPorts().add(Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodRaftPort()));
+
+        storageServiceTemplate.getPortNames().add(RouteConfig.getInstance().getScheduleStoragePodPortName());
+        storageServiceTemplate.getPortNames().add(RouteConfig.getInstance().getScheduleStoragePodRaftPortName());
 
         boolean srvRes = instance.createService(
                 RouteConfig.getInstance().getNamespace(),
                 storageServiceTemplate.getStorageServiceName(),
                 StorageServiceTemplate.SPEC_SELECTOR_MAP,
-                storageServiceTemplate.getPort(),
+                storageServiceTemplate.getPorts(),
+                storageServiceTemplate.getPortNames(),
                 storageServiceTemplate.getClusterIp()
         );
         if (!srvRes) {
@@ -71,6 +77,11 @@ public class RouteManager {
         }
 
         StoragePodTemplate storagePodTemplate = new StoragePodTemplate(storageServiceTemplate);
+        storagePodTemplate.getContainerPorts().add(Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodPort()));
+        storagePodTemplate.getContainerPorts().add(Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodRaftPort()));
+        storagePodTemplate.getContainerPortNames().add(RouteConfig.getInstance().getScheduleStoragePodPortName());
+        storagePodTemplate.getContainerPortNames().add(RouteConfig.getInstance().getScheduleStoragePodRaftPortName());
+
         storagePodTemplate.setReplicas(partitions);
         String scheduleStorageCoordinatorRatio = RouteConfig.getInstance().getScheduleStorageCoordinatorRatio();
         if (scheduleStorageCoordinatorRatio != null && !"".equals(scheduleStorageCoordinatorRatio)) {
@@ -95,7 +106,8 @@ public class RouteManager {
                 StoragePodTemplate.TEMP_LABEL_MAP,
                 storagePodTemplate.getContainerName(),
                 storagePodTemplate.getImageName(),
-                storagePodTemplate.getContainerPort(),
+                storagePodTemplate.getContainerPorts(),
+                storagePodTemplate.getContainerPortNames(),
                 StoragePodTemplate.ENV_MAP,
                 storagePodTemplate.getCpuResource(),
                 storagePodTemplate.getMemoryResource()

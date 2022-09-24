@@ -19,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class PeerFinder implements Lifecycle {
 
-    private static final PeerFinder INSTANCE = new PeerFinder();
-
     /**
      * SRV的后缀
      * <service name>.<namespace>.svc.cluster.local
@@ -46,15 +44,12 @@ public class PeerFinder implements Lifecycle {
     private static final ScheduledThreadPoolExecutor TIMER = new ScheduledThreadPoolExecutor(1,
             r -> new Thread(r, "peer-find-timer"));
 
-    public PeerFinder() {
-        /*if (INSTANCE != null) {
-            throw new RuntimeException("not support reflect invoke");
-        }*/
-    }
+    /**
+     * 是否初始化查询过了
+     */
+    private volatile boolean initFind = false;
 
-    public static PeerFinder getInstance() {
-        return INSTANCE;
-    }
+    public PeerFinder() {}
 
     /**
      * 开始查找
@@ -92,6 +87,7 @@ public class PeerFinder implements Lifecycle {
                 peerChangeListener.allPeer(getPeers());
             }
         }
+        initFind = true;
     }
 
     /**
@@ -99,6 +95,9 @@ public class PeerFinder implements Lifecycle {
      * @return peer un modify set
      */
     public Set<String> getPeers() {
+        if (!initFind) {
+            find();
+        }
         return Collections.unmodifiableSet(PEER_HOST_SET);
     }
 

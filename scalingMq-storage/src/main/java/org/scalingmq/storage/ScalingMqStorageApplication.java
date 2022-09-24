@@ -2,6 +2,7 @@ package org.scalingmq.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.config.ConfigParseUtil;
+import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.common.lifecycle.Lifecycle;
 
@@ -22,6 +23,9 @@ public class ScalingMqStorageApplication {
         log.debug("当前存储系统配置:{}", StorageConfig.getInstance());
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
+        for (Lifecycle lifecycle : serviceLoader) {
+            IocContainer.getInstance().add(lifecycle);
+        }
         for (Lifecycle lifecycle : serviceLoader) {
             lifecycle.componentStart();
         }

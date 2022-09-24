@@ -76,6 +76,12 @@ spec:
               value: en_US.UTF-8
             - name: SCHEDULE_STORAGE_POD_PORT
               value: "9876"
+            - name: SCHEDULE_STORAGE_POD_PORT_NAME
+              value: "msg-port"
+            - name: SCHEDULE_STORAGE_POD_RAFT_PORT
+              value: "4321"
+            - name: SCHEDULE_STORAGE_POD_RAFT_PORT_NAME
+              value: "raft-port"
             - name: SCHEDULE_STORAGE_POD_IMAGE
               value: "scalingmq-storage-component:v1.0"
             - name: SCHEDULE_STORAGE_POD_CPU

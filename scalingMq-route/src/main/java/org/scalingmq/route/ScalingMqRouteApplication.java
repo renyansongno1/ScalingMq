@@ -2,6 +2,7 @@ package org.scalingmq.route;
 
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.config.ConfigParseUtil;
+import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.route.conf.RouteConfig;
 import org.scalingmq.route.server.handler.RequestHandler;
@@ -26,6 +27,9 @@ public class ScalingMqRouteApplication {
 
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
+        for (Lifecycle lifecycle : serviceLoader) {
+            IocContainer.getInstance().add(lifecycle);
+        }
         for (Lifecycle lifecycle : serviceLoader) {
             lifecycle.componentStart();
         }

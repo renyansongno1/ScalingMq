@@ -6,6 +6,8 @@ import "RaftHeartbeatResponse.proto";
 import "RaftVoteResponse.proto";
 
 message RaftRes {
+  // 错误信息
+  string errorMsg = 1;
   // 选票响应
   RaftVoteRes raftVoteRes = 2;
   // 心跳响应

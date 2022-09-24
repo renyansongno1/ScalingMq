@@ -1,5 +1,6 @@
 package org.scalingmq.storage.core.storage.impl;
 
+import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.PartitionMsgStorage;
 import org.scalingmq.storage.core.StorageClass;
@@ -53,7 +54,7 @@ public class DiskStorage implements StorageClass {
             // ignore
             return;
         }
-        PartitionMsgStorage.getInstance().addStorageClass(storagePriority(), this);
+        IocContainer.getInstance().getObj(PartitionMsgStorage.class).addStorageClass(storagePriority(), this);
     }
 
     @Override

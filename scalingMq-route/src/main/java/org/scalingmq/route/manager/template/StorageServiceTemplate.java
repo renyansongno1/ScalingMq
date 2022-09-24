@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.scalingmq.route.conf.RouteConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +32,9 @@ public class StorageServiceTemplate {
         SPEC_SELECTOR_MAP.put("app", storagePodName);
     }
 
-    private Integer port = Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodPort());
+    private List<Integer> ports = new ArrayList<>();
+
+    private List<String> portNames = new ArrayList<>();
 
     private String clusterIp = "None";
 

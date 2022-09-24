@@ -15,8 +15,6 @@ import java.util.TreeMap;
  */
 public class PartitionMsgStorage implements Lifecycle {
 
-    private static final PartitionMsgStorage INSTANCE = new PartitionMsgStorage();
-
     private final MpscArrayQueue<PutIndexEntry> putIndexEntryMpscArrayQueue = new MpscArrayQueue<>(100000);
 
     private static volatile boolean STOP = false;
@@ -31,10 +29,6 @@ public class PartitionMsgStorage implements Lifecycle {
 
     public PartitionMsgStorage() {
 
-    }
-
-    public static PartitionMsgStorage getInstance() {
-        return INSTANCE;
     }
 
     /**

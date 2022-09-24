@@ -6,6 +6,7 @@ import org.scalingmq.broker.server.handler.BrokerHttpNetEventHandler;
 import org.scalingmq.broker.server.http.EndpointProcessor;
 import org.scalingmq.broker.server.http.HttpEndpoint;
 import org.scalingmq.common.config.ConfigParseUtil;
+import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.lifecycle.Lifecycle;
 
 import java.lang.reflect.Method;
@@ -29,6 +30,9 @@ public class ScalingMqBrokerApplication {
 
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
+        for (Lifecycle lifecycle : serviceLoader) {
+            IocContainer.getInstance().add(lifecycle);
+        }
         for (Lifecycle lifecycle : serviceLoader) {
             lifecycle.componentStart();
         }

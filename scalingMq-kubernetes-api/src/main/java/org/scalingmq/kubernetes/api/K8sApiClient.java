@@ -136,7 +136,8 @@ public class K8sApiClient {
                               Map<String, String> templateMetadataLabelMap,
                               String containerName,
                               String imageName,
-                              Integer containerPort,
+                              List<Integer> containerPorts,
+                              List<String> containerNames,
                               Map<String, String> envMap,
                               String cpuResource,
                               String memoryResource) {
@@ -175,10 +176,17 @@ public class K8sApiClient {
             v1Container.setImage(imageName);
             v1Container.setImagePullPolicy("IfNotPresent");
 
-            V1ContainerPort v1ContainerPort = new V1ContainerPort();
-            v1ContainerPort.setContainerPort(containerPort);
+            List<V1ContainerPort> ports = new ArrayList<>();
+            for (int i = 0; i < containerPorts.size(); i++) {
+                Integer containerPort = containerPorts.get(i);
+                String containerPortName = containerNames.get(i);
+                V1ContainerPort v1ContainerPort = new V1ContainerPort();
+                v1ContainerPort.setContainerPort(containerPort);
+                v1ContainerPort.setName(containerPortName);
+                ports.add(v1ContainerPort);
+            }
 
-            v1Container.setPorts(Collections.singletonList(v1ContainerPort));
+            v1Container.setPorts(ports);
 
             List<V1EnvVar> envVarList = new ArrayList<>();
             for (Map.Entry<String, String> stringStringEntry : envMap.entrySet()) {
@@ -236,7 +244,8 @@ public class K8sApiClient {
     public boolean createService(String namespace,
                                  String name,
                                  Map<String, String> specSelectorMap,
-                                 Integer port,
+                                 List<Integer> portList,
+                                 List<String> portNameList,
                                  String clusterIp) {
         try {
             V1Service v1Service = new V1Service();
@@ -251,9 +260,14 @@ public class K8sApiClient {
             v1ServiceSpec.setSelector(specSelectorMap);
 
             List<V1ServicePort> ports = new ArrayList<>();
-            V1ServicePort v1ServicePort = new V1ServicePort();
-            v1ServicePort.setPort(port);
-            ports.add(v1ServicePort);
+            for (int i = 0; i < portList.size(); i++) {
+                Integer port = portList.get(i);
+                String portName = portNameList.get(i);
+                V1ServicePort v1ServicePort = new V1ServicePort();
+                v1ServicePort.setPort(port);
+                v1ServicePort.setName(portName);
+                ports.add(v1ServicePort);
+            }
 
             v1ServiceSpec.setPorts(ports);
             v1ServiceSpec.setClusterIP(clusterIp);
