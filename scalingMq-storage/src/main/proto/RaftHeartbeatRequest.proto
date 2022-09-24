@@ -9,4 +9,8 @@ message RaftHeartbeatReq {
 
   // 期数
   int64 term = 2;
+
+  // 当前leader最大的消息位点
+  int64 maxOffset = 3;
+
 }

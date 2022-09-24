@@ -6,8 +6,15 @@ message RaftVoteRes {
   enum Result{
     ACCEPT = 0;
     REJECT = 1;
-    UNKNOWN = 2;
+    TERM_EXPIRE = 2;
+    UNKNOWN = 3;
   }
 
   Result result = 1;
+
+  // term过期
+  int32 leaderId = 2;
+
+  int64 term = 3;
+
 }

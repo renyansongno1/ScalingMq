@@ -18,6 +18,10 @@ public class StorageConfig {
 
     private static final StorageConfig INSTANCE = new StorageConfig();
 
+    public static final int MSG_PORT = 9876;
+
+    public static final int RAFT_PORT = 4321;
+
     private StorageConfig() {
         if (INSTANCE != null) {
             throw new RuntimeException("not support reflect invoke");
@@ -86,11 +90,5 @@ public class StorageConfig {
      */
     @EnvironmentVariable("COORDINATOR_NUMS")
     private String coordinatorNums;
-
-    /**
-     * raft通信端口
-     */
-    @EnvironmentVariable("RAFT_PORT")
-    private Integer raftPort;
 
 }

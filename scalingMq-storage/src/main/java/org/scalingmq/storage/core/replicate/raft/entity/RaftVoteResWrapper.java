@@ -26,6 +26,22 @@ public final class RaftVoteResWrapper {
      * @return The result.
      */
     RaftVoteRes.Result getResult();
+
+    /**
+     * <pre>
+     * term过期
+     * </pre>
+     *
+     * <code>int32 leaderId = 2;</code>
+     * @return The leaderId.
+     */
+    int getLeaderId();
+
+    /**
+     * <code>int64 term = 3;</code>
+     * @return The term.
+     */
+    long getTerm();
   }
   /**
    * Protobuf type {@code RaftVoteRes}
@@ -79,6 +95,16 @@ public final class RaftVoteResWrapper {
               result_ = rawValue;
               break;
             }
+            case 16: {
+
+              leaderId_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              term_ = input.readInt64();
+              break;
+            }
             default: {
               if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
@@ -125,9 +151,13 @@ public final class RaftVoteResWrapper {
        */
       REJECT(1),
       /**
-       * <code>UNKNOWN = 2;</code>
+       * <code>TERM_EXPIRE = 2;</code>
        */
-      UNKNOWN(2),
+      TERM_EXPIRE(2),
+      /**
+       * <code>UNKNOWN = 3;</code>
+       */
+      UNKNOWN(3),
       UNRECOGNIZED(-1),
       ;
 
@@ -140,9 +170,13 @@ public final class RaftVoteResWrapper {
        */
       public static final int REJECT_VALUE = 1;
       /**
-       * <code>UNKNOWN = 2;</code>
+       * <code>TERM_EXPIRE = 2;</code>
        */
-      public static final int UNKNOWN_VALUE = 2;
+      public static final int TERM_EXPIRE_VALUE = 2;
+      /**
+       * <code>UNKNOWN = 3;</code>
+       */
+      public static final int UNKNOWN_VALUE = 3;
 
 
       public final int getNumber() {
@@ -171,7 +205,8 @@ public final class RaftVoteResWrapper {
         switch (value) {
           case 0: return ACCEPT;
           case 1: return REJECT;
-          case 2: return UNKNOWN;
+          case 2: return TERM_EXPIRE;
+          case 3: return UNKNOWN;
           default: return null;
         }
       }
@@ -247,6 +282,32 @@ public final class RaftVoteResWrapper {
       return result == null ? Result.UNRECOGNIZED : result;
     }
 
+    public static final int LEADERID_FIELD_NUMBER = 2;
+    private int leaderId_;
+    /**
+     * <pre>
+     * term过期
+     * </pre>
+     *
+     * <code>int32 leaderId = 2;</code>
+     * @return The leaderId.
+     */
+    @Override
+    public int getLeaderId() {
+      return leaderId_;
+    }
+
+    public static final int TERM_FIELD_NUMBER = 3;
+    private long term_;
+    /**
+     * <code>int64 term = 3;</code>
+     * @return The term.
+     */
+    @Override
+    public long getTerm() {
+      return term_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -264,6 +325,12 @@ public final class RaftVoteResWrapper {
       if (result_ != Result.ACCEPT.getNumber()) {
         output.writeEnum(1, result_);
       }
+      if (leaderId_ != 0) {
+        output.writeInt32(2, leaderId_);
+      }
+      if (term_ != 0L) {
+        output.writeInt64(3, term_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -276,6 +343,14 @@ public final class RaftVoteResWrapper {
       if (result_ != Result.ACCEPT.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, result_);
+      }
+      if (leaderId_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, leaderId_);
+      }
+      if (term_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, term_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -293,6 +368,10 @@ public final class RaftVoteResWrapper {
       RaftVoteRes other = (RaftVoteRes) obj;
 
       if (result_ != other.result_) return false;
+      if (getLeaderId()
+          != other.getLeaderId()) return false;
+      if (getTerm()
+          != other.getTerm()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -306,6 +385,11 @@ public final class RaftVoteResWrapper {
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + RESULT_FIELD_NUMBER;
       hash = (53 * hash) + result_;
+      hash = (37 * hash) + LEADERID_FIELD_NUMBER;
+      hash = (53 * hash) + getLeaderId();
+      hash = (37 * hash) + TERM_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTerm());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -441,6 +525,10 @@ public final class RaftVoteResWrapper {
         super.clear();
         result_ = 0;
 
+        leaderId_ = 0;
+
+        term_ = 0L;
+
         return this;
       }
 
@@ -468,6 +556,8 @@ public final class RaftVoteResWrapper {
       public RaftVoteRes buildPartial() {
         RaftVoteRes result = new RaftVoteRes(this);
         result.result_ = result_;
+        result.leaderId_ = leaderId_;
+        result.term_ = term_;
         onBuilt();
         return result;
       }
@@ -518,6 +608,12 @@ public final class RaftVoteResWrapper {
         if (other == RaftVoteRes.getDefaultInstance()) return this;
         if (other.result_ != 0) {
           setResultValue(other.getResultValue());
+        }
+        if (other.getLeaderId() != 0) {
+          setLeaderId(other.getLeaderId());
+        }
+        if (other.getTerm() != 0L) {
+          setTerm(other.getTerm());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -601,6 +697,80 @@ public final class RaftVoteResWrapper {
         onChanged();
         return this;
       }
+
+      private int leaderId_ ;
+      /**
+       * <pre>
+       * term过期
+       * </pre>
+       *
+       * <code>int32 leaderId = 2;</code>
+       * @return The leaderId.
+       */
+      @Override
+      public int getLeaderId() {
+        return leaderId_;
+      }
+      /**
+       * <pre>
+       * term过期
+       * </pre>
+       *
+       * <code>int32 leaderId = 2;</code>
+       * @param value The leaderId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setLeaderId(int value) {
+        
+        leaderId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * term过期
+       * </pre>
+       *
+       * <code>int32 leaderId = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearLeaderId() {
+        
+        leaderId_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long term_ ;
+      /**
+       * <code>int64 term = 3;</code>
+       * @return The term.
+       */
+      @Override
+      public long getTerm() {
+        return term_;
+      }
+      /**
+       * <code>int64 term = 3;</code>
+       * @param value The term to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTerm(long value) {
+        
+        term_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int64 term = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTerm() {
+        
+        term_ = 0L;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -668,10 +838,12 @@ public final class RaftVoteResWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\026RaftVoteResponse.proto\"a\n\013RaftVoteRes\022" +
-      "#\n\006result\030\001 \001(\0162\023.RaftVoteRes.Result\"-\n\006" +
-      "Result\022\n\n\006ACCEPT\020\000\022\n\n\006REJECT\020\001\022\013\n\007UNKNOW" +
-      "N\020\002B\024B\022RaftVoteResWrapperb\006proto3"
+      "\n\026RaftVoteResponse.proto\"\222\001\n\013RaftVoteRes" +
+      "\022#\n\006result\030\001 \001(\0162\023.RaftVoteRes.Result\022\020\n" +
+      "\010leaderId\030\002 \001(\005\022\014\n\004term\030\003 \001(\003\">\n\006Result\022" +
+      "\n\n\006ACCEPT\020\000\022\n\n\006REJECT\020\001\022\017\n\013TERM_EXPIRE\020\002" +
+      "\022\013\n\007UNKNOWN\020\003B\024B\022RaftVoteResWrapperb\006pro" +
+      "to3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -682,7 +854,7 @@ public final class RaftVoteResWrapper {
     internal_static_RaftVoteRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RaftVoteRes_descriptor,
-        new String[] { "Result", });
+        new String[] { "Result", "LeaderId", "Term", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

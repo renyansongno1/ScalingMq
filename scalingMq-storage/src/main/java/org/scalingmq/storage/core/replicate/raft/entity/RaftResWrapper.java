@@ -17,42 +17,55 @@ public final class RaftResWrapper {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>.RaftRes.ResType resType = 1;</code>
-     * @return The enum numeric value on the wire for resType.
-     */
-    int getResTypeValue();
-    /**
-     * <code>.RaftRes.ResType resType = 1;</code>
-     * @return The resType.
-     */
-    RaftRes.ResType getResType();
-
-    /**
+     * <pre>
+     * 选票响应
+     * </pre>
+     *
      * <code>.RaftVoteRes raftVoteRes = 2;</code>
      * @return Whether the raftVoteRes field is set.
      */
     boolean hasRaftVoteRes();
     /**
+     * <pre>
+     * 选票响应
+     * </pre>
+     *
      * <code>.RaftVoteRes raftVoteRes = 2;</code>
      * @return The raftVoteRes.
      */
     RaftVoteResWrapper.RaftVoteRes getRaftVoteRes();
     /**
+     * <pre>
+     * 选票响应
+     * </pre>
+     *
      * <code>.RaftVoteRes raftVoteRes = 2;</code>
      */
     RaftVoteResWrapper.RaftVoteResOrBuilder getRaftVoteResOrBuilder();
 
     /**
+     * <pre>
+     * 心跳响应
+     * </pre>
+     *
      * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
      * @return Whether the raftHeartbeatRes field is set.
      */
     boolean hasRaftHeartbeatRes();
     /**
+     * <pre>
+     * 心跳响应
+     * </pre>
+     *
      * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
      * @return The raftHeartbeatRes.
      */
     RaftHeartbeatResWrapper.RaftHeartbeatRes getRaftHeartbeatRes();
     /**
+     * <pre>
+     * 心跳响应
+     * </pre>
+     *
      * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
      */
     RaftHeartbeatResWrapper.RaftHeartbeatResOrBuilder getRaftHeartbeatResOrBuilder();
@@ -70,7 +83,6 @@ public final class RaftResWrapper {
       super(builder);
     }
     private RaftRes() {
-      resType_ = 0;
     }
 
     @Override
@@ -103,12 +115,6 @@ public final class RaftResWrapper {
             case 0:
               done = true;
               break;
-            case 8: {
-              int rawValue = input.readEnum();
-
-              resType_ = rawValue;
-              break;
-            }
             case 18: {
               RaftVoteResWrapper.RaftVoteRes.Builder subBuilder = null;
               if (raftVoteRes_ != null) {
@@ -167,152 +173,13 @@ public final class RaftResWrapper {
               RaftRes.class, Builder.class);
     }
 
-    /**
-     * Protobuf enum {@code RaftRes.ResType}
-     */
-    public enum ResType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <pre>
-       * 选票
-       * </pre>
-       *
-       * <code>VOTE_RES = 0;</code>
-       */
-      VOTE_RES(0),
-      /**
-       * <pre>
-       * 心跳
-       * </pre>
-       *
-       * <code>HEART_RES = 1;</code>
-       */
-      HEART_RES(1),
-      UNRECOGNIZED(-1),
-      ;
-
-      /**
-       * <pre>
-       * 选票
-       * </pre>
-       *
-       * <code>VOTE_RES = 0;</code>
-       */
-      public static final int VOTE_RES_VALUE = 0;
-      /**
-       * <pre>
-       * 心跳
-       * </pre>
-       *
-       * <code>HEART_RES = 1;</code>
-       */
-      public static final int HEART_RES_VALUE = 1;
-
-
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
-      }
-
-      /**
-       * @param value The numeric wire value of the corresponding enum entry.
-       * @return The enum associated with the given numeric wire value.
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @Deprecated
-      public static ResType valueOf(int value) {
-        return forNumber(value);
-      }
-
-      /**
-       * @param value The numeric wire value of the corresponding enum entry.
-       * @return The enum associated with the given numeric wire value.
-       */
-      public static ResType forNumber(int value) {
-        switch (value) {
-          case 0: return VOTE_RES;
-          case 1: return HEART_RES;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<ResType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          ResType> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<ResType>() {
-              public ResType findValueByNumber(int number) {
-                return ResType.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        if (this == UNRECOGNIZED) {
-          throw new IllegalStateException(
-              "Can't get the descriptor of an unrecognized enum value.");
-        }
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return RaftRes.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final ResType[] VALUES = values();
-
-      public static ResType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private ResType(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:RaftRes.ResType)
-    }
-
-    public static final int RESTYPE_FIELD_NUMBER = 1;
-    private int resType_;
-    /**
-     * <code>.RaftRes.ResType resType = 1;</code>
-     * @return The enum numeric value on the wire for resType.
-     */
-    @Override public int getResTypeValue() {
-      return resType_;
-    }
-    /**
-     * <code>.RaftRes.ResType resType = 1;</code>
-     * @return The resType.
-     */
-    @Override public ResType getResType() {
-      @SuppressWarnings("deprecation")
-      ResType result = ResType.valueOf(resType_);
-      return result == null ? ResType.UNRECOGNIZED : result;
-    }
-
     public static final int RAFTVOTERES_FIELD_NUMBER = 2;
     private RaftVoteResWrapper.RaftVoteRes raftVoteRes_;
     /**
+     * <pre>
+     * 选票响应
+     * </pre>
+     *
      * <code>.RaftVoteRes raftVoteRes = 2;</code>
      * @return Whether the raftVoteRes field is set.
      */
@@ -321,6 +188,10 @@ public final class RaftResWrapper {
       return raftVoteRes_ != null;
     }
     /**
+     * <pre>
+     * 选票响应
+     * </pre>
+     *
      * <code>.RaftVoteRes raftVoteRes = 2;</code>
      * @return The raftVoteRes.
      */
@@ -329,6 +200,10 @@ public final class RaftResWrapper {
       return raftVoteRes_ == null ? RaftVoteResWrapper.RaftVoteRes.getDefaultInstance() : raftVoteRes_;
     }
     /**
+     * <pre>
+     * 选票响应
+     * </pre>
+     *
      * <code>.RaftVoteRes raftVoteRes = 2;</code>
      */
     @Override
@@ -339,6 +214,10 @@ public final class RaftResWrapper {
     public static final int RAFTHEARTBEATRES_FIELD_NUMBER = 3;
     private RaftHeartbeatResWrapper.RaftHeartbeatRes raftHeartbeatRes_;
     /**
+     * <pre>
+     * 心跳响应
+     * </pre>
+     *
      * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
      * @return Whether the raftHeartbeatRes field is set.
      */
@@ -347,6 +226,10 @@ public final class RaftResWrapper {
       return raftHeartbeatRes_ != null;
     }
     /**
+     * <pre>
+     * 心跳响应
+     * </pre>
+     *
      * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
      * @return The raftHeartbeatRes.
      */
@@ -355,6 +238,10 @@ public final class RaftResWrapper {
       return raftHeartbeatRes_ == null ? RaftHeartbeatResWrapper.RaftHeartbeatRes.getDefaultInstance() : raftHeartbeatRes_;
     }
     /**
+     * <pre>
+     * 心跳响应
+     * </pre>
+     *
      * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
      */
     @Override
@@ -376,9 +263,6 @@ public final class RaftResWrapper {
     @Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (resType_ != ResType.VOTE_RES.getNumber()) {
-        output.writeEnum(1, resType_);
-      }
       if (raftVoteRes_ != null) {
         output.writeMessage(2, getRaftVoteRes());
       }
@@ -394,10 +278,6 @@ public final class RaftResWrapper {
       if (size != -1) return size;
 
       size = 0;
-      if (resType_ != ResType.VOTE_RES.getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, resType_);
-      }
       if (raftVoteRes_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, getRaftVoteRes());
@@ -421,7 +301,6 @@ public final class RaftResWrapper {
       }
       RaftRes other = (RaftRes) obj;
 
-      if (resType_ != other.resType_) return false;
       if (hasRaftVoteRes() != other.hasRaftVoteRes()) return false;
       if (hasRaftVoteRes()) {
         if (!getRaftVoteRes()
@@ -443,8 +322,6 @@ public final class RaftResWrapper {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + RESTYPE_FIELD_NUMBER;
-      hash = (53 * hash) + resType_;
       if (hasRaftVoteRes()) {
         hash = (37 * hash) + RAFTVOTERES_FIELD_NUMBER;
         hash = (53 * hash) + getRaftVoteRes().hashCode();
@@ -586,8 +463,6 @@ public final class RaftResWrapper {
       @Override
       public Builder clear() {
         super.clear();
-        resType_ = 0;
-
         if (raftVoteResBuilder_ == null) {
           raftVoteRes_ = null;
         } else {
@@ -626,7 +501,6 @@ public final class RaftResWrapper {
       @Override
       public RaftRes buildPartial() {
         RaftRes result = new RaftRes(this);
-        result.resType_ = resType_;
         if (raftVoteResBuilder_ == null) {
           result.raftVoteRes_ = raftVoteRes_;
         } else {
@@ -685,9 +559,6 @@ public final class RaftResWrapper {
 
       public Builder mergeFrom(RaftRes other) {
         if (other == RaftRes.getDefaultInstance()) return this;
-        if (other.resType_ != 0) {
-          setResTypeValue(other.getResTypeValue());
-        }
         if (other.hasRaftVoteRes()) {
           mergeRaftVoteRes(other.getRaftVoteRes());
         }
@@ -723,64 +594,14 @@ public final class RaftResWrapper {
         return this;
       }
 
-      private int resType_ = 0;
-      /**
-       * <code>.RaftRes.ResType resType = 1;</code>
-       * @return The enum numeric value on the wire for resType.
-       */
-      @Override public int getResTypeValue() {
-        return resType_;
-      }
-      /**
-       * <code>.RaftRes.ResType resType = 1;</code>
-       * @param value The enum numeric value on the wire for resType to set.
-       * @return This builder for chaining.
-       */
-      public Builder setResTypeValue(int value) {
-        
-        resType_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.RaftRes.ResType resType = 1;</code>
-       * @return The resType.
-       */
-      @Override
-      public ResType getResType() {
-        @SuppressWarnings("deprecation")
-        ResType result = ResType.valueOf(resType_);
-        return result == null ? ResType.UNRECOGNIZED : result;
-      }
-      /**
-       * <code>.RaftRes.ResType resType = 1;</code>
-       * @param value The resType to set.
-       * @return This builder for chaining.
-       */
-      public Builder setResType(ResType value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        
-        resType_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.RaftRes.ResType resType = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearResType() {
-        
-        resType_ = 0;
-        onChanged();
-        return this;
-      }
-
       private RaftVoteResWrapper.RaftVoteRes raftVoteRes_;
       private com.google.protobuf.SingleFieldBuilderV3<
           RaftVoteResWrapper.RaftVoteRes, RaftVoteResWrapper.RaftVoteRes.Builder, RaftVoteResWrapper.RaftVoteResOrBuilder> raftVoteResBuilder_;
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        * @return Whether the raftVoteRes field is set.
        */
@@ -788,6 +609,10 @@ public final class RaftResWrapper {
         return raftVoteResBuilder_ != null || raftVoteRes_ != null;
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        * @return The raftVoteRes.
        */
@@ -799,6 +624,10 @@ public final class RaftResWrapper {
         }
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       public Builder setRaftVoteRes(RaftVoteResWrapper.RaftVoteRes value) {
@@ -815,6 +644,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       public Builder setRaftVoteRes(
@@ -829,6 +662,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       public Builder mergeRaftVoteRes(RaftVoteResWrapper.RaftVoteRes value) {
@@ -847,6 +684,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       public Builder clearRaftVoteRes() {
@@ -861,6 +702,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       public RaftVoteResWrapper.RaftVoteRes.Builder getRaftVoteResBuilder() {
@@ -869,6 +714,10 @@ public final class RaftResWrapper {
         return getRaftVoteResFieldBuilder().getBuilder();
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       public RaftVoteResWrapper.RaftVoteResOrBuilder getRaftVoteResOrBuilder() {
@@ -880,6 +729,10 @@ public final class RaftResWrapper {
         }
       }
       /**
+       * <pre>
+       * 选票响应
+       * </pre>
+       *
        * <code>.RaftVoteRes raftVoteRes = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
@@ -900,6 +753,10 @@ public final class RaftResWrapper {
       private com.google.protobuf.SingleFieldBuilderV3<
           RaftHeartbeatResWrapper.RaftHeartbeatRes, RaftHeartbeatResWrapper.RaftHeartbeatRes.Builder, RaftHeartbeatResWrapper.RaftHeartbeatResOrBuilder> raftHeartbeatResBuilder_;
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        * @return Whether the raftHeartbeatRes field is set.
        */
@@ -907,6 +764,10 @@ public final class RaftResWrapper {
         return raftHeartbeatResBuilder_ != null || raftHeartbeatRes_ != null;
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        * @return The raftHeartbeatRes.
        */
@@ -918,6 +779,10 @@ public final class RaftResWrapper {
         }
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       public Builder setRaftHeartbeatRes(RaftHeartbeatResWrapper.RaftHeartbeatRes value) {
@@ -934,6 +799,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       public Builder setRaftHeartbeatRes(
@@ -948,6 +817,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       public Builder mergeRaftHeartbeatRes(RaftHeartbeatResWrapper.RaftHeartbeatRes value) {
@@ -966,6 +839,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       public Builder clearRaftHeartbeatRes() {
@@ -980,6 +857,10 @@ public final class RaftResWrapper {
         return this;
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       public RaftHeartbeatResWrapper.RaftHeartbeatRes.Builder getRaftHeartbeatResBuilder() {
@@ -988,6 +869,10 @@ public final class RaftResWrapper {
         return getRaftHeartbeatResFieldBuilder().getBuilder();
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       public RaftHeartbeatResWrapper.RaftHeartbeatResOrBuilder getRaftHeartbeatResOrBuilder() {
@@ -999,6 +884,10 @@ public final class RaftResWrapper {
         }
       }
       /**
+       * <pre>
+       * 心跳响应
+       * </pre>
+       *
        * <code>.RaftHeartbeatRes raftHeartbeatRes = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
@@ -1082,12 +971,10 @@ public final class RaftResWrapper {
   static {
     String[] descriptorData = {
       "\n\022RaftResponse.proto\032\033RaftHeartbeatRespo" +
-      "nse.proto\032\026RaftVoteResponse.proto\"\244\001\n\007Ra" +
-      "ftRes\022!\n\007resType\030\001 \001(\0162\020.RaftRes.ResType" +
-      "\022!\n\013raftVoteRes\030\002 \001(\0132\014.RaftVoteRes\022+\n\020r" +
-      "aftHeartbeatRes\030\003 \001(\0132\021.RaftHeartbeatRes" +
-      "\"&\n\007ResType\022\014\n\010VOTE_RES\020\000\022\r\n\tHEART_RES\020\001" +
-      "B\020B\016RaftResWrapperb\006proto3"
+      "nse.proto\032\026RaftVoteResponse.proto\"Y\n\007Raf" +
+      "tRes\022!\n\013raftVoteRes\030\002 \001(\0132\014.RaftVoteRes\022" +
+      "+\n\020raftHeartbeatRes\030\003 \001(\0132\021.RaftHeartbea" +
+      "tResB\020B\016RaftResWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -1100,7 +987,7 @@ public final class RaftResWrapper {
     internal_static_RaftRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RaftRes_descriptor,
-        new String[] { "ResType", "RaftVoteRes", "RaftHeartbeatRes", });
+        new String[] { "RaftVoteRes", "RaftHeartbeatRes", });
     RaftHeartbeatResWrapper.getDescriptor();
     RaftVoteResWrapper.getDescriptor();
   }

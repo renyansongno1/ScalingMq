@@ -27,10 +27,10 @@ public class PartitionMsgStorage implements Lifecycle {
      */
     private static final Map<Integer, StorageClass> STORAGE_CLASS_MAP = new TreeMap<>();
 
+    private long globalIndexWrote = 0L;
+
     public PartitionMsgStorage() {
-        /*if (INSTANCE != null) {
-            throw new RuntimeException("not support reflect invoke");
-        }*/
+
     }
 
     public static PartitionMsgStorage getInstance() {
@@ -84,6 +84,14 @@ public class PartitionMsgStorage implements Lifecycle {
         return 0L;
     }
 
+    /**
+     * 获取全局写入的最大位点
+     * @return 位点
+     */
+    public long getGlobalIndexWrote() {
+        return globalIndexWrote;
+    }
+
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     @Override
     public void componentStart() {
@@ -109,8 +117,6 @@ public class PartitionMsgStorage implements Lifecycle {
         private static final int INDEX_SIZE = STORAGE_PRIORITY_FLAG + STORAGE_PHYSICAL_OFFSET + STORAGE_MSG_SIZE;
 
         private static final TreeMap<Long, Integer> INDEX_STORAGE_MAP = new TreeMap<>();
-
-        private long globalIndexWrote = 0L;
 
         @Override
         public void run() {

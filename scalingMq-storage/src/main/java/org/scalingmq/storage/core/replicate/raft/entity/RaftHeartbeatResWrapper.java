@@ -26,6 +26,26 @@ public final class RaftHeartbeatResWrapper {
      * @return The resType.
      */
     RaftHeartbeatRes.ResponseType getResType();
+
+    /**
+     * <pre>
+     * 当前leader的ID
+     * </pre>
+     *
+     * <code>int32 leaderId = 2;</code>
+     * @return The leaderId.
+     */
+    int getLeaderId();
+
+    /**
+     * <pre>
+     * 期数
+     * </pre>
+     *
+     * <code>int64 term = 3;</code>
+     * @return The term.
+     */
+    long getTerm();
   }
   /**
    * Protobuf type {@code RaftHeartbeatRes}
@@ -77,6 +97,16 @@ public final class RaftHeartbeatResWrapper {
               int rawValue = input.readEnum();
 
               resType_ = rawValue;
+              break;
+            }
+            case 16: {
+
+              leaderId_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              term_ = input.readInt64();
               break;
             }
             default: {
@@ -254,6 +284,36 @@ public final class RaftHeartbeatResWrapper {
       return result == null ? ResponseType.UNRECOGNIZED : result;
     }
 
+    public static final int LEADERID_FIELD_NUMBER = 2;
+    private int leaderId_;
+    /**
+     * <pre>
+     * 当前leader的ID
+     * </pre>
+     *
+     * <code>int32 leaderId = 2;</code>
+     * @return The leaderId.
+     */
+    @Override
+    public int getLeaderId() {
+      return leaderId_;
+    }
+
+    public static final int TERM_FIELD_NUMBER = 3;
+    private long term_;
+    /**
+     * <pre>
+     * 期数
+     * </pre>
+     *
+     * <code>int64 term = 3;</code>
+     * @return The term.
+     */
+    @Override
+    public long getTerm() {
+      return term_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -271,6 +331,12 @@ public final class RaftHeartbeatResWrapper {
       if (resType_ != ResponseType.OK.getNumber()) {
         output.writeEnum(1, resType_);
       }
+      if (leaderId_ != 0) {
+        output.writeInt32(2, leaderId_);
+      }
+      if (term_ != 0L) {
+        output.writeInt64(3, term_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -283,6 +349,14 @@ public final class RaftHeartbeatResWrapper {
       if (resType_ != ResponseType.OK.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, resType_);
+      }
+      if (leaderId_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, leaderId_);
+      }
+      if (term_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, term_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -300,6 +374,10 @@ public final class RaftHeartbeatResWrapper {
       RaftHeartbeatRes other = (RaftHeartbeatRes) obj;
 
       if (resType_ != other.resType_) return false;
+      if (getLeaderId()
+          != other.getLeaderId()) return false;
+      if (getTerm()
+          != other.getTerm()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -313,6 +391,11 @@ public final class RaftHeartbeatResWrapper {
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + RESTYPE_FIELD_NUMBER;
       hash = (53 * hash) + resType_;
+      hash = (37 * hash) + LEADERID_FIELD_NUMBER;
+      hash = (53 * hash) + getLeaderId();
+      hash = (37 * hash) + TERM_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTerm());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -448,6 +531,10 @@ public final class RaftHeartbeatResWrapper {
         super.clear();
         resType_ = 0;
 
+        leaderId_ = 0;
+
+        term_ = 0L;
+
         return this;
       }
 
@@ -475,6 +562,8 @@ public final class RaftHeartbeatResWrapper {
       public RaftHeartbeatRes buildPartial() {
         RaftHeartbeatRes result = new RaftHeartbeatRes(this);
         result.resType_ = resType_;
+        result.leaderId_ = leaderId_;
+        result.term_ = term_;
         onBuilt();
         return result;
       }
@@ -525,6 +614,12 @@ public final class RaftHeartbeatResWrapper {
         if (other == RaftHeartbeatRes.getDefaultInstance()) return this;
         if (other.resType_ != 0) {
           setResTypeValue(other.getResTypeValue());
+        }
+        if (other.getLeaderId() != 0) {
+          setLeaderId(other.getLeaderId());
+        }
+        if (other.getTerm() != 0L) {
+          setTerm(other.getTerm());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -608,6 +703,92 @@ public final class RaftHeartbeatResWrapper {
         onChanged();
         return this;
       }
+
+      private int leaderId_ ;
+      /**
+       * <pre>
+       * 当前leader的ID
+       * </pre>
+       *
+       * <code>int32 leaderId = 2;</code>
+       * @return The leaderId.
+       */
+      @Override
+      public int getLeaderId() {
+        return leaderId_;
+      }
+      /**
+       * <pre>
+       * 当前leader的ID
+       * </pre>
+       *
+       * <code>int32 leaderId = 2;</code>
+       * @param value The leaderId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setLeaderId(int value) {
+        
+        leaderId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 当前leader的ID
+       * </pre>
+       *
+       * <code>int32 leaderId = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearLeaderId() {
+        
+        leaderId_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long term_ ;
+      /**
+       * <pre>
+       * 期数
+       * </pre>
+       *
+       * <code>int64 term = 3;</code>
+       * @return The term.
+       */
+      @Override
+      public long getTerm() {
+        return term_;
+      }
+      /**
+       * <pre>
+       * 期数
+       * </pre>
+       *
+       * <code>int64 term = 3;</code>
+       * @param value The term to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTerm(long value) {
+        
+        term_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 期数
+       * </pre>
+       *
+       * <code>int64 term = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTerm() {
+        
+        term_ = 0L;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -675,11 +856,12 @@ public final class RaftHeartbeatResWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\033RaftHeartbeatResponse.proto\"m\n\020RaftHea" +
-      "rtbeatRes\022/\n\007resType\030\001 \001(\0162\036.RaftHeartbe" +
-      "atRes.ResponseType\"(\n\014ResponseType\022\006\n\002OK" +
-      "\020\000\022\020\n\014TERM_EXPIRED\020\001B\031B\027RaftHeartbeatRes" +
-      "Wrapperb\006proto3"
+      "\n\033RaftHeartbeatResponse.proto\"\215\001\n\020RaftHe" +
+      "artbeatRes\022/\n\007resType\030\001 \001(\0162\036.RaftHeartb" +
+      "eatRes.ResponseType\022\020\n\010leaderId\030\002 \001(\005\022\014\n" +
+      "\004term\030\003 \001(\003\"(\n\014ResponseType\022\006\n\002OK\020\000\022\020\n\014T" +
+      "ERM_EXPIRED\020\001B\031B\027RaftHeartbeatResWrapper" +
+      "b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -690,7 +872,7 @@ public final class RaftHeartbeatResWrapper {
     internal_static_RaftHeartbeatRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RaftHeartbeatRes_descriptor,
-        new String[] { "ResType", });
+        new String[] { "ResType", "LeaderId", "Term", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

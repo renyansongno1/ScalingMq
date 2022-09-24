@@ -6,18 +6,9 @@ import "RaftHeartbeatResponse.proto";
 import "RaftVoteResponse.proto";
 
 message RaftRes {
-
-  enum ResType {
-    // 选票
-    VOTE_RES = 0;
-    // 心跳
-    HEART_RES = 1;
-  }
-
-  ResType resType = 1;
-
+  // 选票响应
   RaftVoteRes raftVoteRes = 2;
-
+  // 心跳响应
   RaftHeartbeatRes raftHeartbeatRes = 3;
 
 }

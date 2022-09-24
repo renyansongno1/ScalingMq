@@ -35,6 +35,16 @@ public final class RaftHeartbeatReqWrapper {
      * @return The term.
      */
     long getTerm();
+
+    /**
+     * <pre>
+     * 当前leader最大的消息位点
+     * </pre>
+     *
+     * <code>int64 maxOffset = 3;</code>
+     * @return The maxOffset.
+     */
+    long getMaxOffset();
   }
   /**
    * Protobuf type {@code RaftHeartbeatReq}
@@ -89,6 +99,11 @@ public final class RaftHeartbeatReqWrapper {
             case 16: {
 
               term_ = input.readInt64();
+              break;
+            }
+            case 24: {
+
+              maxOffset_ = input.readInt64();
               break;
             }
             default: {
@@ -153,6 +168,21 @@ public final class RaftHeartbeatReqWrapper {
       return term_;
     }
 
+    public static final int MAXOFFSET_FIELD_NUMBER = 3;
+    private long maxOffset_;
+    /**
+     * <pre>
+     * 当前leader最大的消息位点
+     * </pre>
+     *
+     * <code>int64 maxOffset = 3;</code>
+     * @return The maxOffset.
+     */
+    @Override
+    public long getMaxOffset() {
+      return maxOffset_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -173,6 +203,9 @@ public final class RaftHeartbeatReqWrapper {
       if (term_ != 0L) {
         output.writeInt64(2, term_);
       }
+      if (maxOffset_ != 0L) {
+        output.writeInt64(3, maxOffset_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -189,6 +222,10 @@ public final class RaftHeartbeatReqWrapper {
       if (term_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(2, term_);
+      }
+      if (maxOffset_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, maxOffset_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -209,6 +246,8 @@ public final class RaftHeartbeatReqWrapper {
           != other.getLeaderId()) return false;
       if (getTerm()
           != other.getTerm()) return false;
+      if (getMaxOffset()
+          != other.getMaxOffset()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -225,6 +264,9 @@ public final class RaftHeartbeatReqWrapper {
       hash = (37 * hash) + TERM_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getTerm());
+      hash = (37 * hash) + MAXOFFSET_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getMaxOffset());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -362,6 +404,8 @@ public final class RaftHeartbeatReqWrapper {
 
         term_ = 0L;
 
+        maxOffset_ = 0L;
+
         return this;
       }
 
@@ -390,6 +434,7 @@ public final class RaftHeartbeatReqWrapper {
         RaftHeartbeatReq result = new RaftHeartbeatReq(this);
         result.leaderId_ = leaderId_;
         result.term_ = term_;
+        result.maxOffset_ = maxOffset_;
         onBuilt();
         return result;
       }
@@ -443,6 +488,9 @@ public final class RaftHeartbeatReqWrapper {
         }
         if (other.getTerm() != 0L) {
           setTerm(other.getTerm());
+        }
+        if (other.getMaxOffset() != 0L) {
+          setMaxOffset(other.getMaxOffset());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -558,6 +606,49 @@ public final class RaftHeartbeatReqWrapper {
         onChanged();
         return this;
       }
+
+      private long maxOffset_ ;
+      /**
+       * <pre>
+       * 当前leader最大的消息位点
+       * </pre>
+       *
+       * <code>int64 maxOffset = 3;</code>
+       * @return The maxOffset.
+       */
+      @Override
+      public long getMaxOffset() {
+        return maxOffset_;
+      }
+      /**
+       * <pre>
+       * 当前leader最大的消息位点
+       * </pre>
+       *
+       * <code>int64 maxOffset = 3;</code>
+       * @param value The maxOffset to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMaxOffset(long value) {
+        
+        maxOffset_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 当前leader最大的消息位点
+       * </pre>
+       *
+       * <code>int64 maxOffset = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMaxOffset() {
+        
+        maxOffset_ = 0L;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -625,9 +716,10 @@ public final class RaftHeartbeatReqWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\032RaftHeartbeatRequest.proto\"2\n\020RaftHear" +
+      "\n\032RaftHeartbeatRequest.proto\"E\n\020RaftHear" +
       "tbeatReq\022\020\n\010leaderId\030\001 \001(\005\022\014\n\004term\030\002 \001(\003" +
-      "B\031B\027RaftHeartbeatReqWrapperb\006proto3"
+      "\022\021\n\tmaxOffset\030\003 \001(\003B\031B\027RaftHeartbeatReqW" +
+      "rapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -638,7 +730,7 @@ public final class RaftHeartbeatReqWrapper {
     internal_static_RaftHeartbeatReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RaftHeartbeatReq_descriptor,
-        new String[] { "LeaderId", "Term", });
+        new String[] { "LeaderId", "Term", "MaxOffset", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
