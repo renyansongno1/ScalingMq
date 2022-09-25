@@ -58,12 +58,12 @@ public class FetchTopicMetadataHandler implements RequestHandler<FetchTopicMetad
                 }
 
                 fetchResultBuilder.setPartitionMetadataList(i,
-                        partitionBuilder.build()
+                        partitionBuilder
                         );
             }
         }
         return builder.setFetchTopicMetadataResult(
-                fetchResultBuilder.build()
+                fetchResultBuilder
                 ).build();
     }
 

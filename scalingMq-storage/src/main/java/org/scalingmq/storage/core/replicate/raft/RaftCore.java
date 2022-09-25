@@ -1,5 +1,6 @@
 package org.scalingmq.storage.core.replicate.raft;
 
+import com.google.protobuf.MessageLite;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.lifecycle.Lifecycle;
@@ -11,7 +12,6 @@ import org.scalingmq.storage.core.replicate.raft.entity.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.random.RandomGeneratorFactory;
 
 /**
  * raft算法实现
@@ -20,8 +20,6 @@ import java.util.random.RandomGeneratorFactory;
  */
 @Slf4j
 public class RaftCore implements Lifecycle {
-
-    private static final RaftCore INSTANCE = new RaftCore();
 
     /**
      * state的更新锁
@@ -36,12 +34,12 @@ public class RaftCore implements Lifecycle {
     /**
      * 投票的最大间隔时间 毫秒
      */
-    private static final int MAX_VOTE_TIME_INTERVAL_MS = 500;
+    private static final int MAX_VOTE_TIME_INTERVAL_MS = 1500;
 
     /**
      * leader的心跳间隔
      */
-    private static final int HEARTBEAT_INTERVAL_MS = 1000;
+    private static final int HEARTBEAT_INTERVAL_MS = 5000;
 
     /**
      * 最大缺少心跳的次数
@@ -85,7 +83,7 @@ public class RaftCore implements Lifecycle {
     /**
      * 当前节点的期数
      */
-    private long concurrentTerm = 0;
+    private volatile long concurrentTerm = 0;
 
     /**
      * 当前节点ID
@@ -95,7 +93,7 @@ public class RaftCore implements Lifecycle {
     /**
      * leader节点ID
      */
-    private int leaderPeerId = -1;
+    private volatile int leaderPeerId = -1;
 
     /**
      * 上次收到心跳的时间
@@ -116,10 +114,6 @@ public class RaftCore implements Lifecycle {
      * 重新投票标识
      */
     private boolean reElectFlag = false;
-
-    public static RaftCore getInstance() {
-        return INSTANCE;
-    }
 
     @SuppressWarnings("AlibabaSwitchStatement")
     private void init() {
@@ -151,7 +145,7 @@ public class RaftCore implements Lifecycle {
             if (coordinatorList.contains(String.valueOf(peerId))) {
                 // 当前节点是协调节点
                 state = RaftStateEnum.COORDINATOR;
-                log.debug("当前节点:{} 是协调节点, 不参与选举",  peerId);
+                log.debug("当前节点:{} 是协调节点, 不参与选举", peerId);
             }
         }
         // 角色判断
@@ -176,20 +170,15 @@ public class RaftCore implements Lifecycle {
     private void doCandidate() {
         log.debug("开始进行候选者逻辑...");
         // 发送选票
-        sendVote(true);
+        sendVote(true, true);
     }
 
     /**
      * 发送选票 解析结果
      */
-    private void sendVote(boolean untilSuccess) {
+    private void sendVote(boolean untilSuccess, boolean addTerm) {
         while (true) {
             log.debug("开始发送选票, 选定的leaderId:{}", leaderPeerId);
-            synchronized (STATE_LOCK) {
-                if (state != RaftStateEnum.CANDIDATE && state != RaftStateEnum.FOLLOWER) {
-                    return;
-                }
-            }
             int sleepTime = new Random().nextInt(MIN_VOTE_TIME_INTERVAL_MS, MAX_VOTE_TIME_INTERVAL_MS);
             log.debug("当前节点:{}, 选票发送睡眠时间:{}ms", peerId, sleepTime);
             try {
@@ -197,30 +186,46 @@ public class RaftCore implements Lifecycle {
             } catch (InterruptedException e) {
                 // ignore
             }
-            // 构造投票请求
-            RaftVoteReqWrapper.RaftVoteReq raftVoteReq
-                    = RaftVoteReqWrapper.RaftVoteReq.newBuilder()
-                    // 初始投票给自己
-                    .setLeaderId(peerId)
-                    .setTerm(concurrentTerm)
-                    .build();
+            int oldLeaderId = leaderPeerId;
 
-            RaftReqWrapper.RaftReq raftReq
-                    = RaftReqWrapper.RaftReq.newBuilder()
-                    .setReqType(RaftReqWrapper.RaftReq.ReqType.VOTE)
-                    .setVoteReq(raftVoteReq)
-                    .build();
-            log.debug("构建的选票请求:{}", raftReq);
+            List<Future<RaftResWrapper.RaftRes>> futureList;
 
-            // 向所有的客户端发起选票请求
-            List<Future<RaftResWrapper.RaftRes>> futureList = new ArrayList<>();
-            for (String peer : IocContainer.getInstance().getObj(PeerFinder.class).getPeers()) {
-                if (IocContainer.getInstance().getObj(PeerFinder.class).isSelf(peer)) {
-                    continue;
+            synchronized (STATE_LOCK) {
+                if (leaderPeerId != oldLeaderId) {
+                    log.debug("投票期间leader发生更改, 不需要发送选票了");
+                    return;
+                }
+                // 修改Leader id
+                leaderPeerId = peerId;
+                if (addTerm) {
+                    ++concurrentTerm;
                 }
 
-                Future<RaftResWrapper.RaftRes> raftResFuture = CALL_PEER_THREAD_POOL.submit(new CallPeerTask(raftReq, peer));
-                futureList.add(raftResFuture);
+                // 构造投票请求
+                RaftVoteReqWrapper.RaftVoteReq.Builder raftVoteReq
+                        = RaftVoteReqWrapper.RaftVoteReq.newBuilder()
+                        // 初始投票给自己
+                        .setLeaderId(peerId)
+                        .setTerm(concurrentTerm);
+                log.debug("构建的选票 leader:{}, term:{}", raftVoteReq.getLeaderId(), raftVoteReq.getTerm());
+
+                RaftReqWrapper.RaftReq raftReq
+                        = RaftReqWrapper.RaftReq.newBuilder()
+                        .setReqType(RaftReqWrapper.RaftReq.ReqType.VOTE)
+                        .setVoteReq(raftVoteReq)
+                        .build();
+                log.debug("构建的选票请求raft对象:{}", raftReq);
+
+                // 向所有的客户端发起选票请求
+                futureList = new ArrayList<>();
+                for (String peer : IocContainer.getInstance().getObj(PeerFinder.class).getPeers()) {
+                    if (IocContainer.getInstance().getObj(PeerFinder.class).isSelf(peer)) {
+                        continue;
+                    }
+
+                    Future<RaftResWrapper.RaftRes> raftResFuture = CALL_PEER_THREAD_POOL.submit(new CallPeerTask(raftReq, peer));
+                    futureList.add(raftResFuture);
+                }
             }
             // 收到的票数，自己先加一票
             int voteNums = 1;
@@ -237,20 +242,33 @@ public class RaftCore implements Lifecycle {
                         }
                         // 处理请求
                         if (raftRes != null && "".equals(raftRes.getErrorMsg())) {
+                            log.debug("投票响应:{}, 状态:{}", raftRes, raftRes.getRaftVoteRes().getResult());
                             RaftVoteResWrapper.RaftVoteRes raftVoteRes = raftRes.getRaftVoteRes();
                             if (raftVoteRes.getResult().equals(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT)) {
                                 voteNums++;
                             } else if (raftVoteRes.getResult().equals(RaftVoteResWrapper.RaftVoteRes.Result.TERM_EXPIRE)) {
                                 // 检查是不是自己 重启的场景
-                                concurrentTerm = raftVoteRes.getTerm();
-                                if (raftVoteRes.getLeaderId() == leaderPeerId) {
+                                if (raftVoteRes.getLeaderId() == peerId) {
+                                    concurrentTerm = raftVoteRes.getTerm();
                                     becomeLeader();
+                                    return;
+                                }
+                                synchronized (STATE_LOCK) {
+                                    if (raftVoteRes.getTerm() > concurrentTerm) {
+                                        log.debug("投票响应中, 包含大于自己的term:{}, leaderId:{}, 开始应用", raftVoteRes.getTerm(), raftVoteRes.getLeaderId());
+
+                                        concurrentTerm = raftVoteRes.getTerm();
+                                        leaderPeerId = raftVoteRes.getLeaderId();
+                                        return;
+                                    }
                                 }
                             }
                             iterator.remove();
                         } else {
                             // 有异常
+                            log.error("选票发送后收到的响应有异常:{}", raftRes);
                             // TODO: 2022/9/24 网络异常相关的容错设计 记录失败节点 重试
+                            iterator.remove();
                         }
                     }
                 }
@@ -266,6 +284,12 @@ public class RaftCore implements Lifecycle {
                 // 跳出投票
                 break;
             }
+
+            if (leaderPeerId != oldLeaderId) {
+                log.debug("等待投票响应期间leader，term发生更改, 不需要发送选票了");
+                return;
+            }
+
             log.debug("继续投票....");
         }
     }
@@ -274,6 +298,7 @@ public class RaftCore implements Lifecycle {
      * 收到选票请求
      */
     public RaftResWrapper.RaftRes receiveVote(RaftVoteReqWrapper.RaftVoteReq req) {
+        log.debug("收到投票, leaderId:{}, term:{}", req.getLeaderId(), req.getTerm());
         synchronized (STATE_LOCK) {
             // 检查期数
             if (req.getTerm() > concurrentTerm) {
@@ -284,9 +309,9 @@ public class RaftCore implements Lifecycle {
                 leaderPeerId = req.getLeaderId();
                 becomeFollower();
 
-                RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
-                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT)
-                        .build();
+                RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT);
+
                 return RaftResWrapper.RaftRes.newBuilder()
                         .setRaftVoteRes(raftVoteRes)
                         .build();
@@ -294,11 +319,11 @@ public class RaftCore implements Lifecycle {
             if (req.getTerm() < concurrentTerm) {
                 log.debug("收到过期选票:{}", req);
                 // 过期的选票
-                RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
                         .setResult(RaftVoteResWrapper.RaftVoteRes.Result.TERM_EXPIRE)
                         .setLeaderId(leaderPeerId)
-                        .setTerm(concurrentTerm)
-                        .build();
+                        .setTerm(concurrentTerm);
+
                 return RaftResWrapper.RaftRes.newBuilder()
                         .setRaftVoteRes(raftVoteRes)
                         .build();
@@ -310,24 +335,25 @@ public class RaftCore implements Lifecycle {
                 leaderPeerId = req.getLeaderId();
                 becomeFollower();
 
-                RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
-                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT)
-                        .build();
+                RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT);
+
                 return RaftResWrapper.RaftRes.newBuilder()
                         .setRaftVoteRes(raftVoteRes)
                         .build();
             }
             log.debug("收到同期选票, 开始验证心跳...");
             // 检测心跳是否正常
-            if (lastReceiveHeartbeatTime + MAX_MISSING_HEARTBEAT_COUNT * HEARTBEAT_INTERVAL_MS < System.currentTimeMillis()) {
+            if (lastReceiveHeartbeatTime != 0L
+                    && lastReceiveHeartbeatTime + MAX_MISSING_HEARTBEAT_COUNT * HEARTBEAT_INTERVAL_MS < System.currentTimeMillis()) {
                 // 没有收到心跳太久
                 log.debug("收到同期选票, 本节点认定leader心跳过期...");
                 if (reElectFlag) {
                     log.debug("收到同期选票, 本节点认定leader心跳过期, 但已经投过票了... 拒绝选票:{}", req);
                     // 已经重新投了
-                    RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
-                            .setResult(RaftVoteResWrapper.RaftVoteRes.Result.REJECT)
-                            .build();
+                    RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                            .setResult(RaftVoteResWrapper.RaftVoteRes.Result.REJECT);
+
                     return RaftResWrapper.RaftRes.newBuilder()
                             .setRaftVoteRes(raftVoteRes)
                             .build();
@@ -336,28 +362,28 @@ public class RaftCore implements Lifecycle {
                 log.debug("收到同期选票, 本节点认定leader心跳过期, 认可选票:{}", req);
                 reElectFlag = true;
                 leaderPeerId = req.getLeaderId();
-                RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
-                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT)
-                        .build();
+                RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT);
+
                 return RaftResWrapper.RaftRes.newBuilder()
                         .setRaftVoteRes(raftVoteRes)
                         .build();
             }
             if (req.getTerm() == concurrentTerm && req.getLeaderId() == leaderPeerId) {
-                log.debug("收到同期选票, 收到的内容和本节一致, req:{}, 保证幂等同意选票",req);
-                RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
-                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT)
-                        .build();
+                log.debug("收到同期选票, 收到的内容和本节一致, req:{}, 保证幂等同意选票", req);
+                RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                        .setResult(RaftVoteResWrapper.RaftVoteRes.Result.ACCEPT);
+
                 return RaftResWrapper.RaftRes.newBuilder()
                         .setRaftVoteRes(raftVoteRes)
                         .build();
             }
 
-            log.debug("收到同期选票, leader心跳正常, 拒绝选票:{}", req);
+            log.debug("收到同期选票, leader心跳正常或未开始心跳, 拒绝选票:{}", req);
             // 已经投票了 拒绝选票
-            RaftVoteResWrapper.RaftVoteRes raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
-                    .setResult(RaftVoteResWrapper.RaftVoteRes.Result.REJECT)
-                    .build();
+            RaftVoteResWrapper.RaftVoteRes.Builder raftVoteRes = RaftVoteResWrapper.RaftVoteRes.newBuilder()
+                    .setResult(RaftVoteResWrapper.RaftVoteRes.Result.REJECT);
+
             return RaftResWrapper.RaftRes.newBuilder()
                     .setRaftVoteRes(raftVoteRes)
                     .build();
@@ -410,7 +436,6 @@ public class RaftCore implements Lifecycle {
     private void becomeLeader() {
         synchronized (STATE_LOCK) {
             log.debug("当前节点:{}, 成为Leader, 期数:{}", peerId, concurrentTerm);
-            reElectFlag = false;
             if (state == RaftStateEnum.FOLLOWER) {
                 log.debug("当前节点:{}, 从follower变成Leader", peerId);
                 if (heartbeatCheckFuture != null) {
@@ -421,10 +446,6 @@ public class RaftCore implements Lifecycle {
             // Leader 心跳逻辑 检查数据逻辑
             // TODO: 2022/9/24 检查数据
 
-            if (concurrentTerm != 0L) {
-                // 每次leader变更都需要增加任期
-                concurrentTerm++;
-            }
             // 发送心跳
             heartbeatFuture
                     = HEARTBEAT_THREAD_POOL.scheduleWithFixedDelay(
@@ -441,7 +462,7 @@ public class RaftCore implements Lifecycle {
     private void becomeFollower() {
         synchronized (STATE_LOCK) {
             log.debug("当前节点:{}, 成为Follower, 期数:{}", peerId, concurrentTerm);
-            reElectFlag = false;
+
             // 检查是不是从Leader变过来的
             if (state == RaftStateEnum.LEADER) {
                 log.debug("节点:{}, 从Leader变为Follower", peerId);
@@ -452,53 +473,49 @@ public class RaftCore implements Lifecycle {
             state = RaftStateEnum.FOLLOWER;
             // 启动一个定时任务 监听leader的心跳是否超时
             heartbeatCheckFuture = HEARTBEAT_TIME_CHECK_THREAD_POOL.scheduleWithFixedDelay(() -> {
+                if (lastReceiveHeartbeatTime == 0L) {
+                    return;
+                }
                 // 超过三次没有收到心跳
                 if (lastReceiveHeartbeatTime + MAX_MISSING_HEARTBEAT_COUNT * HEARTBEAT_INTERVAL_MS < System.currentTimeMillis()) {
                     log.debug("节点:{}, 超过:{}ms, 没有收到:{}的心跳, 开始重新选举", peerId, (System.currentTimeMillis() - lastReceiveHeartbeatTime), leaderPeerId);
-                    reElect();
+                    if (!reElectFlag) {
+                        reElect();
+                    }
                 }
             }, 10000L, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
         }
     }
 
     private void reElect() {
-        synchronized (STATE_LOCK) {
-            int oldLeaderId = leaderPeerId;
-            leaderPeerId = peerId;
-            reElectFlag = true;
-            log.debug("重新选举, 设置的LeaderId:{}", leaderPeerId);
-            while (true) {
-                // 发起选票
-                sendVote(false);
-                // 每轮投票都检测
-                synchronized (STATE_LOCK) {
-                    if (state == RaftStateEnum.LEADER) {
-                        return;
-                    }
-                    // 检测心跳是否恢复
-                    if (lastReceiveHeartbeatTime + MAX_MISSING_HEARTBEAT_COUNT * HEARTBEAT_INTERVAL_MS < System.currentTimeMillis()) {
-                        // 没有恢复
-                        continue;
-                    }
-                    // 恢复心跳了 leader恢复
-                    leaderPeerId = oldLeaderId;
-                    reElectFlag = false;
-                    return;
-                }
+        reElectFlag = true;
+        log.debug("重新选举, 设置的LeaderId:{}", leaderPeerId);
+        while (true) {
+            // 发起选票
+            sendVote(false, false);
+            // 每轮投票都检测
+            if (state == RaftStateEnum.LEADER) {
+                reElectFlag = false;
+                return;
             }
-
+            if (leaderPeerId != peerId) {
+                // 过程中投了别的节点
+                log.debug("重新选举中,投票了其他节点:{}", leaderPeerId);
+                return;
+            }
+            // 检测心跳是否恢复
+            if (lastReceiveHeartbeatTime + MAX_MISSING_HEARTBEAT_COUNT * HEARTBEAT_INTERVAL_MS < System.currentTimeMillis()) {
+                // 没有恢复
+                continue;
+            }
+            // 恢复心跳了 leader恢复
+            reElectFlag = false;
+            return;
         }
     }
 
     private boolean isQuorum(int nums) {
-        return nums > IocContainer.getInstance().getObj(PeerFinder.class).getPeers().size();
-    }
-
-    /**
-     * leader逻辑
-     */
-    private void doLeader() {
-
+        return nums > IocContainer.getInstance().getObj(PeerFinder.class).getPeers().size() / 2;
     }
 
     /**
@@ -521,7 +538,7 @@ public class RaftCore implements Lifecycle {
     /**
      * 访问其他节点的异步任务
      */
-    private record CallPeerTask(Object raftReq, String peer) implements Callable<RaftResWrapper.RaftRes> {
+    private record CallPeerTask(MessageLite raftReq, String peer) implements Callable<RaftResWrapper.RaftRes> {
 
         /**
          * 异步请求
@@ -530,12 +547,24 @@ public class RaftCore implements Lifecycle {
          */
         @Override
         public RaftResWrapper.RaftRes call() {
+            log.debug("发送的请求类型是:{}", raftReq.getClass().getName());
             try {
-                return (RaftResWrapper.RaftRes) NetworkClient.getInstance()
+                MessageLite messageLite = NetworkClient.getInstance()
                         .sendReq(raftReq,
                                 peer,
                                 StorageConfig.RAFT_PORT,
                                 RaftVoteResWrapper.RaftVoteRes.getDefaultInstance());
+                log.debug("call peer task 收到响应:{}, 类型:{}", messageLite, messageLite.getClass().getName());
+                if (messageLite instanceof RaftVoteResWrapper.RaftVoteRes) {
+                    return RaftResWrapper.RaftRes.newBuilder()
+                            .setRaftVoteRes((RaftVoteResWrapper.RaftVoteRes) messageLite)
+                            .build();
+                } else if (messageLite instanceof RaftHeartbeatResWrapper.RaftHeartbeatRes) {
+                    return RaftResWrapper.RaftRes.newBuilder()
+                            .setRaftHeartbeatRes((RaftHeartbeatResWrapper.RaftHeartbeatRes) messageLite)
+                            .build();
+                }
+                return (RaftResWrapper.RaftRes) messageLite;
             } catch (Exception e) {
                 log.error("call 其他节点出现网络异常:{}", raftReq, e);
                 return RaftResWrapper.RaftRes.newBuilder()
@@ -549,19 +578,19 @@ public class RaftCore implements Lifecycle {
     /**
      * 心跳任务
      */
-    private static class HeartbeatTask implements Runnable {
+    private class HeartbeatTask implements Runnable {
 
         @Override
         public void run() {
-            log.debug("leader:{}, 开始执行心跳任务...", getInstance().leaderPeerId);
+            log.debug("leader:{}, 开始执行心跳任务...", leaderPeerId);
             // 构造心跳
-            RaftHeartbeatReqWrapper.RaftHeartbeatReq heartbeatReq = RaftHeartbeatReqWrapper.RaftHeartbeatReq.newBuilder()
+            RaftHeartbeatReqWrapper.RaftHeartbeatReq.Builder heartbeatReq = RaftHeartbeatReqWrapper.RaftHeartbeatReq.newBuilder()
                     .setMaxOffset(IocContainer.getInstance().getObj(PartitionMsgStorage.class).getGlobalIndexWrote())
-                    .setLeaderId(getInstance().leaderPeerId)
-                    .setTerm(getInstance().concurrentTerm)
-                    .build();
+                    .setLeaderId(leaderPeerId)
+                    .setTerm(concurrentTerm);
 
             RaftReqWrapper.RaftReq req = RaftReqWrapper.RaftReq.newBuilder()
+                    .setReqType(RaftReqWrapper.RaftReq.ReqType.HEARTBEAT)
                     .setHeartbeatReq(heartbeatReq)
                     .build();
 
@@ -594,10 +623,10 @@ public class RaftCore implements Lifecycle {
                                 synchronized (STATE_LOCK) {
                                     // 当前Leader过期了
                                     log.debug("收到心跳反馈leader任期过期, 当前leaderId:{}, term:{}, 心跳返回中的leader:{}, 任期:{}",
-                                            getInstance().leaderPeerId, getInstance().concurrentTerm, raftHeartbeatRes.getLeaderId(), raftHeartbeatRes.getTerm());
-                                    getInstance().leaderPeerId = raftHeartbeatRes.getLeaderId();
-                                    getInstance().concurrentTerm = raftHeartbeatRes.getTerm();
-                                    getInstance().becomeFollower();
+                                            leaderPeerId, concurrentTerm, raftHeartbeatRes.getLeaderId(), raftHeartbeatRes.getTerm());
+                                    leaderPeerId = raftHeartbeatRes.getLeaderId();
+                                    concurrentTerm = raftHeartbeatRes.getTerm();
+                                    becomeFollower();
                                 }
 
                             }
