@@ -41,7 +41,7 @@ shadowJar {
 
 docker {
     javaApplication {
-        baseImage = 'prasadlvi/openjdk-17-jre'
+        baseImage = 'folioci/alpine-jre-openjdk17:2.0.2'
         ports = [9876, 4321]
         images = ['scalingmq-storage-component:v1.0', 'scalingmq-storage-component:latest']
         jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
