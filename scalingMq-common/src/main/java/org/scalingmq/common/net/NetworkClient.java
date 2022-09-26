@@ -88,7 +88,7 @@ public class NetworkClient {
             CountDownLatch waitConnected = new CountDownLatch(1);
             connect(addr, port, messageLite, waitConnected);
             try {
-                boolean await = waitConnected.await(60000L, TimeUnit.MILLISECONDS);
+                boolean await = waitConnected.await(10000L, TimeUnit.MILLISECONDS);
                 if (!await) {
                     // TODO: 2022/9/24 重连机制
                     log.error("network client 建立连接失败:{}", connection);
@@ -196,6 +196,7 @@ public class NetworkClient {
          */
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            log.debug("客户端读取远端数据:{}, 类型:{}", msg, msg.getClass().getName());
             // 读取到服务端的返回值
             Object waitObj = RES_MAP.get(ctx.channel().id().toString());
             // 首先先上锁
