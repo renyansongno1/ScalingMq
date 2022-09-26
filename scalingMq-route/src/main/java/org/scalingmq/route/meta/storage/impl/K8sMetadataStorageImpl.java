@@ -1,6 +1,7 @@
 package org.scalingmq.route.meta.storage.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.common.utils.StopWatch;
 import org.scalingmq.kubernetes.api.K8sApiClient;
 import org.scalingmq.route.meta.storage.MetaDataStorage;
 
@@ -21,11 +22,32 @@ public class K8sMetadataStorageImpl implements MetaDataStorage {
      */
     @Override
     public Map<String, String> getMetadata(String namespace, String name) {
+        StopWatch stopWatch = null;
+        if (log.isDebugEnabled()) {
+            stopWatch = new StopWatch("k8s元数据存储实现获取元数据(k8s metadata impl get metadata)");
+        }
+        if (stopWatch != null) {
+            stopWatch.start("获取k8s client客户端(get k8s client instance)");
+        }
         K8sApiClient k8sApiClient = K8sApiClient.getInstance();
+        if (stopWatch != null) {
+            stopWatch.stop();
+        }
         if (k8sApiClient == null) {
+            if (stopWatch != null) {
+                log.debug(stopWatch.prettyPrint());
+            }
             return null;
         }
-        return k8sApiClient.getConfigMapByNsAndName(namespace, name);
+        if (stopWatch != null) {
+            stopWatch.start("调用configmap api获取元数据(get metadata from configmap by api)");
+        }
+        Map<String, String> metadata = k8sApiClient.getConfigMapByNsAndName(namespace, name);
+        if (stopWatch != null) {
+            stopWatch.stop();
+            log.debug(stopWatch.prettyPrint());
+        }
+        return metadata;
     }
 
     /**

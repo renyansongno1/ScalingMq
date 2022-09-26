@@ -9,6 +9,7 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.ClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.common.utils.StopWatch;
 
 import java.io.IOException;
 import java.util.*;
@@ -42,35 +43,64 @@ public class K8sApiClient {
 
     @SuppressWarnings("AlibabaRemoveCommentedCode")
     public static K8sApiClient getInstance() {
+        StopWatch stopWatch = null;
+        if (log.isDebugEnabled()) {
+            stopWatch = new StopWatch("k8s 客户端初始化(k8s client init)");
+            stopWatch.start("开始获取锁和判断初始化状态(k8s client init get lock)");
+        }
         if (!CLIENT_INIT) {
-            synchronized (K8sApiClient.class) {
+            synchronized (INSTANCE) {
                 if (!CLIENT_INIT) {
-                    log.debug("k8s client init....");
-                    long startTime = System.currentTimeMillis();
+                    if (stopWatch != null) {
+                        stopWatch.stop();
+                    }
                     try {
                         // loading the in-cluster config, including:
                         //   1. service-account CA
                         //   2. service-account bearer-token
                         //   3. service-account namespace
                         //   4. master endpoints(ip, port) from pre-set environment variables
+                        if (stopWatch != null) {
+                            stopWatch.start("k8s client build");
+                        }
                         CLIENT = ClientBuilder.cluster().build();
+
+                        if (stopWatch != null) {
+                            stopWatch.stop();
+                        }
 
                         // if you prefer not to refresh service account token, please use:
                         // ApiClient client = ClientBuilder.oldCluster().build();
                         // set the global default api-client to the in-cluster one from above
+                        if (stopWatch != null) {
+                            stopWatch.start("set api client");
+                        }
                         Configuration.setDefaultApiClient(CLIENT);
                         CORE_V1_API.setApiClient(CLIENT);
                         APPS_V_1_API.setApiClient(CLIENT);
 
-                        log.debug("k8s client completion of initialization");
+                        if (stopWatch != null) {
+                            stopWatch.stop();
+                            log.debug(stopWatch.prettyPrint());
+                        }
+                        CLIENT_INIT = true;
+                        return INSTANCE;
                     } catch (IOException e) {
+                        if (stopWatch != null) {
+                            if (stopWatch.isRunning()) {
+                                stopWatch.stop();
+                            }
+                            log.debug(stopWatch.prettyPrint());
+                        }
                         log.error("k8s client init error", e);
                         return null;
                     }
-                    log.debug("k8s client started cost:{}ms", System.currentTimeMillis() - startTime);
-                    CLIENT_INIT = true;
                 }
             }
+        }
+        if (stopWatch != null) {
+            stopWatch.stop();
+            log.debug(stopWatch.prettyPrint());
         }
         return INSTANCE;
     }

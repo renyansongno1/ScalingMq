@@ -1,1 +1,2 @@
 org.scalingmq.broker.server.BrokerNettyServer
+org.scalingmq.broker.admin.MqAdminOperator

@@ -22,7 +22,9 @@ public class MqAdminEndpoint implements EndpointProcessor {
      */
     @HttpEndpoint("/scalingmq/v1/topic/createTopic")
     public CreateTopicResponse createTopic(@RequestBody CreateTopicReq createTopicReq) {
-        log.debug("创建topic API, 收到请求:{}", createTopicReq.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("创建topic API, 收到请求:{}", createTopicReq.toString());
+        }
         // create
         boolean result;
         try {
