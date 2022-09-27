@@ -43,7 +43,7 @@ public class MetaDataManager {
      * @param partitionNums 分区数量
      * @return 操作结果
      */
-    public boolean createTopicMetadata(String topicName, Integer partitionNums) {
+    public boolean createTopicMetadata(String topicName, Integer partitionNums, Integer replicator) {
         if (log.isDebugEnabled()) {
             log.debug("开始创建topic元数据:{}, partition:{}", topicName, partitionNums);
         }
@@ -64,6 +64,7 @@ public class MetaDataManager {
                 topicMetadata = TopicMetadata.builder()
                         .partitionNums(partitionNums)
                         .topicName(topicName)
+                        .replicateFactor(replicator)
                         .build();
                 boolean storageMetadata = METADATA_STORAGE.storageMetadata(
                         PojoUtil.objectToMap(topicMetadata), RouteConfig.getInstance().getNamespace(), TopicMetadata.CONF_NAME_PREFIX + topicName);
@@ -127,6 +128,22 @@ public class MetaDataManager {
                 log.debug(stopWatch.prettyPrint());
             }
             return topicMetadata;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * 更新topic metadata
+     * @param topicName topic的名称
+     * @param jsonPatchValue json patch的内容
+     * @return 操作结果
+     */
+    public boolean updateTopicMetadata(String topicName, String jsonPatchValue) {
+        Lock lock = READ_WRITE_LOCK.writeLock();
+        lock.lock();
+        try {
+            return METADATA_STORAGE.patchMetadata(RouteConfig.getInstance().getNamespace(), TopicMetadata.CONF_NAME_PREFIX + topicName, jsonPatchValue);
         } finally {
             lock.unlock();
         }

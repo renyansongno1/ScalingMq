@@ -66,4 +66,19 @@ public class K8sMetadataStorageImpl implements MetaDataStorage {
         return k8sApiClient.createConfigMap(namespace, name, data);
     }
 
+    /**
+     * 调用k8s的client api实现patch configmap
+     * @param namespace 命名空间
+     * @param name 名称
+     * @param patchJson patch的json
+     * @return 操作结果
+     */
+    @Override
+    public boolean patchMetadata(String namespace, String name, String patchJson) {
+        K8sApiClient k8sApiClient = K8sApiClient.getInstance();
+        if (k8sApiClient == null) {
+            return false;
+        }
+        return k8sApiClient.updateConfigMap(namespace, name, patchJson);
+    }
 }

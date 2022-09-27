@@ -32,7 +32,8 @@ public class FetchTopicMetadataHandler implements RequestHandler<FetchTopicMetad
         }
         FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.Builder fetchResultBuilder = FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.newBuilder()
                 .setTopicName(topicMetadata.getTopicName())
-                .setPartitionNums(topicMetadata.getPartitionNums());
+                .setPartitionNums(topicMetadata.getPartitionNums())
+                .setReplicateFactor(topicMetadata.getReplicateFactor());
         // 构建数组
         String partitionMetadataListStr = topicMetadata.getPartitionMetadataList();
         List<PartitionMetadata> partitionMetadataList = null;

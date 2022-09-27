@@ -13,6 +13,9 @@ message FetchTopicMetadataResult {
   // 分区相关的元数据
   repeated PartitionMetadata partitionMetadataList = 3;
 
+  // 副本系数
+  int32 replicateFactor = 4;
+
   // 分区元数据
   message PartitionMetadata {
 
@@ -20,10 +23,10 @@ message FetchTopicMetadataResult {
     int32 partitionNum = 1;
 
     // 存储pod的序号集合
-    repeated int32 storagePodNums = 2;
+    repeated string storagePodNums = 2;
 
     // in sync replicator 的pod序号集合
-    repeated int32 isrStoragePodNums = 3;
+    repeated string isrStoragePodNums = 3;
 
   }
 

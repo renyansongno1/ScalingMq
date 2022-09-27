@@ -67,6 +67,7 @@ public class MqAdminOperator implements Lifecycle {
             boolean createResult = ROUTE_APP_CLIENT.createTopicMetadata(PutTopicMetadataReqWrapper.PutTopicMetadataReq.newBuilder()
                     .setTopicName(createTopicReq.getTopicName())
                     .setPartitionNum(createTopicReq.getPartitionNum())
+                            .setReplicateFactor(createTopicReq.getReplicateFactor())
                     .build());
             if (!createResult) {
                 stopWatch.stop();

@@ -1,5 +1,6 @@
 package org.scalingmq.route.meta.schema;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@Builder
 public class PartitionMetadata {
 
     /**
@@ -21,13 +23,13 @@ public class PartitionMetadata {
     private Integer partitionNum;
 
     /**
-     * 存储pod的序号集合
+     * 存储pod的集合
      */
-    private List<Integer> storagePodNums;
+    private List<String> storagePodNums;
 
     /**
-     * in sync replicator 的pod序号集合
+     * in sync replicator 的pod集合
      */
-    private List<Integer> isrStoragePodNums;
+    private List<String> isrStoragePodNums;
 
 }

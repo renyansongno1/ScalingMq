@@ -25,4 +25,13 @@ public interface MetaDataStorage {
      */
     boolean storageMetadata(Map<String, String> data, String namespace, String name);
 
+    /**
+     * 修改元数据
+     * @param namespace 命名空间
+     * @param name 名称
+     * @param patchJson patch的json
+     * @return 操作结果
+     */
+    boolean patchMetadata(String namespace, String name, String patchJson);
+
 }

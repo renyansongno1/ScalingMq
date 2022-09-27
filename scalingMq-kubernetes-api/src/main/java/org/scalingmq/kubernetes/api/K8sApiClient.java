@@ -1,6 +1,8 @@
 package org.scalingmq.kubernetes.api;
 
 import io.kubernetes.client.custom.Quantity;
+import io.kubernetes.client.custom.V1Patch;
+import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
@@ -149,6 +151,24 @@ public class K8sApiClient {
             }
             log.error("查询:{}.{} configmap 异常信息:{}", namespace, name, e.getResponseBody(), e);
             return null;
+        }
+    }
+
+    /**
+     * 更新configmap
+     * @param namespace 命名空间
+     * @param name 配置名称
+     * @param patchJsonValue 要更新的json内容
+     * @return 操作结果
+     */
+    public boolean updateConfigMap(String namespace, String name, String patchJsonValue) {
+        try {
+            V1Patch v1Patch = new V1Patch(patchJsonValue);
+            CORE_V1_API.patchNamespacedConfigMap(name, namespace, v1Patch, Boolean.TRUE.toString(), null, V1Patch.PATCH_FORMAT_JSON_PATCH, null, false);
+            return true;
+        } catch (ApiException e) {
+            log.error("更新:{}.{} configmap 异常信息:{}", namespace, name, e.getResponseBody(), e);
+            return false;
         }
     }
 

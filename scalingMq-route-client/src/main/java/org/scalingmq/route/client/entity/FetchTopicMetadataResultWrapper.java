@@ -89,6 +89,16 @@ public final class FetchTopicMetadataResultWrapper {
      */
     FetchTopicMetadataResult.PartitionMetadataOrBuilder getPartitionMetadataListOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * 副本系数
+     * </pre>
+     *
+     * <code>int32 replicateFactor = 4;</code>
+     * @return The replicateFactor.
+     */
+    int getReplicateFactor();
   }
   /**
    * Protobuf type {@code FetchTopicMetadataResult}
@@ -158,6 +168,11 @@ public final class FetchTopicMetadataResultWrapper {
                   input.readMessage(PartitionMetadata.parser(), extensionRegistry));
               break;
             }
+            case 32: {
+
+              replicateFactor_ = input.readInt32();
+              break;
+            }
             default: {
               if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
@@ -212,16 +227,17 @@ public final class FetchTopicMetadataResultWrapper {
        * 存储pod的序号集合
        * </pre>
        *
-       * <code>repeated int32 storagePodNums = 2;</code>
+       * <code>repeated string storagePodNums = 2;</code>
        * @return A list containing the storagePodNums.
        */
-      java.util.List<Integer> getStoragePodNumsList();
+      java.util.List<String>
+          getStoragePodNumsList();
       /**
        * <pre>
        * 存储pod的序号集合
        * </pre>
        *
-       * <code>repeated int32 storagePodNums = 2;</code>
+       * <code>repeated string storagePodNums = 2;</code>
        * @return The count of storagePodNums.
        */
       int getStoragePodNumsCount();
@@ -230,27 +246,39 @@ public final class FetchTopicMetadataResultWrapper {
        * 存储pod的序号集合
        * </pre>
        *
-       * <code>repeated int32 storagePodNums = 2;</code>
+       * <code>repeated string storagePodNums = 2;</code>
        * @param index The index of the element to return.
        * @return The storagePodNums at the given index.
        */
-      int getStoragePodNums(int index);
+      String getStoragePodNums(int index);
+      /**
+       * <pre>
+       * 存储pod的序号集合
+       * </pre>
+       *
+       * <code>repeated string storagePodNums = 2;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the storagePodNums at the given index.
+       */
+      com.google.protobuf.ByteString
+          getStoragePodNumsBytes(int index);
 
       /**
        * <pre>
        * in sync replicator 的pod序号集合
        * </pre>
        *
-       * <code>repeated int32 isrStoragePodNums = 3;</code>
+       * <code>repeated string isrStoragePodNums = 3;</code>
        * @return A list containing the isrStoragePodNums.
        */
-      java.util.List<Integer> getIsrStoragePodNumsList();
+      java.util.List<String>
+          getIsrStoragePodNumsList();
       /**
        * <pre>
        * in sync replicator 的pod序号集合
        * </pre>
        *
-       * <code>repeated int32 isrStoragePodNums = 3;</code>
+       * <code>repeated string isrStoragePodNums = 3;</code>
        * @return The count of isrStoragePodNums.
        */
       int getIsrStoragePodNumsCount();
@@ -259,11 +287,22 @@ public final class FetchTopicMetadataResultWrapper {
        * in sync replicator 的pod序号集合
        * </pre>
        *
-       * <code>repeated int32 isrStoragePodNums = 3;</code>
+       * <code>repeated string isrStoragePodNums = 3;</code>
        * @param index The index of the element to return.
        * @return The isrStoragePodNums at the given index.
        */
-      int getIsrStoragePodNums(int index);
+      String getIsrStoragePodNums(int index);
+      /**
+       * <pre>
+       * in sync replicator 的pod序号集合
+       * </pre>
+       *
+       * <code>repeated string isrStoragePodNums = 3;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the isrStoragePodNums at the given index.
+       */
+      com.google.protobuf.ByteString
+          getIsrStoragePodNumsBytes(int index);
     }
     /**
      * <pre>
@@ -282,8 +321,8 @@ public final class FetchTopicMetadataResultWrapper {
         super(builder);
       }
       private PartitionMetadata() {
-        storagePodNums_ = emptyIntList();
-        isrStoragePodNums_ = emptyIntList();
+        storagePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        isrStoragePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       }
 
       @Override
@@ -322,46 +361,22 @@ public final class FetchTopicMetadataResultWrapper {
                 partitionNum_ = input.readInt32();
                 break;
               }
-              case 16: {
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  storagePodNums_ = newIntList();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                storagePodNums_.addInt(input.readInt32());
-                break;
-              }
               case 18: {
-                int length = input.readRawVarint32();
-                int limit = input.pushLimit(length);
-                if (!((mutable_bitField0_ & 0x00000001) != 0) && input.getBytesUntilLimit() > 0) {
-                  storagePodNums_ = newIntList();
+                String s = input.readStringRequireUtf8();
+                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                  storagePodNums_ = new com.google.protobuf.LazyStringArrayList();
                   mutable_bitField0_ |= 0x00000001;
                 }
-                while (input.getBytesUntilLimit() > 0) {
-                  storagePodNums_.addInt(input.readInt32());
-                }
-                input.popLimit(limit);
-                break;
-              }
-              case 24: {
-                if (!((mutable_bitField0_ & 0x00000002) != 0)) {
-                  isrStoragePodNums_ = newIntList();
-                  mutable_bitField0_ |= 0x00000002;
-                }
-                isrStoragePodNums_.addInt(input.readInt32());
+                storagePodNums_.add(s);
                 break;
               }
               case 26: {
-                int length = input.readRawVarint32();
-                int limit = input.pushLimit(length);
-                if (!((mutable_bitField0_ & 0x00000002) != 0) && input.getBytesUntilLimit() > 0) {
-                  isrStoragePodNums_ = newIntList();
+                String s = input.readStringRequireUtf8();
+                if (!((mutable_bitField0_ & 0x00000002) != 0)) {
+                  isrStoragePodNums_ = new com.google.protobuf.LazyStringArrayList();
                   mutable_bitField0_ |= 0x00000002;
                 }
-                while (input.getBytesUntilLimit() > 0) {
-                  isrStoragePodNums_.addInt(input.readInt32());
-                }
-                input.popLimit(limit);
+                isrStoragePodNums_.add(s);
                 break;
               }
               default: {
@@ -380,10 +395,10 @@ public final class FetchTopicMetadataResultWrapper {
               e).setUnfinishedMessage(this);
         } finally {
           if (((mutable_bitField0_ & 0x00000001) != 0)) {
-            storagePodNums_.makeImmutable(); // C
+            storagePodNums_ = storagePodNums_.getUnmodifiableView();
           }
           if (((mutable_bitField0_ & 0x00000002) != 0)) {
-            isrStoragePodNums_.makeImmutable(); // C
+            isrStoragePodNums_ = isrStoragePodNums_.getUnmodifiableView();
           }
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -418,17 +433,16 @@ public final class FetchTopicMetadataResultWrapper {
       }
 
       public static final int STORAGEPODNUMS_FIELD_NUMBER = 2;
-      private com.google.protobuf.Internal.IntList storagePodNums_;
+      private com.google.protobuf.LazyStringList storagePodNums_;
       /**
        * <pre>
        * 存储pod的序号集合
        * </pre>
        *
-       * <code>repeated int32 storagePodNums = 2;</code>
+       * <code>repeated string storagePodNums = 2;</code>
        * @return A list containing the storagePodNums.
        */
-      @Override
-      public java.util.List<Integer>
+      public com.google.protobuf.ProtocolStringList
           getStoragePodNumsList() {
         return storagePodNums_;
       }
@@ -437,7 +451,7 @@ public final class FetchTopicMetadataResultWrapper {
        * 存储pod的序号集合
        * </pre>
        *
-       * <code>repeated int32 storagePodNums = 2;</code>
+       * <code>repeated string storagePodNums = 2;</code>
        * @return The count of storagePodNums.
        */
       public int getStoragePodNumsCount() {
@@ -448,27 +462,38 @@ public final class FetchTopicMetadataResultWrapper {
        * 存储pod的序号集合
        * </pre>
        *
-       * <code>repeated int32 storagePodNums = 2;</code>
+       * <code>repeated string storagePodNums = 2;</code>
        * @param index The index of the element to return.
        * @return The storagePodNums at the given index.
        */
-      public int getStoragePodNums(int index) {
-        return storagePodNums_.getInt(index);
+      public String getStoragePodNums(int index) {
+        return storagePodNums_.get(index);
       }
-      private int storagePodNumsMemoizedSerializedSize = -1;
+      /**
+       * <pre>
+       * 存储pod的序号集合
+       * </pre>
+       *
+       * <code>repeated string storagePodNums = 2;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the storagePodNums at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getStoragePodNumsBytes(int index) {
+        return storagePodNums_.getByteString(index);
+      }
 
       public static final int ISRSTORAGEPODNUMS_FIELD_NUMBER = 3;
-      private com.google.protobuf.Internal.IntList isrStoragePodNums_;
+      private com.google.protobuf.LazyStringList isrStoragePodNums_;
       /**
        * <pre>
        * in sync replicator 的pod序号集合
        * </pre>
        *
-       * <code>repeated int32 isrStoragePodNums = 3;</code>
+       * <code>repeated string isrStoragePodNums = 3;</code>
        * @return A list containing the isrStoragePodNums.
        */
-      @Override
-      public java.util.List<Integer>
+      public com.google.protobuf.ProtocolStringList
           getIsrStoragePodNumsList() {
         return isrStoragePodNums_;
       }
@@ -477,7 +502,7 @@ public final class FetchTopicMetadataResultWrapper {
        * in sync replicator 的pod序号集合
        * </pre>
        *
-       * <code>repeated int32 isrStoragePodNums = 3;</code>
+       * <code>repeated string isrStoragePodNums = 3;</code>
        * @return The count of isrStoragePodNums.
        */
       public int getIsrStoragePodNumsCount() {
@@ -488,14 +513,26 @@ public final class FetchTopicMetadataResultWrapper {
        * in sync replicator 的pod序号集合
        * </pre>
        *
-       * <code>repeated int32 isrStoragePodNums = 3;</code>
+       * <code>repeated string isrStoragePodNums = 3;</code>
        * @param index The index of the element to return.
        * @return The isrStoragePodNums at the given index.
        */
-      public int getIsrStoragePodNums(int index) {
-        return isrStoragePodNums_.getInt(index);
+      public String getIsrStoragePodNums(int index) {
+        return isrStoragePodNums_.get(index);
       }
-      private int isrStoragePodNumsMemoizedSerializedSize = -1;
+      /**
+       * <pre>
+       * in sync replicator 的pod序号集合
+       * </pre>
+       *
+       * <code>repeated string isrStoragePodNums = 3;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the isrStoragePodNums at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getIsrStoragePodNumsBytes(int index) {
+        return isrStoragePodNums_.getByteString(index);
+      }
 
       private byte memoizedIsInitialized = -1;
       @Override
@@ -511,23 +548,14 @@ public final class FetchTopicMetadataResultWrapper {
       @Override
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (partitionNum_ != 0) {
           output.writeInt32(1, partitionNum_);
         }
-        if (getStoragePodNumsList().size() > 0) {
-          output.writeUInt32NoTag(18);
-          output.writeUInt32NoTag(storagePodNumsMemoizedSerializedSize);
-        }
         for (int i = 0; i < storagePodNums_.size(); i++) {
-          output.writeInt32NoTag(storagePodNums_.getInt(i));
-        }
-        if (getIsrStoragePodNumsList().size() > 0) {
-          output.writeUInt32NoTag(26);
-          output.writeUInt32NoTag(isrStoragePodNumsMemoizedSerializedSize);
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 2, storagePodNums_.getRaw(i));
         }
         for (int i = 0; i < isrStoragePodNums_.size(); i++) {
-          output.writeInt32NoTag(isrStoragePodNums_.getInt(i));
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 3, isrStoragePodNums_.getRaw(i));
         }
         unknownFields.writeTo(output);
       }
@@ -545,30 +573,18 @@ public final class FetchTopicMetadataResultWrapper {
         {
           int dataSize = 0;
           for (int i = 0; i < storagePodNums_.size(); i++) {
-            dataSize += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(storagePodNums_.getInt(i));
+            dataSize += computeStringSizeNoTag(storagePodNums_.getRaw(i));
           }
           size += dataSize;
-          if (!getStoragePodNumsList().isEmpty()) {
-            size += 1;
-            size += com.google.protobuf.CodedOutputStream
-                .computeInt32SizeNoTag(dataSize);
-          }
-          storagePodNumsMemoizedSerializedSize = dataSize;
+          size += 1 * getStoragePodNumsList().size();
         }
         {
           int dataSize = 0;
           for (int i = 0; i < isrStoragePodNums_.size(); i++) {
-            dataSize += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(isrStoragePodNums_.getInt(i));
+            dataSize += computeStringSizeNoTag(isrStoragePodNums_.getRaw(i));
           }
           size += dataSize;
-          if (!getIsrStoragePodNumsList().isEmpty()) {
-            size += 1;
-            size += com.google.protobuf.CodedOutputStream
-                .computeInt32SizeNoTag(dataSize);
-          }
-          isrStoragePodNumsMemoizedSerializedSize = dataSize;
+          size += 1 * getIsrStoragePodNumsList().size();
         }
         size += unknownFields.getSerializedSize();
         memoizedSize = size;
@@ -751,9 +767,9 @@ public final class FetchTopicMetadataResultWrapper {
           super.clear();
           partitionNum_ = 0;
 
-          storagePodNums_ = emptyIntList();
+          storagePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
           bitField0_ = (bitField0_ & ~0x00000001);
-          isrStoragePodNums_ = emptyIntList();
+          isrStoragePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
           bitField0_ = (bitField0_ & ~0x00000002);
           return this;
         }
@@ -784,12 +800,12 @@ public final class FetchTopicMetadataResultWrapper {
           int from_bitField0_ = bitField0_;
           result.partitionNum_ = partitionNum_;
           if (((bitField0_ & 0x00000001) != 0)) {
-            storagePodNums_.makeImmutable();
+            storagePodNums_ = storagePodNums_.getUnmodifiableView();
             bitField0_ = (bitField0_ & ~0x00000001);
           }
           result.storagePodNums_ = storagePodNums_;
           if (((bitField0_ & 0x00000002) != 0)) {
-            isrStoragePodNums_.makeImmutable();
+            isrStoragePodNums_ = isrStoragePodNums_.getUnmodifiableView();
             bitField0_ = (bitField0_ & ~0x00000002);
           }
           result.isrStoragePodNums_ = isrStoragePodNums_;
@@ -937,10 +953,10 @@ public final class FetchTopicMetadataResultWrapper {
           return this;
         }
 
-        private com.google.protobuf.Internal.IntList storagePodNums_ = emptyIntList();
+        private com.google.protobuf.LazyStringList storagePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         private void ensureStoragePodNumsIsMutable() {
           if (!((bitField0_ & 0x00000001) != 0)) {
-            storagePodNums_ = mutableCopy(storagePodNums_);
+            storagePodNums_ = new com.google.protobuf.LazyStringArrayList(storagePodNums_);
             bitField0_ |= 0x00000001;
            }
         }
@@ -949,20 +965,19 @@ public final class FetchTopicMetadataResultWrapper {
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
          * @return A list containing the storagePodNums.
          */
-        public java.util.List<Integer>
+        public com.google.protobuf.ProtocolStringList
             getStoragePodNumsList() {
-          return ((bitField0_ & 0x00000001) != 0) ?
-                   java.util.Collections.unmodifiableList(storagePodNums_) : storagePodNums_;
+          return storagePodNums_.getUnmodifiableView();
         }
         /**
          * <pre>
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
          * @return The count of storagePodNums.
          */
         public int getStoragePodNumsCount() {
@@ -973,27 +988,43 @@ public final class FetchTopicMetadataResultWrapper {
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
          * @param index The index of the element to return.
          * @return The storagePodNums at the given index.
          */
-        public int getStoragePodNums(int index) {
-          return storagePodNums_.getInt(index);
+        public String getStoragePodNums(int index) {
+          return storagePodNums_.get(index);
         }
         /**
          * <pre>
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
+         * @param index The index of the value to return.
+         * @return The bytes of the storagePodNums at the given index.
+         */
+        public com.google.protobuf.ByteString
+            getStoragePodNumsBytes(int index) {
+          return storagePodNums_.getByteString(index);
+        }
+        /**
+         * <pre>
+         * 存储pod的序号集合
+         * </pre>
+         *
+         * <code>repeated string storagePodNums = 2;</code>
          * @param index The index to set the value at.
          * @param value The storagePodNums to set.
          * @return This builder for chaining.
          */
         public Builder setStoragePodNums(
-            int index, int value) {
-          ensureStoragePodNumsIsMutable();
-          storagePodNums_.setInt(index, value);
+            int index, String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureStoragePodNumsIsMutable();
+          storagePodNums_.set(index, value);
           onChanged();
           return this;
         }
@@ -1002,13 +1033,17 @@ public final class FetchTopicMetadataResultWrapper {
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
          * @param value The storagePodNums to add.
          * @return This builder for chaining.
          */
-        public Builder addStoragePodNums(int value) {
-          ensureStoragePodNumsIsMutable();
-          storagePodNums_.addInt(value);
+        public Builder addStoragePodNums(
+            String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureStoragePodNumsIsMutable();
+          storagePodNums_.add(value);
           onChanged();
           return this;
         }
@@ -1017,12 +1052,12 @@ public final class FetchTopicMetadataResultWrapper {
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
          * @param values The storagePodNums to add.
          * @return This builder for chaining.
          */
         public Builder addAllStoragePodNums(
-            Iterable<? extends Integer> values) {
+            Iterable<String> values) {
           ensureStoragePodNumsIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
               values, storagePodNums_);
@@ -1034,20 +1069,40 @@ public final class FetchTopicMetadataResultWrapper {
          * 存储pod的序号集合
          * </pre>
          *
-         * <code>repeated int32 storagePodNums = 2;</code>
+         * <code>repeated string storagePodNums = 2;</code>
          * @return This builder for chaining.
          */
         public Builder clearStoragePodNums() {
-          storagePodNums_ = emptyIntList();
+          storagePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
           bitField0_ = (bitField0_ & ~0x00000001);
           onChanged();
           return this;
         }
+        /**
+         * <pre>
+         * 存储pod的序号集合
+         * </pre>
+         *
+         * <code>repeated string storagePodNums = 2;</code>
+         * @param value The bytes of the storagePodNums to add.
+         * @return This builder for chaining.
+         */
+        public Builder addStoragePodNumsBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          ensureStoragePodNumsIsMutable();
+          storagePodNums_.add(value);
+          onChanged();
+          return this;
+        }
 
-        private com.google.protobuf.Internal.IntList isrStoragePodNums_ = emptyIntList();
+        private com.google.protobuf.LazyStringList isrStoragePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         private void ensureIsrStoragePodNumsIsMutable() {
           if (!((bitField0_ & 0x00000002) != 0)) {
-            isrStoragePodNums_ = mutableCopy(isrStoragePodNums_);
+            isrStoragePodNums_ = new com.google.protobuf.LazyStringArrayList(isrStoragePodNums_);
             bitField0_ |= 0x00000002;
            }
         }
@@ -1056,20 +1111,19 @@ public final class FetchTopicMetadataResultWrapper {
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @return A list containing the isrStoragePodNums.
          */
-        public java.util.List<Integer>
+        public com.google.protobuf.ProtocolStringList
             getIsrStoragePodNumsList() {
-          return ((bitField0_ & 0x00000002) != 0) ?
-                   java.util.Collections.unmodifiableList(isrStoragePodNums_) : isrStoragePodNums_;
+          return isrStoragePodNums_.getUnmodifiableView();
         }
         /**
          * <pre>
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @return The count of isrStoragePodNums.
          */
         public int getIsrStoragePodNumsCount() {
@@ -1080,27 +1134,43 @@ public final class FetchTopicMetadataResultWrapper {
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @param index The index of the element to return.
          * @return The isrStoragePodNums at the given index.
          */
-        public int getIsrStoragePodNums(int index) {
-          return isrStoragePodNums_.getInt(index);
+        public String getIsrStoragePodNums(int index) {
+          return isrStoragePodNums_.get(index);
         }
         /**
          * <pre>
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
+         * @param index The index of the value to return.
+         * @return The bytes of the isrStoragePodNums at the given index.
+         */
+        public com.google.protobuf.ByteString
+            getIsrStoragePodNumsBytes(int index) {
+          return isrStoragePodNums_.getByteString(index);
+        }
+        /**
+         * <pre>
+         * in sync replicator 的pod序号集合
+         * </pre>
+         *
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @param index The index to set the value at.
          * @param value The isrStoragePodNums to set.
          * @return This builder for chaining.
          */
         public Builder setIsrStoragePodNums(
-            int index, int value) {
-          ensureIsrStoragePodNumsIsMutable();
-          isrStoragePodNums_.setInt(index, value);
+            int index, String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureIsrStoragePodNumsIsMutable();
+          isrStoragePodNums_.set(index, value);
           onChanged();
           return this;
         }
@@ -1109,13 +1179,17 @@ public final class FetchTopicMetadataResultWrapper {
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @param value The isrStoragePodNums to add.
          * @return This builder for chaining.
          */
-        public Builder addIsrStoragePodNums(int value) {
-          ensureIsrStoragePodNumsIsMutable();
-          isrStoragePodNums_.addInt(value);
+        public Builder addIsrStoragePodNums(
+            String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureIsrStoragePodNumsIsMutable();
+          isrStoragePodNums_.add(value);
           onChanged();
           return this;
         }
@@ -1124,12 +1198,12 @@ public final class FetchTopicMetadataResultWrapper {
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @param values The isrStoragePodNums to add.
          * @return This builder for chaining.
          */
         public Builder addAllIsrStoragePodNums(
-            Iterable<? extends Integer> values) {
+            Iterable<String> values) {
           ensureIsrStoragePodNumsIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
               values, isrStoragePodNums_);
@@ -1141,12 +1215,32 @@ public final class FetchTopicMetadataResultWrapper {
          * in sync replicator 的pod序号集合
          * </pre>
          *
-         * <code>repeated int32 isrStoragePodNums = 3;</code>
+         * <code>repeated string isrStoragePodNums = 3;</code>
          * @return This builder for chaining.
          */
         public Builder clearIsrStoragePodNums() {
-          isrStoragePodNums_ = emptyIntList();
+          isrStoragePodNums_ = com.google.protobuf.LazyStringArrayList.EMPTY;
           bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+          return this;
+        }
+        /**
+         * <pre>
+         * in sync replicator 的pod序号集合
+         * </pre>
+         *
+         * <code>repeated string isrStoragePodNums = 3;</code>
+         * @param value The bytes of the isrStoragePodNums to add.
+         * @return This builder for chaining.
+         */
+        public Builder addIsrStoragePodNumsBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          ensureIsrStoragePodNumsIsMutable();
+          isrStoragePodNums_.add(value);
           onChanged();
           return this;
         }
@@ -1324,6 +1418,21 @@ public final class FetchTopicMetadataResultWrapper {
       return partitionMetadataList_.get(index);
     }
 
+    public static final int REPLICATEFACTOR_FIELD_NUMBER = 4;
+    private int replicateFactor_;
+    /**
+     * <pre>
+     * 副本系数
+     * </pre>
+     *
+     * <code>int32 replicateFactor = 4;</code>
+     * @return The replicateFactor.
+     */
+    @Override
+    public int getReplicateFactor() {
+      return replicateFactor_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -1347,6 +1456,9 @@ public final class FetchTopicMetadataResultWrapper {
       for (int i = 0; i < partitionMetadataList_.size(); i++) {
         output.writeMessage(3, partitionMetadataList_.get(i));
       }
+      if (replicateFactor_ != 0) {
+        output.writeInt32(4, replicateFactor_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -1366,6 +1478,10 @@ public final class FetchTopicMetadataResultWrapper {
       for (int i = 0; i < partitionMetadataList_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, partitionMetadataList_.get(i));
+      }
+      if (replicateFactor_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, replicateFactor_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1388,6 +1504,8 @@ public final class FetchTopicMetadataResultWrapper {
           != other.getPartitionNums()) return false;
       if (!getPartitionMetadataListList()
           .equals(other.getPartitionMetadataListList())) return false;
+      if (getReplicateFactor()
+          != other.getReplicateFactor()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -1407,6 +1525,8 @@ public final class FetchTopicMetadataResultWrapper {
         hash = (37 * hash) + PARTITIONMETADATALIST_FIELD_NUMBER;
         hash = (53 * hash) + getPartitionMetadataListList().hashCode();
       }
+      hash = (37 * hash) + REPLICATEFACTOR_FIELD_NUMBER;
+      hash = (53 * hash) + getReplicateFactor();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1551,6 +1671,8 @@ public final class FetchTopicMetadataResultWrapper {
         } else {
           partitionMetadataListBuilder_.clear();
         }
+        replicateFactor_ = 0;
+
         return this;
       }
 
@@ -1589,6 +1711,7 @@ public final class FetchTopicMetadataResultWrapper {
         } else {
           result.partitionMetadataList_ = partitionMetadataListBuilder_.build();
         }
+        result.replicateFactor_ = replicateFactor_;
         onBuilt();
         return result;
       }
@@ -1669,6 +1792,9 @@ public final class FetchTopicMetadataResultWrapper {
               partitionMetadataListBuilder_.addAllMessages(other.partitionMetadataList_);
             }
           }
+        }
+        if (other.getReplicateFactor() != 0) {
+          setReplicateFactor(other.getReplicateFactor());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -2150,6 +2276,49 @@ public final class FetchTopicMetadataResultWrapper {
         }
         return partitionMetadataListBuilder_;
       }
+
+      private int replicateFactor_ ;
+      /**
+       * <pre>
+       * 副本系数
+       * </pre>
+       *
+       * <code>int32 replicateFactor = 4;</code>
+       * @return The replicateFactor.
+       */
+      @Override
+      public int getReplicateFactor() {
+        return replicateFactor_;
+      }
+      /**
+       * <pre>
+       * 副本系数
+       * </pre>
+       *
+       * <code>int32 replicateFactor = 4;</code>
+       * @param value The replicateFactor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setReplicateFactor(int value) {
+        
+        replicateFactor_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 副本系数
+       * </pre>
+       *
+       * <code>int32 replicateFactor = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearReplicateFactor() {
+        
+        replicateFactor_ = 0;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -2222,14 +2391,15 @@ public final class FetchTopicMetadataResultWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\036FetchTopicMetadataResult.proto\"\356\001\n\030Fet" +
+      "\n\036FetchTopicMetadataResult.proto\"\207\002\n\030Fet" +
       "chTopicMetadataResult\022\021\n\ttopicName\030\001 \001(\t" +
       "\022\025\n\rpartitionNums\030\002 \001(\005\022J\n\025partitionMeta" +
       "dataList\030\003 \003(\0132+.FetchTopicMetadataResul" +
-      "t.PartitionMetadata\032\\\n\021PartitionMetadata" +
-      "\022\024\n\014partitionNum\030\001 \001(\005\022\026\n\016storagePodNums" +
-      "\030\002 \003(\005\022\031\n\021isrStoragePodNums\030\003 \003(\005B!B\037Fet" +
-      "chTopicMetadataResultWrapperb\006proto3"
+      "t.PartitionMetadata\022\027\n\017replicateFactor\030\004" +
+      " \001(\005\032\\\n\021PartitionMetadata\022\024\n\014partitionNu" +
+      "m\030\001 \001(\005\022\026\n\016storagePodNums\030\002 \003(\t\022\031\n\021isrSt" +
+      "oragePodNums\030\003 \003(\tB!B\037FetchTopicMetadata" +
+      "ResultWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -2240,7 +2410,7 @@ public final class FetchTopicMetadataResultWrapper {
     internal_static_FetchTopicMetadataResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_FetchTopicMetadataResult_descriptor,
-        new String[] { "TopicName", "PartitionNums", "PartitionMetadataList", });
+        new String[] { "TopicName", "PartitionNums", "PartitionMetadataList", "ReplicateFactor", });
     internal_static_FetchTopicMetadataResult_PartitionMetadata_descriptor =
       internal_static_FetchTopicMetadataResult_descriptor.getNestedTypes().get(0);
     internal_static_FetchTopicMetadataResult_PartitionMetadata_fieldAccessorTable = new

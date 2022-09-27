@@ -10,4 +10,7 @@ message PutTopicMetadataReq {
   // 分区数量
   int32 partitionNum = 2;
 
+  // 副本系数
+  int32 replicateFactor = 3;
+
 }

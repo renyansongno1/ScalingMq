@@ -45,6 +45,16 @@ public final class PutTopicMetadataReqWrapper {
      * @return The partitionNum.
      */
     int getPartitionNum();
+
+    /**
+     * <pre>
+     * 副本系数
+     * </pre>
+     *
+     * <code>int32 replicateFactor = 3;</code>
+     * @return The replicateFactor.
+     */
+    int getReplicateFactor();
   }
   /**
    * Protobuf type {@code PutTopicMetadataReq}
@@ -101,6 +111,11 @@ public final class PutTopicMetadataReqWrapper {
             case 16: {
 
               partitionNum_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              replicateFactor_ = input.readInt32();
               break;
             }
             default: {
@@ -196,6 +211,21 @@ public final class PutTopicMetadataReqWrapper {
       return partitionNum_;
     }
 
+    public static final int REPLICATEFACTOR_FIELD_NUMBER = 3;
+    private int replicateFactor_;
+    /**
+     * <pre>
+     * 副本系数
+     * </pre>
+     *
+     * <code>int32 replicateFactor = 3;</code>
+     * @return The replicateFactor.
+     */
+    @Override
+    public int getReplicateFactor() {
+      return replicateFactor_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -216,6 +246,9 @@ public final class PutTopicMetadataReqWrapper {
       if (partitionNum_ != 0) {
         output.writeInt32(2, partitionNum_);
       }
+      if (replicateFactor_ != 0) {
+        output.writeInt32(3, replicateFactor_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -231,6 +264,10 @@ public final class PutTopicMetadataReqWrapper {
       if (partitionNum_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, partitionNum_);
+      }
+      if (replicateFactor_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, replicateFactor_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -251,6 +288,8 @@ public final class PutTopicMetadataReqWrapper {
           .equals(other.getTopicName())) return false;
       if (getPartitionNum()
           != other.getPartitionNum()) return false;
+      if (getReplicateFactor()
+          != other.getReplicateFactor()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -266,6 +305,8 @@ public final class PutTopicMetadataReqWrapper {
       hash = (53 * hash) + getTopicName().hashCode();
       hash = (37 * hash) + PARTITIONNUM_FIELD_NUMBER;
       hash = (53 * hash) + getPartitionNum();
+      hash = (37 * hash) + REPLICATEFACTOR_FIELD_NUMBER;
+      hash = (53 * hash) + getReplicateFactor();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -403,6 +444,8 @@ public final class PutTopicMetadataReqWrapper {
 
         partitionNum_ = 0;
 
+        replicateFactor_ = 0;
+
         return this;
       }
 
@@ -431,6 +474,7 @@ public final class PutTopicMetadataReqWrapper {
         PutTopicMetadataReq result = new PutTopicMetadataReq(this);
         result.topicName_ = topicName_;
         result.partitionNum_ = partitionNum_;
+        result.replicateFactor_ = replicateFactor_;
         onBuilt();
         return result;
       }
@@ -485,6 +529,9 @@ public final class PutTopicMetadataReqWrapper {
         }
         if (other.getPartitionNum() != 0) {
           setPartitionNum(other.getPartitionNum());
+        }
+        if (other.getReplicateFactor() != 0) {
+          setReplicateFactor(other.getReplicateFactor());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -653,6 +700,49 @@ public final class PutTopicMetadataReqWrapper {
         onChanged();
         return this;
       }
+
+      private int replicateFactor_ ;
+      /**
+       * <pre>
+       * 副本系数
+       * </pre>
+       *
+       * <code>int32 replicateFactor = 3;</code>
+       * @return The replicateFactor.
+       */
+      @Override
+      public int getReplicateFactor() {
+        return replicateFactor_;
+      }
+      /**
+       * <pre>
+       * 副本系数
+       * </pre>
+       *
+       * <code>int32 replicateFactor = 3;</code>
+       * @param value The replicateFactor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setReplicateFactor(int value) {
+        
+        replicateFactor_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 副本系数
+       * </pre>
+       *
+       * <code>int32 replicateFactor = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearReplicateFactor() {
+        
+        replicateFactor_ = 0;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -720,10 +810,10 @@ public final class PutTopicMetadataReqWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\031PutTopicMetadataReq.proto\">\n\023PutTopicM" +
+      "\n\031PutTopicMetadataReq.proto\"W\n\023PutTopicM" +
       "etadataReq\022\021\n\ttopicName\030\001 \001(\t\022\024\n\014partiti" +
-      "onNum\030\002 \001(\005B\034B\032PutTopicMetadataReqWrappe" +
-      "rb\006proto3"
+      "onNum\030\002 \001(\005\022\027\n\017replicateFactor\030\003 \001(\005B\034B\032" +
+      "PutTopicMetadataReqWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -734,7 +824,7 @@ public final class PutTopicMetadataReqWrapper {
     internal_static_PutTopicMetadataReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_PutTopicMetadataReq_descriptor,
-        new String[] { "TopicName", "PartitionNum", });
+        new String[] { "TopicName", "PartitionNum", "ReplicateFactor", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

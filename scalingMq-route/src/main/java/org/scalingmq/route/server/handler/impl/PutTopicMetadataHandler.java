@@ -16,7 +16,7 @@ public class PutTopicMetadataHandler implements RequestHandler<PutTopicMetadataR
     @Override
     public RouteResWrapper.RouteApiRes handle(PutTopicMetadataReqWrapper.PutTopicMetadataReq putTopicMetadataReq) {
         log.debug("创建topic元数据请求:{}", putTopicMetadataReq.toString());
-        boolean result = MetaDataManager.getInstance().createTopicMetadata(putTopicMetadataReq.getTopicName(), putTopicMetadataReq.getPartitionNum());
+        boolean result = MetaDataManager.getInstance().createTopicMetadata(putTopicMetadataReq.getTopicName(), putTopicMetadataReq.getPartitionNum(), putTopicMetadataReq.getReplicateFactor());
         return RouteResWrapper.RouteApiRes.newBuilder().setCreateTopicMetadataRes(result).build();
     }
 }

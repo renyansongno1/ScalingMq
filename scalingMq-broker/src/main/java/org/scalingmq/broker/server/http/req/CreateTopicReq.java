@@ -23,4 +23,9 @@ public class CreateTopicReq {
      */
     private Integer partitionNum;
 
+    /**
+     * 副本系数，后面的副本选举是raft 所以最好副本数有两个及以上的双数（因为还有一个主副本）
+     */
+    private Integer replicateFactor = 2;
+
 }

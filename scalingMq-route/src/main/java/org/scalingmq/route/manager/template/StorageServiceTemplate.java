@@ -25,10 +25,10 @@ public class StorageServiceTemplate {
 
     private final String topicName;
 
-    public StorageServiceTemplate(String topicName) {
+    public StorageServiceTemplate(String topicName, Integer partitionNum) {
         this.topicName = topicName;
-        storagePodName += ("-" + topicName);
-        storageServiceName += ("-" + topicName);
+        storagePodName += ("-" + topicName + "-" + partitionNum);
+        storageServiceName += ("-" + topicName + "-" + partitionNum);
         SPEC_SELECTOR_MAP.put("app", storagePodName);
     }
 

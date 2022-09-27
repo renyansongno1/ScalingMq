@@ -32,6 +32,11 @@ public class TopicMetadata {
     private Integer partitionNums;
 
     /**
+     * 副本系数
+     */
+    private Integer replicateFactor;
+
+    /**
      * 分区相关的元数据
      */
     private String partitionMetadataList;
