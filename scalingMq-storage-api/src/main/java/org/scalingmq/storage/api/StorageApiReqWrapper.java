@@ -262,30 +262,10 @@ public final class StorageApiReqWrapper {
 
       /**
        * <pre>
-       * 消息主题
-       * </pre>
-       *
-       * <code>string topic = 1;</code>
-       * @return The topic.
-       */
-      String getTopic();
-      /**
-       * <pre>
-       * 消息主题
-       * </pre>
-       *
-       * <code>string topic = 1;</code>
-       * @return The bytes for topic.
-       */
-      com.google.protobuf.ByteString
-          getTopicBytes();
-
-      /**
-       * <pre>
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       java.util.List<PutMsgReq.MsgItem>
           getMsgItemsList();
@@ -294,7 +274,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       PutMsgReq.MsgItem getMsgItems(int index);
       /**
@@ -302,7 +282,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       int getMsgItemsCount();
       /**
@@ -310,7 +290,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       java.util.List<? extends PutMsgReq.MsgItemOrBuilder>
           getMsgItemsOrBuilderList();
@@ -319,7 +299,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       PutMsgReq.MsgItemOrBuilder getMsgItemsOrBuilder(
           int index);
@@ -337,7 +317,6 @@ public final class StorageApiReqWrapper {
         super(builder);
       }
       private PutMsgReq() {
-        topic_ = "";
         msgItems_ = java.util.Collections.emptyList();
       }
 
@@ -373,12 +352,6 @@ public final class StorageApiReqWrapper {
                 done = true;
                 break;
               case 10: {
-                String s = input.readStringRequireUtf8();
-
-                topic_ = s;
-                break;
-              }
-              case 18: {
                 if (!((mutable_bitField0_ & 0x00000001) != 0)) {
                   msgItems_ = new java.util.ArrayList<MsgItem>();
                   mutable_bitField0_ |= 0x00000001;
@@ -427,21 +400,14 @@ public final class StorageApiReqWrapper {
           com.google.protobuf.MessageOrBuilder {
 
         /**
-         * <code>repeated bytes content = 1;</code>
-         * @return A list containing the content.
+         * <pre>
+         * 数据 bytes
+         * </pre>
+         *
+         * <code>bytes content = 1;</code>
+         * @return The content.
          */
-        java.util.List<com.google.protobuf.ByteString> getContentList();
-        /**
-         * <code>repeated bytes content = 1;</code>
-         * @return The count of content.
-         */
-        int getContentCount();
-        /**
-         * <code>repeated bytes content = 1;</code>
-         * @param index The index of the element to return.
-         * @return The content at the given index.
-         */
-        com.google.protobuf.ByteString getContent(int index);
+        com.google.protobuf.ByteString getContent();
       }
       /**
        * <pre>
@@ -460,7 +426,7 @@ public final class StorageApiReqWrapper {
           super(builder);
         }
         private MsgItem() {
-          content_ = java.util.Collections.emptyList();
+          content_ = com.google.protobuf.ByteString.EMPTY;
         }
 
         @Override
@@ -483,7 +449,6 @@ public final class StorageApiReqWrapper {
           if (extensionRegistry == null) {
             throw new NullPointerException();
           }
-          int mutable_bitField0_ = 0;
           com.google.protobuf.UnknownFieldSet.Builder unknownFields =
               com.google.protobuf.UnknownFieldSet.newBuilder();
           try {
@@ -495,11 +460,8 @@ public final class StorageApiReqWrapper {
                   done = true;
                   break;
                 case 10: {
-                  if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                    content_ = new java.util.ArrayList<com.google.protobuf.ByteString>();
-                    mutable_bitField0_ |= 0x00000001;
-                  }
-                  content_.add(input.readBytes());
+
+                  content_ = input.readBytes();
                   break;
                 }
                 default: {
@@ -517,9 +479,6 @@ public final class StorageApiReqWrapper {
             throw new com.google.protobuf.InvalidProtocolBufferException(
                 e).setUnfinishedMessage(this);
           } finally {
-            if (((mutable_bitField0_ & 0x00000001) != 0)) {
-              content_ = java.util.Collections.unmodifiableList(content_); // C
-            }
             this.unknownFields = unknownFields.build();
             makeExtensionsImmutable();
           }
@@ -538,30 +497,18 @@ public final class StorageApiReqWrapper {
         }
 
         public static final int CONTENT_FIELD_NUMBER = 1;
-        private java.util.List<com.google.protobuf.ByteString> content_;
+        private com.google.protobuf.ByteString content_;
         /**
-         * <code>repeated bytes content = 1;</code>
-         * @return A list containing the content.
+         * <pre>
+         * 数据 bytes
+         * </pre>
+         *
+         * <code>bytes content = 1;</code>
+         * @return The content.
          */
         @Override
-        public java.util.List<com.google.protobuf.ByteString>
-            getContentList() {
+        public com.google.protobuf.ByteString getContent() {
           return content_;
-        }
-        /**
-         * <code>repeated bytes content = 1;</code>
-         * @return The count of content.
-         */
-        public int getContentCount() {
-          return content_.size();
-        }
-        /**
-         * <code>repeated bytes content = 1;</code>
-         * @param index The index of the element to return.
-         * @return The content at the given index.
-         */
-        public com.google.protobuf.ByteString getContent(int index) {
-          return content_.get(index);
         }
 
         private byte memoizedIsInitialized = -1;
@@ -578,8 +525,8 @@ public final class StorageApiReqWrapper {
         @Override
         public void writeTo(com.google.protobuf.CodedOutputStream output)
                             throws java.io.IOException {
-          for (int i = 0; i < content_.size(); i++) {
-            output.writeBytes(1, content_.get(i));
+          if (!content_.isEmpty()) {
+            output.writeBytes(1, content_);
           }
           unknownFields.writeTo(output);
         }
@@ -590,14 +537,9 @@ public final class StorageApiReqWrapper {
           if (size != -1) return size;
 
           size = 0;
-          {
-            int dataSize = 0;
-            for (int i = 0; i < content_.size(); i++) {
-              dataSize += com.google.protobuf.CodedOutputStream
-                .computeBytesSizeNoTag(content_.get(i));
-            }
-            size += dataSize;
-            size += 1 * getContentList().size();
+          if (!content_.isEmpty()) {
+            size += com.google.protobuf.CodedOutputStream
+              .computeBytesSize(1, content_);
           }
           size += unknownFields.getSerializedSize();
           memoizedSize = size;
@@ -614,8 +556,8 @@ public final class StorageApiReqWrapper {
           }
           MsgItem other = (MsgItem) obj;
 
-          if (!getContentList()
-              .equals(other.getContentList())) return false;
+          if (!getContent()
+              .equals(other.getContent())) return false;
           if (!unknownFields.equals(other.unknownFields)) return false;
           return true;
         }
@@ -627,10 +569,8 @@ public final class StorageApiReqWrapper {
           }
           int hash = 41;
           hash = (19 * hash) + getDescriptor().hashCode();
-          if (getContentCount() > 0) {
-            hash = (37 * hash) + CONTENT_FIELD_NUMBER;
-            hash = (53 * hash) + getContentList().hashCode();
-          }
+          hash = (37 * hash) + CONTENT_FIELD_NUMBER;
+          hash = (53 * hash) + getContent().hashCode();
           hash = (29 * hash) + unknownFields.hashCode();
           memoizedHashCode = hash;
           return hash;
@@ -768,8 +708,8 @@ public final class StorageApiReqWrapper {
           @Override
           public Builder clear() {
             super.clear();
-            content_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000001);
+            content_ = com.google.protobuf.ByteString.EMPTY;
+
             return this;
           }
 
@@ -796,11 +736,6 @@ public final class StorageApiReqWrapper {
           @Override
           public MsgItem buildPartial() {
             MsgItem result = new MsgItem(this);
-            int from_bitField0_ = bitField0_;
-            if (((bitField0_ & 0x00000001) != 0)) {
-              content_ = java.util.Collections.unmodifiableList(content_);
-              bitField0_ = (bitField0_ & ~0x00000001);
-            }
             result.content_ = content_;
             onBuilt();
             return result;
@@ -850,15 +785,8 @@ public final class StorageApiReqWrapper {
 
           public Builder mergeFrom(MsgItem other) {
             if (other == MsgItem.getDefaultInstance()) return this;
-            if (!other.content_.isEmpty()) {
-              if (content_.isEmpty()) {
-                content_ = other.content_;
-                bitField0_ = (bitField0_ & ~0x00000001);
-              } else {
-                ensureContentIsMutable();
-                content_.addAll(other.content_);
-              }
-              onChanged();
+            if (other.getContent() != com.google.protobuf.ByteString.EMPTY) {
+              setContent(other.getContent());
             }
             this.mergeUnknownFields(other.unknownFields);
             onChanged();
@@ -888,89 +816,49 @@ public final class StorageApiReqWrapper {
             }
             return this;
           }
-          private int bitField0_;
 
-          private java.util.List<com.google.protobuf.ByteString> content_ = java.util.Collections.emptyList();
-          private void ensureContentIsMutable() {
-            if (!((bitField0_ & 0x00000001) != 0)) {
-              content_ = new java.util.ArrayList<com.google.protobuf.ByteString>(content_);
-              bitField0_ |= 0x00000001;
-             }
-          }
+          private com.google.protobuf.ByteString content_ = com.google.protobuf.ByteString.EMPTY;
           /**
-           * <code>repeated bytes content = 1;</code>
-           * @return A list containing the content.
+           * <pre>
+           * 数据 bytes
+           * </pre>
+           *
+           * <code>bytes content = 1;</code>
+           * @return The content.
            */
-          public java.util.List<com.google.protobuf.ByteString>
-              getContentList() {
-            return ((bitField0_ & 0x00000001) != 0) ?
-                     java.util.Collections.unmodifiableList(content_) : content_;
+          @Override
+          public com.google.protobuf.ByteString getContent() {
+            return content_;
           }
           /**
-           * <code>repeated bytes content = 1;</code>
-           * @return The count of content.
-           */
-          public int getContentCount() {
-            return content_.size();
-          }
-          /**
-           * <code>repeated bytes content = 1;</code>
-           * @param index The index of the element to return.
-           * @return The content at the given index.
-           */
-          public com.google.protobuf.ByteString getContent(int index) {
-            return content_.get(index);
-          }
-          /**
-           * <code>repeated bytes content = 1;</code>
-           * @param index The index to set the value at.
+           * <pre>
+           * 数据 bytes
+           * </pre>
+           *
+           * <code>bytes content = 1;</code>
            * @param value The content to set.
            * @return This builder for chaining.
            */
-          public Builder setContent(
-              int index, com.google.protobuf.ByteString value) {
+          public Builder setContent(com.google.protobuf.ByteString value) {
             if (value == null) {
     throw new NullPointerException();
   }
-  ensureContentIsMutable();
-            content_.set(index, value);
+  
+            content_ = value;
             onChanged();
             return this;
           }
           /**
-           * <code>repeated bytes content = 1;</code>
-           * @param value The content to add.
-           * @return This builder for chaining.
-           */
-          public Builder addContent(com.google.protobuf.ByteString value) {
-            if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureContentIsMutable();
-            content_.add(value);
-            onChanged();
-            return this;
-          }
-          /**
-           * <code>repeated bytes content = 1;</code>
-           * @param values The content to add.
-           * @return This builder for chaining.
-           */
-          public Builder addAllContent(
-              Iterable<? extends com.google.protobuf.ByteString> values) {
-            ensureContentIsMutable();
-            com.google.protobuf.AbstractMessageLite.Builder.addAll(
-                values, content_);
-            onChanged();
-            return this;
-          }
-          /**
-           * <code>repeated bytes content = 1;</code>
+           * <pre>
+           * 数据 bytes
+           * </pre>
+           *
+           * <code>bytes content = 1;</code>
            * @return This builder for chaining.
            */
           public Builder clearContent() {
-            content_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000001);
+            
+            content_ = getDefaultInstance().getContent();
             onChanged();
             return this;
           }
@@ -1027,60 +915,14 @@ public final class StorageApiReqWrapper {
 
       }
 
-      public static final int TOPIC_FIELD_NUMBER = 1;
-      private volatile Object topic_;
-      /**
-       * <pre>
-       * 消息主题
-       * </pre>
-       *
-       * <code>string topic = 1;</code>
-       * @return The topic.
-       */
-      @Override
-      public String getTopic() {
-        Object ref = topic_;
-        if (ref instanceof String) {
-          return (String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          String s = bs.toStringUtf8();
-          topic_ = s;
-          return s;
-        }
-      }
-      /**
-       * <pre>
-       * 消息主题
-       * </pre>
-       *
-       * <code>string topic = 1;</code>
-       * @return The bytes for topic.
-       */
-      @Override
-      public com.google.protobuf.ByteString
-          getTopicBytes() {
-        Object ref = topic_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (String) ref);
-          topic_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      public static final int MSGITEMS_FIELD_NUMBER = 2;
+      public static final int MSGITEMS_FIELD_NUMBER = 1;
       private java.util.List<MsgItem> msgItems_;
       /**
        * <pre>
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       @Override
       public java.util.List<MsgItem> getMsgItemsList() {
@@ -1091,7 +933,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       @Override
       public java.util.List<? extends MsgItemOrBuilder>
@@ -1103,7 +945,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       @Override
       public int getMsgItemsCount() {
@@ -1114,7 +956,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       @Override
       public MsgItem getMsgItems(int index) {
@@ -1125,7 +967,7 @@ public final class StorageApiReqWrapper {
        * 消息集
        * </pre>
        *
-       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+       * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
        */
       @Override
       public MsgItemOrBuilder getMsgItemsOrBuilder(
@@ -1147,11 +989,8 @@ public final class StorageApiReqWrapper {
       @Override
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        if (!getTopicBytes().isEmpty()) {
-          com.google.protobuf.GeneratedMessageV3.writeString(output, 1, topic_);
-        }
         for (int i = 0; i < msgItems_.size(); i++) {
-          output.writeMessage(2, msgItems_.get(i));
+          output.writeMessage(1, msgItems_.get(i));
         }
         unknownFields.writeTo(output);
       }
@@ -1162,12 +1001,9 @@ public final class StorageApiReqWrapper {
         if (size != -1) return size;
 
         size = 0;
-        if (!getTopicBytes().isEmpty()) {
-          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, topic_);
-        }
         for (int i = 0; i < msgItems_.size(); i++) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(2, msgItems_.get(i));
+            .computeMessageSize(1, msgItems_.get(i));
         }
         size += unknownFields.getSerializedSize();
         memoizedSize = size;
@@ -1184,8 +1020,6 @@ public final class StorageApiReqWrapper {
         }
         PutMsgReq other = (PutMsgReq) obj;
 
-        if (!getTopic()
-            .equals(other.getTopic())) return false;
         if (!getMsgItemsList()
             .equals(other.getMsgItemsList())) return false;
         if (!unknownFields.equals(other.unknownFields)) return false;
@@ -1199,8 +1033,6 @@ public final class StorageApiReqWrapper {
         }
         int hash = 41;
         hash = (19 * hash) + getDescriptor().hashCode();
-        hash = (37 * hash) + TOPIC_FIELD_NUMBER;
-        hash = (53 * hash) + getTopic().hashCode();
         if (getMsgItemsCount() > 0) {
           hash = (37 * hash) + MSGITEMS_FIELD_NUMBER;
           hash = (53 * hash) + getMsgItemsList().hashCode();
@@ -1339,8 +1171,6 @@ public final class StorageApiReqWrapper {
         @Override
         public Builder clear() {
           super.clear();
-          topic_ = "";
-
           if (msgItemsBuilder_ == null) {
             msgItems_ = java.util.Collections.emptyList();
             bitField0_ = (bitField0_ & ~0x00000001);
@@ -1374,7 +1204,6 @@ public final class StorageApiReqWrapper {
         public PutMsgReq buildPartial() {
           PutMsgReq result = new PutMsgReq(this);
           int from_bitField0_ = bitField0_;
-          result.topic_ = topic_;
           if (msgItemsBuilder_ == null) {
             if (((bitField0_ & 0x00000001) != 0)) {
               msgItems_ = java.util.Collections.unmodifiableList(msgItems_);
@@ -1432,10 +1261,6 @@ public final class StorageApiReqWrapper {
 
         public Builder mergeFrom(PutMsgReq other) {
           if (other == PutMsgReq.getDefaultInstance()) return this;
-          if (!other.getTopic().isEmpty()) {
-            topic_ = other.topic_;
-            onChanged();
-          }
           if (msgItemsBuilder_ == null) {
             if (!other.msgItems_.isEmpty()) {
               if (msgItems_.isEmpty()) {
@@ -1492,102 +1317,6 @@ public final class StorageApiReqWrapper {
         }
         private int bitField0_;
 
-        private Object topic_ = "";
-        /**
-         * <pre>
-         * 消息主题
-         * </pre>
-         *
-         * <code>string topic = 1;</code>
-         * @return The topic.
-         */
-        public String getTopic() {
-          Object ref = topic_;
-          if (!(ref instanceof String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            String s = bs.toStringUtf8();
-            topic_ = s;
-            return s;
-          } else {
-            return (String) ref;
-          }
-        }
-        /**
-         * <pre>
-         * 消息主题
-         * </pre>
-         *
-         * <code>string topic = 1;</code>
-         * @return The bytes for topic.
-         */
-        public com.google.protobuf.ByteString
-            getTopicBytes() {
-          Object ref = topic_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (String) ref);
-            topic_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <pre>
-         * 消息主题
-         * </pre>
-         *
-         * <code>string topic = 1;</code>
-         * @param value The topic to set.
-         * @return This builder for chaining.
-         */
-        public Builder setTopic(
-            String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  
-          topic_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <pre>
-         * 消息主题
-         * </pre>
-         *
-         * <code>string topic = 1;</code>
-         * @return This builder for chaining.
-         */
-        public Builder clearTopic() {
-          
-          topic_ = getDefaultInstance().getTopic();
-          onChanged();
-          return this;
-        }
-        /**
-         * <pre>
-         * 消息主题
-         * </pre>
-         *
-         * <code>string topic = 1;</code>
-         * @param value The bytes for topic to set.
-         * @return This builder for chaining.
-         */
-        public Builder setTopicBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-          
-          topic_ = value;
-          onChanged();
-          return this;
-        }
-
         private java.util.List<MsgItem> msgItems_ =
           java.util.Collections.emptyList();
         private void ensureMsgItemsIsMutable() {
@@ -1605,7 +1334,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public java.util.List<MsgItem> getMsgItemsList() {
           if (msgItemsBuilder_ == null) {
@@ -1619,7 +1348,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public int getMsgItemsCount() {
           if (msgItemsBuilder_ == null) {
@@ -1633,7 +1362,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public MsgItem getMsgItems(int index) {
           if (msgItemsBuilder_ == null) {
@@ -1647,7 +1376,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder setMsgItems(
             int index, MsgItem value) {
@@ -1668,7 +1397,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder setMsgItems(
             int index, MsgItem.Builder builderForValue) {
@@ -1686,7 +1415,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder addMsgItems(MsgItem value) {
           if (msgItemsBuilder_ == null) {
@@ -1706,7 +1435,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder addMsgItems(
             int index, MsgItem value) {
@@ -1727,7 +1456,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder addMsgItems(
             MsgItem.Builder builderForValue) {
@@ -1745,7 +1474,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder addMsgItems(
             int index, MsgItem.Builder builderForValue) {
@@ -1763,7 +1492,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder addAllMsgItems(
             Iterable<? extends MsgItem> values) {
@@ -1782,7 +1511,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder clearMsgItems() {
           if (msgItemsBuilder_ == null) {
@@ -1799,7 +1528,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public Builder removeMsgItems(int index) {
           if (msgItemsBuilder_ == null) {
@@ -1816,7 +1545,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public MsgItem.Builder getMsgItemsBuilder(
             int index) {
@@ -1827,7 +1556,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public MsgItemOrBuilder getMsgItemsOrBuilder(
             int index) {
@@ -1841,7 +1570,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public java.util.List<? extends MsgItemOrBuilder>
              getMsgItemsOrBuilderList() {
@@ -1856,7 +1585,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public MsgItem.Builder addMsgItemsBuilder() {
           return getMsgItemsFieldBuilder().addBuilder(
@@ -1867,7 +1596,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public MsgItem.Builder addMsgItemsBuilder(
             int index) {
@@ -1879,7 +1608,7 @@ public final class StorageApiReqWrapper {
          * 消息集
          * </pre>
          *
-         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 2;</code>
+         * <code>repeated .StorageApiReq.PutMsgReq.MsgItem msgItems = 1;</code>
          */
         public java.util.List<MsgItem.Builder>
              getMsgItemsBuilderList() {
@@ -2577,14 +2306,14 @@ public final class StorageApiReqWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\023StorageApiReq.proto\"\200\002\n\rStorageApiReq\022" +
+      "\n\023StorageApiReq.proto\"\361\001\n\rStorageApiReq\022" +
       "\'\n\007apiType\030\001 \001(\0162\026.StorageApiReq.ApiType" +
       "\022+\n\tputMsgReq\030\002 \001(\0132\030.StorageApiReq.PutM" +
-      "sgReq\032j\n\tPutMsgReq\022\r\n\005topic\030\001 \001(\t\0222\n\010msg" +
-      "Items\030\002 \003(\0132 .StorageApiReq.PutMsgReq.Ms" +
-      "gItem\032\032\n\007MsgItem\022\017\n\007content\030\001 \003(\014\"-\n\007Api" +
-      "Type\022\013\n\007PRODUCT\020\000\022\t\n\005FETCH\020\001\022\n\n\006COMMIT\020\002" +
-      "B\026B\024StorageApiReqWrapperb\006proto3"
+      "sgReq\032[\n\tPutMsgReq\0222\n\010msgItems\030\001 \003(\0132 .S" +
+      "torageApiReq.PutMsgReq.MsgItem\032\032\n\007MsgIte" +
+      "m\022\017\n\007content\030\001 \001(\014\"-\n\007ApiType\022\013\n\007PRODUCT" +
+      "\020\000\022\t\n\005FETCH\020\001\022\n\n\006COMMIT\020\002B\026B\024StorageApiR" +
+      "eqWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -2601,7 +2330,7 @@ public final class StorageApiReqWrapper {
     internal_static_StorageApiReq_PutMsgReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_StorageApiReq_PutMsgReq_descriptor,
-        new String[] { "Topic", "MsgItems", });
+        new String[] { "MsgItems", });
     internal_static_StorageApiReq_PutMsgReq_MsgItem_descriptor =
       internal_static_StorageApiReq_PutMsgReq_descriptor.getNestedTypes().get(0);
     internal_static_StorageApiReq_PutMsgReq_MsgItem_fieldAccessorTable = new

@@ -72,10 +72,7 @@ public class PartitionMsgStorage implements Lifecycle {
                 .storageOffset(appendOffset)
                 .build());
 
-        // replicate
-
-
-        return 0L;
+        return appendOffset;
     }
 
     /**

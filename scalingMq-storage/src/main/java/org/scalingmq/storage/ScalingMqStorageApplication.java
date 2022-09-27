@@ -5,6 +5,8 @@ import org.scalingmq.common.config.ConfigParseUtil;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.common.lifecycle.Lifecycle;
+import org.scalingmq.storage.request.handler.RequestHandler;
+import org.scalingmq.storage.request.handler.RequestHandlerFactory;
 
 import java.util.ServiceLoader;
 
@@ -17,10 +19,12 @@ public class ScalingMqStorageApplication {
 
     private static volatile boolean STOP = false;
 
+    @SuppressWarnings("rawtypes")
     public static void main(String[] args) {
         // 先加载配置文件
         ConfigParseUtil.getInstance().parse(StorageConfig.getInstance());
         log.debug("当前存储系统配置:{}", StorageConfig.getInstance());
+
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
         for (Lifecycle lifecycle : serviceLoader) {
@@ -28,6 +32,12 @@ public class ScalingMqStorageApplication {
         }
         for (Lifecycle lifecycle : serviceLoader) {
             lifecycle.componentStart();
+        }
+
+        // api handler init
+        ServiceLoader<RequestHandler> requestHandlers = ServiceLoader.load(RequestHandler.class);
+        for (RequestHandler requestHandler : requestHandlers) {
+            RequestHandlerFactory.getInstance().addHandler(requestHandler);
         }
 
         // shutdown 钩子

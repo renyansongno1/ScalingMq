@@ -536,6 +536,15 @@ public class RaftCore implements Lifecycle {
         return state.equals(RaftStateEnum.LEADER);
     }
 
+    /**
+     * 获取leader的全域名
+     * @return leader节点的全域名
+     */
+    public String getLeaderAddr() {
+        String hostname = StorageConfig.getInstance().getHostname();
+        return IocContainer.getInstance().getObj(PeerFinder.class).returnPeerFullPath(hostname.split("-")[0] + "-" + leaderPeerId);
+    }
+
     @Override
     public void componentStart() {
         init();

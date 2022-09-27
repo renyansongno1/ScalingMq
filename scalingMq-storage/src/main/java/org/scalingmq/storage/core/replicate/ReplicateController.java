@@ -18,14 +18,6 @@ public class ReplicateController {
         return INSTANCE;
     }
 
-    /**
-     * 消息的复制控制
-     * @param msgBody 消息数据体
-     * @return 消息追加后的物理偏移量
-     */
-    public long replicate(byte[] msgBody) {
 
-        return 0L;
-    }
 
 }

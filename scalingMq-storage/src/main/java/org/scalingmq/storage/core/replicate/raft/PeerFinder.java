@@ -121,7 +121,14 @@ public class PeerFinder implements Lifecycle {
         return validPeer.contains(StorageConfig.getInstance().getHostname() + "." + SRV_SERVICE);
     }
 
-
+    /**
+     * 返回节点的全路径名(完整域名)
+     * @param hostname pod前缀
+     * @return full domain
+     */
+    public String returnPeerFullPath(String hostname) {
+        return hostname + "." + SRV_SERVICE;
+    }
 
     @Override
     public void componentStart() {
