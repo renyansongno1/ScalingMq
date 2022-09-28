@@ -12,6 +12,9 @@ public enum ExceptionCodeEnum {
      * 枚举
      */
     UNKNOWN("unknown"),
+
+    // 没有找到对应的数据
+    FETCH_MISS("fetch miss"),
     ;
 
     private final String code;

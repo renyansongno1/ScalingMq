@@ -1,1 +1,2 @@
 org.scalingmq.storage.request.handler.impl.PutMsgHandler
+org.scalingmq.storage.request.handler.impl.FetchMsgHandler

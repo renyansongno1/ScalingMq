@@ -9,9 +9,12 @@ message StorageApiRes {
   string errorMsg = 2;
   // 追加消息响应
   PutMsgRes putMsgRes = 3;
+  // 拉取消息响应
+  FetchMsgRes fetchMsgRes = 4;
 
 }
 
+// 追加消息响应
 message PutMsgRes {
 
   // 消息偏移量
@@ -19,4 +22,18 @@ message PutMsgRes {
 
   // 消息id
   string msgId = 2;
+}
+
+// 拉取消息响应
+message FetchMsgRes {
+
+  // 没有更多的数据标识
+  bool alreadyLastOffset = 1;
+
+  // 拉取到的数据
+  bytes data = 2;
+
+  // 拉取到的数据最后的offset
+  int64 fetchLastOffset = 3;
+
 }

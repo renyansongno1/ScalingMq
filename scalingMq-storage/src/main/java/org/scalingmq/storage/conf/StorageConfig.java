@@ -91,4 +91,9 @@ public class StorageConfig {
     @EnvironmentVariable("COORDINATOR_NUMS")
     private String coordinatorNums;
 
+    /**
+     * 每次拉取消息的最大消息流量
+     */
+    private String maxFetchMsgMb = "1";
+
 }

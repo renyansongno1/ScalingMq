@@ -22,7 +22,7 @@ public class NetworkHandler extends SimpleChannelInboundHandler<StorageApiReqWra
         var req =
                 switch (msg.getApiTypeValue()) {
                     case StorageApiReqWrapper.StorageApiReq.ApiType.PRODUCT_VALUE -> msg.getPutMsgReq();
-                    // case StorageApiReqWrapper.StorageApiReq.ApiType.COMMIT_VALUE -> msg.get
+                    case StorageApiReqWrapper.StorageApiReq.ApiType.FETCH_VALUE -> msg.getFetchMsgReq();
                     default -> null;
                 };
         if (req == null) {

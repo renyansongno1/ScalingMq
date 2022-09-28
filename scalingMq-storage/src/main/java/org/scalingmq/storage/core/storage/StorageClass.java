@@ -1,7 +1,8 @@
-package org.scalingmq.storage.core;
+package org.scalingmq.storage.core.storage;
 
 import org.scalingmq.storage.core.cons.StorageAppendResult;
 import org.scalingmq.common.lifecycle.Lifecycle;
+import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
 
 /**
  * 存储介质接口
@@ -29,4 +30,20 @@ public interface StorageClass extends Lifecycle{
      */
     StorageAppendResult appendIndex(byte[] indexBody);
 
+    /**
+     * 拉取Index数据
+     * @param storagePosition 物理偏移量
+     * @param indexSize 拉取的数据的大小
+     * @return 数据
+     */
+    byte[] fetchDataFromIndex(long storagePosition, int indexSize);
+
+    /**
+     * 拉取消息数据
+     * @param physicalOffset 物理偏移量
+     * @param msgSize 消息大小
+     * @param maxFetchMsgMb 最大拉取消息的大小
+     * @return 拉取结果
+     */
+    StorageFetchMsgResult fetchFromMsg(long physicalOffset, int msgSize, String maxFetchMsgMb);
 }

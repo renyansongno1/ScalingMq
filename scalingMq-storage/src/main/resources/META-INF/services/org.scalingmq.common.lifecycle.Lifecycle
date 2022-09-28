@@ -3,6 +3,6 @@ org.scalingmq.storage.core.storage.impl.PmemStorage
 org.scalingmq.storage.core.storage.impl.DiskStorage
 org.scalingmq.storage.core.storage.impl.SsdStorage
 org.scalingmq.storage.server.StorageNettyServer
-org.scalingmq.storage.core.PartitionMsgStorage
+org.scalingmq.storage.core.storage.PartitionMsgStorage
 org.scalingmq.storage.core.replicate.raft.PeerFinder
 org.scalingmq.storage.core.replicate.raft.RaftCore

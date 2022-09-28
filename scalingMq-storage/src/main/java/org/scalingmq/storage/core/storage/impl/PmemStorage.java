@@ -5,8 +5,8 @@ import com.intel.pmem.llpl.TransactionalHeap;
 import com.intel.pmem.llpl.TransactionalMemoryBlock;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.core.PartitionMsgStorage;
-import org.scalingmq.storage.core.StorageClass;
+import org.scalingmq.storage.core.storage.PartitionMsgStorage;
+import org.scalingmq.storage.core.storage.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
 import java.io.File;
 

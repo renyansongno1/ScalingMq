@@ -3,9 +3,11 @@ package org.scalingmq.storage.core.storage.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.core.PartitionMsgStorage;
-import org.scalingmq.storage.core.StorageClass;
+import org.scalingmq.storage.core.storage.PartitionMsgStorage;
+import org.scalingmq.storage.core.storage.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
+import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
+
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -42,6 +44,8 @@ public class DirectBufferStorage implements StorageClass {
      * 索引能够使用的最大容量
      */
     private int maxIndexCapacity = 0;
+
+
 
     public DirectBufferStorage() {
     }
@@ -92,31 +96,49 @@ public class DirectBufferStorage implements StorageClass {
 
     @Override
     public StorageAppendResult append(byte[] msgBody) {
-        if (wrote+ msgBody.length > maxCapacity) {
-            return StorageAppendResult.builder()
-                    .success(false)
-                    .build();
-        }
-        wrote += msgBody.length;
-        ByteBuffer.allocateDirect(msgBody.length).put(msgBody);
-        return StorageAppendResult.builder()
-                .success(true)
-                .offset(wrote)
-                .build();
+        return appendBody(msgBody, false);
     }
 
     @Override
     public StorageAppendResult appendIndex(byte[] indexBody) {
-        if (indexWrote+ indexBody.length > maxIndexCapacity) {
+        return appendBody(indexBody, true);
+    }
+
+    @Override
+    public byte[] fetchDataFromIndex(long storagePosition, int indexSize) {
+        return new byte[0];
+    }
+
+    @Override
+    public StorageFetchMsgResult fetchFromMsg(long physicalOffset, int msgSize, String maxFetchMsgMb) {
+        return null;
+    }
+
+    private StorageAppendResult appendBody(byte[] body, boolean index) {
+        long position;
+        int maxMemCapacity;
+        if (index) {
+            position = indexWrote;
+            maxMemCapacity = maxIndexCapacity;
+        } else {
+            position = wrote;
+            maxMemCapacity = maxCapacity;
+        }
+        if (position + body.length > maxMemCapacity) {
             return StorageAppendResult.builder()
                     .success(false)
                     .build();
         }
-        indexWrote += indexBody.length;
-        ByteBuffer.allocateDirect(indexBody.length).put(indexBody);
+        long beforeAppendPosition = position;
+        if (index) {
+            indexWrote += body.length;
+        } else {
+            wrote += body.length;
+        }
+        ByteBuffer.allocateDirect(body.length).put(body);
         return StorageAppendResult.builder()
                 .success(true)
-                .offset(indexWrote)
+                .offset(beforeAppendPosition)
                 .build();
     }
 

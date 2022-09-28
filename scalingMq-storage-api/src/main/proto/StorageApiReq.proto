@@ -14,6 +14,9 @@ message StorageApiReq {
 
   PutMsgReq putMsgReq = 2;
 
+  FetchMsgReq fetchMsgReq = 3;
+
+  // 追加消息请求
   message PutMsgReq {
 
     // 消息集
@@ -24,6 +27,17 @@ message StorageApiReq {
       // 数据 bytes
       bytes content = 1;
     }
+  }
+
+  // 拉取消息请求
+  message FetchMsgReq {
+
+    // 要拉取的offset
+    int64 offset = 1;
+
+    // follower的hostname
+    string followerHostname = 2;
+
   }
 
 }

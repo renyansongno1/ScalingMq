@@ -82,6 +82,33 @@ public final class StorageApiResWrapper {
      * <code>.PutMsgRes putMsgRes = 3;</code>
      */
     PutMsgResOrBuilder getPutMsgResOrBuilder();
+
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+     * @return Whether the fetchMsgRes field is set.
+     */
+    boolean hasFetchMsgRes();
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+     * @return The fetchMsgRes.
+     */
+    FetchMsgRes getFetchMsgRes();
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+     */
+    FetchMsgResOrBuilder getFetchMsgResOrBuilder();
   }
   /**
    * Protobuf type {@code StorageApiRes}
@@ -151,6 +178,19 @@ public final class StorageApiResWrapper {
               if (subBuilder != null) {
                 subBuilder.mergeFrom(putMsgRes_);
                 putMsgRes_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 34: {
+              FetchMsgRes.Builder subBuilder = null;
+              if (fetchMsgRes_ != null) {
+                subBuilder = fetchMsgRes_.toBuilder();
+              }
+              fetchMsgRes_ = input.readMessage(FetchMsgRes.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(fetchMsgRes_);
+                fetchMsgRes_ = subBuilder.buildPartial();
               }
 
               break;
@@ -317,6 +357,44 @@ public final class StorageApiResWrapper {
       return getPutMsgRes();
     }
 
+    public static final int FETCHMSGRES_FIELD_NUMBER = 4;
+    private FetchMsgRes fetchMsgRes_;
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+     * @return Whether the fetchMsgRes field is set.
+     */
+    @Override
+    public boolean hasFetchMsgRes() {
+      return fetchMsgRes_ != null;
+    }
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+     * @return The fetchMsgRes.
+     */
+    @Override
+    public FetchMsgRes getFetchMsgRes() {
+      return fetchMsgRes_ == null ? FetchMsgRes.getDefaultInstance() : fetchMsgRes_;
+    }
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+     */
+    @Override
+    public FetchMsgResOrBuilder getFetchMsgResOrBuilder() {
+      return getFetchMsgRes();
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -340,6 +418,9 @@ public final class StorageApiResWrapper {
       if (putMsgRes_ != null) {
         output.writeMessage(3, getPutMsgRes());
       }
+      if (fetchMsgRes_ != null) {
+        output.writeMessage(4, getFetchMsgRes());
+      }
       unknownFields.writeTo(output);
     }
 
@@ -358,6 +439,10 @@ public final class StorageApiResWrapper {
       if (putMsgRes_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, getPutMsgRes());
+      }
+      if (fetchMsgRes_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getFetchMsgRes());
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -383,6 +468,11 @@ public final class StorageApiResWrapper {
         if (!getPutMsgRes()
             .equals(other.getPutMsgRes())) return false;
       }
+      if (hasFetchMsgRes() != other.hasFetchMsgRes()) return false;
+      if (hasFetchMsgRes()) {
+        if (!getFetchMsgRes()
+            .equals(other.getFetchMsgRes())) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -401,6 +491,10 @@ public final class StorageApiResWrapper {
       if (hasPutMsgRes()) {
         hash = (37 * hash) + PUTMSGRES_FIELD_NUMBER;
         hash = (53 * hash) + getPutMsgRes().hashCode();
+      }
+      if (hasFetchMsgRes()) {
+        hash = (37 * hash) + FETCHMSGRES_FIELD_NUMBER;
+        hash = (53 * hash) + getFetchMsgRes().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -545,6 +639,12 @@ public final class StorageApiResWrapper {
           putMsgRes_ = null;
           putMsgResBuilder_ = null;
         }
+        if (fetchMsgResBuilder_ == null) {
+          fetchMsgRes_ = null;
+        } else {
+          fetchMsgRes_ = null;
+          fetchMsgResBuilder_ = null;
+        }
         return this;
       }
 
@@ -577,6 +677,11 @@ public final class StorageApiResWrapper {
           result.putMsgRes_ = putMsgRes_;
         } else {
           result.putMsgRes_ = putMsgResBuilder_.build();
+        }
+        if (fetchMsgResBuilder_ == null) {
+          result.fetchMsgRes_ = fetchMsgRes_;
+        } else {
+          result.fetchMsgRes_ = fetchMsgResBuilder_.build();
         }
         onBuilt();
         return result;
@@ -636,6 +741,9 @@ public final class StorageApiResWrapper {
         }
         if (other.hasPutMsgRes()) {
           mergePutMsgRes(other.getPutMsgRes());
+        }
+        if (other.hasFetchMsgRes()) {
+          mergeFetchMsgRes(other.getFetchMsgRes());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -1012,6 +1120,161 @@ public final class StorageApiResWrapper {
         }
         return putMsgResBuilder_;
       }
+
+      private FetchMsgRes fetchMsgRes_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          FetchMsgRes, FetchMsgRes.Builder, FetchMsgResOrBuilder> fetchMsgResBuilder_;
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       * @return Whether the fetchMsgRes field is set.
+       */
+      public boolean hasFetchMsgRes() {
+        return fetchMsgResBuilder_ != null || fetchMsgRes_ != null;
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       * @return The fetchMsgRes.
+       */
+      public FetchMsgRes getFetchMsgRes() {
+        if (fetchMsgResBuilder_ == null) {
+          return fetchMsgRes_ == null ? FetchMsgRes.getDefaultInstance() : fetchMsgRes_;
+        } else {
+          return fetchMsgResBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      public Builder setFetchMsgRes(FetchMsgRes value) {
+        if (fetchMsgResBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          fetchMsgRes_ = value;
+          onChanged();
+        } else {
+          fetchMsgResBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      public Builder setFetchMsgRes(
+          FetchMsgRes.Builder builderForValue) {
+        if (fetchMsgResBuilder_ == null) {
+          fetchMsgRes_ = builderForValue.build();
+          onChanged();
+        } else {
+          fetchMsgResBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      public Builder mergeFetchMsgRes(FetchMsgRes value) {
+        if (fetchMsgResBuilder_ == null) {
+          if (fetchMsgRes_ != null) {
+            fetchMsgRes_ =
+              FetchMsgRes.newBuilder(fetchMsgRes_).mergeFrom(value).buildPartial();
+          } else {
+            fetchMsgRes_ = value;
+          }
+          onChanged();
+        } else {
+          fetchMsgResBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      public Builder clearFetchMsgRes() {
+        if (fetchMsgResBuilder_ == null) {
+          fetchMsgRes_ = null;
+          onChanged();
+        } else {
+          fetchMsgRes_ = null;
+          fetchMsgResBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      public FetchMsgRes.Builder getFetchMsgResBuilder() {
+        
+        onChanged();
+        return getFetchMsgResFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      public FetchMsgResOrBuilder getFetchMsgResOrBuilder() {
+        if (fetchMsgResBuilder_ != null) {
+          return fetchMsgResBuilder_.getMessageOrBuilder();
+        } else {
+          return fetchMsgRes_ == null ?
+              FetchMsgRes.getDefaultInstance() : fetchMsgRes_;
+        }
+      }
+      /**
+       * <pre>
+       * 拉取消息响应
+       * </pre>
+       *
+       * <code>.FetchMsgRes fetchMsgRes = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          FetchMsgRes, FetchMsgRes.Builder, FetchMsgResOrBuilder>
+          getFetchMsgResFieldBuilder() {
+        if (fetchMsgResBuilder_ == null) {
+          fetchMsgResBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              FetchMsgRes, FetchMsgRes.Builder, FetchMsgResOrBuilder>(
+                  getFetchMsgRes(),
+                  getParentForChildren(),
+                  isClean());
+          fetchMsgRes_ = null;
+        }
+        return fetchMsgResBuilder_;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1100,6 +1363,10 @@ public final class StorageApiResWrapper {
         getMsgIdBytes();
   }
   /**
+   * <pre>
+   * 追加消息响应
+   * </pre>
+   *
    * Protobuf type {@code PutMsgRes}
    */
   public static final class PutMsgRes extends
@@ -1416,6 +1683,10 @@ public final class StorageApiResWrapper {
       return builder;
     }
     /**
+     * <pre>
+     * 追加消息响应
+     * </pre>
+     *
      * Protobuf type {@code PutMsgRes}
      */
     public static final class Builder extends
@@ -1760,6 +2031,708 @@ public final class StorageApiResWrapper {
 
   }
 
+  public interface FetchMsgResOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:FetchMsgRes)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * 没有更多的数据标识
+     * </pre>
+     *
+     * <code>bool alreadyLastOffset = 1;</code>
+     * @return The alreadyLastOffset.
+     */
+    boolean getAlreadyLastOffset();
+
+    /**
+     * <pre>
+     * 拉取到的数据
+     * </pre>
+     *
+     * <code>bytes data = 2;</code>
+     * @return The data.
+     */
+    com.google.protobuf.ByteString getData();
+
+    /**
+     * <pre>
+     * 拉取到的数据最后的offset
+     * </pre>
+     *
+     * <code>int64 fetchLastOffset = 3;</code>
+     * @return The fetchLastOffset.
+     */
+    long getFetchLastOffset();
+  }
+  /**
+   * <pre>
+   * 拉取消息响应
+   * </pre>
+   *
+   * Protobuf type {@code FetchMsgRes}
+   */
+  public static final class FetchMsgRes extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:FetchMsgRes)
+      FetchMsgResOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use FetchMsgRes.newBuilder() to construct.
+    private FetchMsgRes(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private FetchMsgRes() {
+      data_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    @Override
+    @SuppressWarnings({"unused"})
+    protected Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new FetchMsgRes();
+    }
+
+    @Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private FetchMsgRes(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+
+              alreadyLastOffset_ = input.readBool();
+              break;
+            }
+            case 18: {
+
+              data_ = input.readBytes();
+              break;
+            }
+            case 24: {
+
+              fetchLastOffset_ = input.readInt64();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return StorageApiResWrapper.internal_static_FetchMsgRes_descriptor;
+    }
+
+    @Override
+    protected FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return StorageApiResWrapper.internal_static_FetchMsgRes_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              FetchMsgRes.class, Builder.class);
+    }
+
+    public static final int ALREADYLASTOFFSET_FIELD_NUMBER = 1;
+    private boolean alreadyLastOffset_;
+    /**
+     * <pre>
+     * 没有更多的数据标识
+     * </pre>
+     *
+     * <code>bool alreadyLastOffset = 1;</code>
+     * @return The alreadyLastOffset.
+     */
+    @Override
+    public boolean getAlreadyLastOffset() {
+      return alreadyLastOffset_;
+    }
+
+    public static final int DATA_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString data_;
+    /**
+     * <pre>
+     * 拉取到的数据
+     * </pre>
+     *
+     * <code>bytes data = 2;</code>
+     * @return The data.
+     */
+    @Override
+    public com.google.protobuf.ByteString getData() {
+      return data_;
+    }
+
+    public static final int FETCHLASTOFFSET_FIELD_NUMBER = 3;
+    private long fetchLastOffset_;
+    /**
+     * <pre>
+     * 拉取到的数据最后的offset
+     * </pre>
+     *
+     * <code>int64 fetchLastOffset = 3;</code>
+     * @return The fetchLastOffset.
+     */
+    @Override
+    public long getFetchLastOffset() {
+      return fetchLastOffset_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (alreadyLastOffset_ != false) {
+        output.writeBool(1, alreadyLastOffset_);
+      }
+      if (!data_.isEmpty()) {
+        output.writeBytes(2, data_);
+      }
+      if (fetchLastOffset_ != 0L) {
+        output.writeInt64(3, fetchLastOffset_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (alreadyLastOffset_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(1, alreadyLastOffset_);
+      }
+      if (!data_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, data_);
+      }
+      if (fetchLastOffset_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, fetchLastOffset_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof FetchMsgRes)) {
+        return super.equals(obj);
+      }
+      FetchMsgRes other = (FetchMsgRes) obj;
+
+      if (getAlreadyLastOffset()
+          != other.getAlreadyLastOffset()) return false;
+      if (!getData()
+          .equals(other.getData())) return false;
+      if (getFetchLastOffset()
+          != other.getFetchLastOffset()) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + ALREADYLASTOFFSET_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getAlreadyLastOffset());
+      hash = (37 * hash) + DATA_FIELD_NUMBER;
+      hash = (53 * hash) + getData().hashCode();
+      hash = (37 * hash) + FETCHLASTOFFSET_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getFetchLastOffset());
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static FetchMsgRes parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static FetchMsgRes parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static FetchMsgRes parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static FetchMsgRes parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static FetchMsgRes parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static FetchMsgRes parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static FetchMsgRes parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static FetchMsgRes parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static FetchMsgRes parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static FetchMsgRes parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static FetchMsgRes parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static FetchMsgRes parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(FetchMsgRes prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @Override
+    protected Builder newBuilderForType(
+        BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * 拉取消息响应
+     * </pre>
+     *
+     * Protobuf type {@code FetchMsgRes}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:FetchMsgRes)
+        FetchMsgResOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return StorageApiResWrapper.internal_static_FetchMsgRes_descriptor;
+      }
+
+      @Override
+      protected FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return StorageApiResWrapper.internal_static_FetchMsgRes_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                FetchMsgRes.class, Builder.class);
+      }
+
+      // Construct using StorageApiResWrapper.FetchMsgRes.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @Override
+      public Builder clear() {
+        super.clear();
+        alreadyLastOffset_ = false;
+
+        data_ = com.google.protobuf.ByteString.EMPTY;
+
+        fetchLastOffset_ = 0L;
+
+        return this;
+      }
+
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return StorageApiResWrapper.internal_static_FetchMsgRes_descriptor;
+      }
+
+      @Override
+      public FetchMsgRes getDefaultInstanceForType() {
+        return FetchMsgRes.getDefaultInstance();
+      }
+
+      @Override
+      public FetchMsgRes build() {
+        FetchMsgRes result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @Override
+      public FetchMsgRes buildPartial() {
+        FetchMsgRes result = new FetchMsgRes(this);
+        result.alreadyLastOffset_ = alreadyLastOffset_;
+        result.data_ = data_;
+        result.fetchLastOffset_ = fetchLastOffset_;
+        onBuilt();
+        return result;
+      }
+
+      @Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.setField(field, value);
+      }
+      @Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof FetchMsgRes) {
+          return mergeFrom((FetchMsgRes)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(FetchMsgRes other) {
+        if (other == FetchMsgRes.getDefaultInstance()) return this;
+        if (other.getAlreadyLastOffset() != false) {
+          setAlreadyLastOffset(other.getAlreadyLastOffset());
+        }
+        if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
+          setData(other.getData());
+        }
+        if (other.getFetchLastOffset() != 0L) {
+          setFetchLastOffset(other.getFetchLastOffset());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        FetchMsgRes parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (FetchMsgRes) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private boolean alreadyLastOffset_ ;
+      /**
+       * <pre>
+       * 没有更多的数据标识
+       * </pre>
+       *
+       * <code>bool alreadyLastOffset = 1;</code>
+       * @return The alreadyLastOffset.
+       */
+      @Override
+      public boolean getAlreadyLastOffset() {
+        return alreadyLastOffset_;
+      }
+      /**
+       * <pre>
+       * 没有更多的数据标识
+       * </pre>
+       *
+       * <code>bool alreadyLastOffset = 1;</code>
+       * @param value The alreadyLastOffset to set.
+       * @return This builder for chaining.
+       */
+      public Builder setAlreadyLastOffset(boolean value) {
+        
+        alreadyLastOffset_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 没有更多的数据标识
+       * </pre>
+       *
+       * <code>bool alreadyLastOffset = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearAlreadyLastOffset() {
+        
+        alreadyLastOffset_ = false;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>bytes data = 2;</code>
+       * @return The data.
+       */
+      @Override
+      public com.google.protobuf.ByteString getData() {
+        return data_;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>bytes data = 2;</code>
+       * @param value The data to set.
+       * @return This builder for chaining.
+       */
+      public Builder setData(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        data_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>bytes data = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearData() {
+        
+        data_ = getDefaultInstance().getData();
+        onChanged();
+        return this;
+      }
+
+      private long fetchLastOffset_ ;
+      /**
+       * <pre>
+       * 拉取到的数据最后的offset
+       * </pre>
+       *
+       * <code>int64 fetchLastOffset = 3;</code>
+       * @return The fetchLastOffset.
+       */
+      @Override
+      public long getFetchLastOffset() {
+        return fetchLastOffset_;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据最后的offset
+       * </pre>
+       *
+       * <code>int64 fetchLastOffset = 3;</code>
+       * @param value The fetchLastOffset to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFetchLastOffset(long value) {
+        
+        fetchLastOffset_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据最后的offset
+       * </pre>
+       *
+       * <code>int64 fetchLastOffset = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFetchLastOffset() {
+        
+        fetchLastOffset_ = 0L;
+        onChanged();
+        return this;
+      }
+      @Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:FetchMsgRes)
+    }
+
+    // @@protoc_insertion_point(class_scope:FetchMsgRes)
+    private static final FetchMsgRes DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new FetchMsgRes();
+    }
+
+    public static FetchMsgRes getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<FetchMsgRes>
+        PARSER = new com.google.protobuf.AbstractParser<FetchMsgRes>() {
+      @Override
+      public FetchMsgRes parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new FetchMsgRes(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<FetchMsgRes> parser() {
+      return PARSER;
+    }
+
+    @Override
+    public com.google.protobuf.Parser<FetchMsgRes> getParserForType() {
+      return PARSER;
+    }
+
+    @Override
+    public FetchMsgRes getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_StorageApiRes_descriptor;
   private static final 
@@ -1770,6 +2743,11 @@ public final class StorageApiResWrapper {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_PutMsgRes_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_FetchMsgRes_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_FetchMsgRes_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1779,11 +2757,14 @@ public final class StorageApiResWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\023StorageApiRes.proto\"S\n\rStorageApiRes\022\021" +
+      "\n\023StorageApiRes.proto\"v\n\rStorageApiRes\022\021" +
       "\n\terrorCode\030\001 \001(\t\022\020\n\010errorMsg\030\002 \001(\t\022\035\n\tp" +
-      "utMsgRes\030\003 \001(\0132\n.PutMsgRes\"*\n\tPutMsgRes\022" +
-      "\016\n\006offset\030\001 \001(\003\022\r\n\005msgId\030\002 \001(\tB\026B\024Storag" +
-      "eApiResWrapperb\006proto3"
+      "utMsgRes\030\003 \001(\0132\n.PutMsgRes\022!\n\013fetchMsgRe" +
+      "s\030\004 \001(\0132\014.FetchMsgRes\"*\n\tPutMsgRes\022\016\n\006of" +
+      "fset\030\001 \001(\003\022\r\n\005msgId\030\002 \001(\t\"O\n\013FetchMsgRes" +
+      "\022\031\n\021alreadyLastOffset\030\001 \001(\010\022\014\n\004data\030\002 \001(" +
+      "\014\022\027\n\017fetchLastOffset\030\003 \001(\003B\026B\024StorageApi" +
+      "ResWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -1794,13 +2775,19 @@ public final class StorageApiResWrapper {
     internal_static_StorageApiRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_StorageApiRes_descriptor,
-        new String[] { "ErrorCode", "ErrorMsg", "PutMsgRes", });
+        new String[] { "ErrorCode", "ErrorMsg", "PutMsgRes", "FetchMsgRes", });
     internal_static_PutMsgRes_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_PutMsgRes_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_PutMsgRes_descriptor,
         new String[] { "Offset", "MsgId", });
+    internal_static_FetchMsgRes_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_FetchMsgRes_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_FetchMsgRes_descriptor,
+        new String[] { "AlreadyLastOffset", "Data", "FetchLastOffset", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

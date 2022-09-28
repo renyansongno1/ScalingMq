@@ -1,13 +1,17 @@
 package org.scalingmq.storage.aggr;
 
+import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.net.NetworkClient;
 import org.scalingmq.storage.api.StorageApiReqWrapper;
 import org.scalingmq.storage.api.StorageApiResWrapper;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.core.PartitionMsgStorage;
+import org.scalingmq.storage.core.storage.PartitionMsgStorage;
+import org.scalingmq.storage.core.replicate.ReplicateController;
+import org.scalingmq.storage.core.replicate.entity.FollowerOffsetProgressReport;
 import org.scalingmq.storage.core.replicate.raft.RaftCore;
+import org.scalingmq.storage.core.storage.entity.FetchResult;
 import org.scalingmq.storage.exception.ExceptionCodeEnum;
 import org.scalingmq.storage.exception.StorageBaseException;
 
@@ -82,6 +86,33 @@ public class MsgAggrService {
                 // TODO: 2022/9/27 MSG ID  生成策略
                 .setMsgId("null")
                 .setOffset(offset)
+                .build();
+    }
+
+    /**
+     * 拉取消息
+     * @param req 拉取消息请求
+     * @return 响应
+     */
+    public StorageApiResWrapper.FetchMsgRes fetchMsg(StorageApiReqWrapper.StorageApiReq.FetchMsgReq req) {
+        // 拉取数据
+        PartitionMsgStorage partitionMsgStorage = IocContainer.getInstance().getObj(PartitionMsgStorage.class);
+        FetchResult fetchResult = partitionMsgStorage.fetchMsg(req.getOffset());
+
+        // 如果是follower的拉取 上报偏移量
+        if (!"".equals(req.getFollowerHostname())) {
+            ReplicateController.LeaderController.updateFollowerOffset(
+                    FollowerOffsetProgressReport.builder()
+                            .followerHostname(req.getFollowerHostname())
+                            // 对拉取完的offset复制 可能是最新的offset
+                            .lastFetchOffset(fetchResult.getFetchLastOffset())
+                            .build()
+            );
+        }
+        return StorageApiResWrapper.FetchMsgRes.newBuilder()
+                .setAlreadyLastOffset(fetchResult.getNoResult())
+                .setFetchLastOffset(fetchResult.getFetchLastOffset())
+                .setData(fetchResult.getNoResult() ? null : ByteString.copyFrom(fetchResult.getFetchData()))
                 .build();
     }
 

@@ -6,7 +6,7 @@ import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.common.net.NetworkClient;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.core.PartitionMsgStorage;
+import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 import org.scalingmq.storage.core.replicate.raft.entity.*;
 
 import java.util.*;
