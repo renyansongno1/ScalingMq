@@ -10,6 +10,7 @@ import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
 
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +25,11 @@ public class DirectBufferStorage implements StorageClass {
      * jvm在容器环境最大可以使用的内存比例
      */
     private static final String MAX_RAM_PERCENTAGE = "MaxRAMPercentage";
+
+    /**
+     * 消息数据内存池
+     */
+    private static final List<ByteBuffer> MSG_DATA_MEMORY_BUFFER_POOL = new ArrayList<>(1024);
 
     /**
      * 写位点
@@ -44,7 +50,6 @@ public class DirectBufferStorage implements StorageClass {
      * 索引能够使用的最大容量
      */
     private int maxIndexCapacity = 0;
-
 
 
     public DirectBufferStorage() {
@@ -106,12 +111,22 @@ public class DirectBufferStorage implements StorageClass {
 
     @Override
     public byte[] fetchDataFromIndex(long storagePosition, int indexSize) {
-        return new byte[0];
+        return null;
     }
 
     @Override
     public StorageFetchMsgResult fetchFromMsg(long physicalOffset, int msgSize, String maxFetchMsgMb) {
-        return null;
+        long index = physicalOffset/msgSize;
+
+        ByteBuffer buffer = MSG_DATA_MEMORY_BUFFER_POOL.get(Math.toIntExact(index));
+        int limit = buffer.limit();
+        byte[] data =  new byte[limit];
+        buffer.get(data);
+        // TODO: 2022/9/29 消息拉取限流
+        return StorageFetchMsgResult.builder()
+                .fetchMsgItemCount(1)
+                .msgData(data)
+                .build();
     }
 
     private StorageAppendResult appendBody(byte[] body, boolean index) {
@@ -135,7 +150,10 @@ public class DirectBufferStorage implements StorageClass {
         } else {
             wrote += body.length;
         }
-        ByteBuffer.allocateDirect(body.length).put(body);
+        if (!index) {
+            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(body.length).put(body);
+            MSG_DATA_MEMORY_BUFFER_POOL.add(byteBuffer);
+        }
         return StorageAppendResult.builder()
                 .success(true)
                 .offset(beforeAppendPosition)

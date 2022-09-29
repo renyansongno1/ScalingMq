@@ -8,6 +8,8 @@ import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 import org.scalingmq.storage.core.storage.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
+import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
+
 import java.io.File;
 
 /**
@@ -96,6 +98,16 @@ public class PmemStorage implements StorageClass {
                 .success(true)
                 .offset(indexWrote)
                 .build();
+    }
+
+    @Override
+    public byte[] fetchDataFromIndex(long storagePosition, int indexSize) {
+        return new byte[0];
+    }
+
+    @Override
+    public StorageFetchMsgResult fetchFromMsg(long physicalOffset, int msgSize, String maxFetchMsgMb) {
+        return null;
     }
 
     @Override

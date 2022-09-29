@@ -198,14 +198,21 @@ public class PartitionMsgStorage implements Lifecycle {
             long storagePosition = fetchIndex - indexOffsetAndStorageFlagEntry.getKey();
             StorageClass storageClass = STORAGE_CLASS_MAP.get(indexOffsetAndStorageFlagEntry.getValue());
             byte[] indexData = storageClass.fetchDataFromIndex(storagePosition, INDEX_SIZE);
+
+            int storageFlag;
+            long physicalOffset;
+            int msgSize;
             if (indexData == null) {
-                throw new StorageBaseException(ExceptionCodeEnum.FETCH_MISS, "通过index offset 没有找到对应数据");
+                storageFlag = -1;
+                physicalOffset = storagePosition;
+                msgSize = INDEX_SIZE;
+            } else {
+                ByteBuffer indexBuffer = ByteBuffer.wrap(indexData);
+                // 读取index数据
+                storageFlag = indexBuffer.getInt();
+                physicalOffset = indexBuffer.getLong();
+                msgSize = indexBuffer.getInt();
             }
-            ByteBuffer indexBuffer = ByteBuffer.wrap(indexData);
-            // 读取index数据
-            int storageFlag = indexBuffer.getInt();
-            long physicalOffset = indexBuffer.getLong();
-            int msgSize = indexBuffer.getInt();
 
             StorageFetchMsgResult storageFetchMsgResult
                     = STORAGE_CLASS_MAP.get(storageFlag)
