@@ -218,10 +218,11 @@ public class PartitionMsgStorage implements Lifecycle {
                     = STORAGE_CLASS_MAP.get(storageFlag)
                     .fetchFromMsg(physicalOffset, msgSize, StorageConfig.getInstance().getMaxFetchMsgMb());
             fetchOffset = fetchIndex + (long) INDEX_SIZE * storageFetchMsgResult.getFetchMsgItemCount();
+
             return FetchResult.builder()
                     .fetchLastOffset(fetchOffset)
                     .noResult(noDataNew)
-                    .fetchData(storageFetchMsgResult.getMsgData())
+                    .fetchDataList(storageFetchMsgResult.getMsgDataList())
                     .build();
         }
 

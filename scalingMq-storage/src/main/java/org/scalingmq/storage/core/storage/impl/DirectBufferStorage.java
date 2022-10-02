@@ -116,16 +116,25 @@ public class DirectBufferStorage implements StorageClass {
 
     @Override
     public StorageFetchMsgResult fetchFromMsg(long physicalOffset, int msgSize, String maxFetchMsgMb) {
-        long index = physicalOffset/msgSize;
+        long maxFetchMsgBytes = Long.parseLong(maxFetchMsgMb) * 1024 * 1024;
+        long appendMsgBytes = 0L;
 
-        ByteBuffer buffer = MSG_DATA_MEMORY_BUFFER_POOL.get(Math.toIntExact(index));
-        int limit = buffer.limit();
-        byte[] data =  new byte[limit];
-        buffer.get(data);
-        // TODO: 2022/9/29 消息拉取限流
+        long index = physicalOffset/msgSize;
+        int msgCount = 0;
+        List<byte[]> resultList = new ArrayList<>();
+        while (appendMsgBytes < maxFetchMsgBytes) {
+            ByteBuffer buffer = MSG_DATA_MEMORY_BUFFER_POOL.get(Math.toIntExact(index));
+            int limit = buffer.limit();
+            byte[] data =  new byte[limit];
+            buffer.get(data);
+            resultList.add(data);
+            appendMsgBytes += limit;
+            index++;
+            msgCount++;
+        }
         return StorageFetchMsgResult.builder()
-                .fetchMsgItemCount(1)
-                .msgData(data)
+                .fetchMsgItemCount(msgCount)
+                .msgDataList(resultList)
                 .build();
     }
 

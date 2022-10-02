@@ -31,7 +31,7 @@ message FetchMsgRes {
   bool alreadyLastOffset = 1;
 
   // 拉取到的数据
-  bytes data = 2;
+  repeated bytes data = 2;
 
   // 拉取到的数据最后的offset
   int64 fetchLastOffset = 3;

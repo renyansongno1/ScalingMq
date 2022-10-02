@@ -109,11 +109,17 @@ public class MsgAggrService {
                             .build()
             );
         }
-        return StorageApiResWrapper.FetchMsgRes.newBuilder()
+        StorageApiResWrapper.FetchMsgRes.Builder builder = StorageApiResWrapper.FetchMsgRes.newBuilder()
                 .setAlreadyLastOffset(fetchResult.getNoResult())
-                .setFetchLastOffset(fetchResult.getFetchLastOffset())
-                .setData(fetchResult.getNoResult() ? null : ByteString.copyFrom(fetchResult.getFetchData()))
-                .build();
+                .setFetchLastOffset(fetchResult.getFetchLastOffset());
+
+        if (!fetchResult.getNoResult()) {
+            for (int i = 0; i < fetchResult.getFetchDataList().size(); i++) {
+                byte[] data = fetchResult.getFetchDataList().get(i);
+                builder.setData(i, ByteString.copyFrom(data));
+            }
+        }
+        return builder.build();
     }
 
 }

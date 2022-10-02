@@ -6,6 +6,7 @@ import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.common.net.NetworkClient;
 import org.scalingmq.storage.conf.StorageConfig;
+import org.scalingmq.storage.core.replicate.ReplicateController;
 import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 import org.scalingmq.storage.core.replicate.raft.entity.*;
 
@@ -433,6 +434,10 @@ public class RaftCore implements Lifecycle {
         // 应用任期 leaderId
         leaderPeerId = req.getLeaderId();
         concurrentTerm = req.getTerm();
+
+        // 将收到的Leader的位移数据存储
+        ReplicateController.FollowerController.acceptLeaderOffset(req.getMaxOffset());
+
         return RaftResWrapper.RaftRes.newBuilder()
                 .setRaftHeartbeatRes(
                         RaftHeartbeatResWrapper.RaftHeartbeatRes.newBuilder()

@@ -2050,10 +2050,29 @@ public final class StorageApiResWrapper {
      * 拉取到的数据
      * </pre>
      *
-     * <code>bytes data = 2;</code>
-     * @return The data.
+     * <code>repeated bytes data = 2;</code>
+     * @return A list containing the data.
      */
-    com.google.protobuf.ByteString getData();
+    java.util.List<com.google.protobuf.ByteString> getDataList();
+    /**
+     * <pre>
+     * 拉取到的数据
+     * </pre>
+     *
+     * <code>repeated bytes data = 2;</code>
+     * @return The count of data.
+     */
+    int getDataCount();
+    /**
+     * <pre>
+     * 拉取到的数据
+     * </pre>
+     *
+     * <code>repeated bytes data = 2;</code>
+     * @param index The index of the element to return.
+     * @return The data at the given index.
+     */
+    com.google.protobuf.ByteString getData(int index);
 
     /**
      * <pre>
@@ -2082,7 +2101,7 @@ public final class StorageApiResWrapper {
       super(builder);
     }
     private FetchMsgRes() {
-      data_ = com.google.protobuf.ByteString.EMPTY;
+      data_ = java.util.Collections.emptyList();
     }
 
     @Override
@@ -2105,6 +2124,7 @@ public final class StorageApiResWrapper {
       if (extensionRegistry == null) {
         throw new NullPointerException();
       }
+      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -2121,8 +2141,11 @@ public final class StorageApiResWrapper {
               break;
             }
             case 18: {
-
-              data_ = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                data_ = new java.util.ArrayList<com.google.protobuf.ByteString>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              data_.add(input.readBytes());
               break;
             }
             case 24: {
@@ -2145,6 +2168,9 @@ public final class StorageApiResWrapper {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+          data_ = java.util.Collections.unmodifiableList(data_); // C
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -2178,18 +2204,42 @@ public final class StorageApiResWrapper {
     }
 
     public static final int DATA_FIELD_NUMBER = 2;
-    private com.google.protobuf.ByteString data_;
+    private java.util.List<com.google.protobuf.ByteString> data_;
     /**
      * <pre>
      * 拉取到的数据
      * </pre>
      *
-     * <code>bytes data = 2;</code>
-     * @return The data.
+     * <code>repeated bytes data = 2;</code>
+     * @return A list containing the data.
      */
     @Override
-    public com.google.protobuf.ByteString getData() {
+    public java.util.List<com.google.protobuf.ByteString>
+        getDataList() {
       return data_;
+    }
+    /**
+     * <pre>
+     * 拉取到的数据
+     * </pre>
+     *
+     * <code>repeated bytes data = 2;</code>
+     * @return The count of data.
+     */
+    public int getDataCount() {
+      return data_.size();
+    }
+    /**
+     * <pre>
+     * 拉取到的数据
+     * </pre>
+     *
+     * <code>repeated bytes data = 2;</code>
+     * @param index The index of the element to return.
+     * @return The data at the given index.
+     */
+    public com.google.protobuf.ByteString getData(int index) {
+      return data_.get(index);
     }
 
     public static final int FETCHLASTOFFSET_FIELD_NUMBER = 3;
@@ -2224,8 +2274,8 @@ public final class StorageApiResWrapper {
       if (alreadyLastOffset_ != false) {
         output.writeBool(1, alreadyLastOffset_);
       }
-      if (!data_.isEmpty()) {
-        output.writeBytes(2, data_);
+      for (int i = 0; i < data_.size(); i++) {
+        output.writeBytes(2, data_.get(i));
       }
       if (fetchLastOffset_ != 0L) {
         output.writeInt64(3, fetchLastOffset_);
@@ -2243,9 +2293,14 @@ public final class StorageApiResWrapper {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(1, alreadyLastOffset_);
       }
-      if (!data_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, data_);
+      {
+        int dataSize = 0;
+        for (int i = 0; i < data_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(data_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getDataList().size();
       }
       if (fetchLastOffset_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
@@ -2268,8 +2323,8 @@ public final class StorageApiResWrapper {
 
       if (getAlreadyLastOffset()
           != other.getAlreadyLastOffset()) return false;
-      if (!getData()
-          .equals(other.getData())) return false;
+      if (!getDataList()
+          .equals(other.getDataList())) return false;
       if (getFetchLastOffset()
           != other.getFetchLastOffset()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -2286,8 +2341,10 @@ public final class StorageApiResWrapper {
       hash = (37 * hash) + ALREADYLASTOFFSET_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getAlreadyLastOffset());
-      hash = (37 * hash) + DATA_FIELD_NUMBER;
-      hash = (53 * hash) + getData().hashCode();
+      if (getDataCount() > 0) {
+        hash = (37 * hash) + DATA_FIELD_NUMBER;
+        hash = (53 * hash) + getDataList().hashCode();
+      }
       hash = (37 * hash) + FETCHLASTOFFSET_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getFetchLastOffset());
@@ -2430,8 +2487,8 @@ public final class StorageApiResWrapper {
         super.clear();
         alreadyLastOffset_ = false;
 
-        data_ = com.google.protobuf.ByteString.EMPTY;
-
+        data_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
         fetchLastOffset_ = 0L;
 
         return this;
@@ -2460,7 +2517,12 @@ public final class StorageApiResWrapper {
       @Override
       public FetchMsgRes buildPartial() {
         FetchMsgRes result = new FetchMsgRes(this);
+        int from_bitField0_ = bitField0_;
         result.alreadyLastOffset_ = alreadyLastOffset_;
+        if (((bitField0_ & 0x00000001) != 0)) {
+          data_ = java.util.Collections.unmodifiableList(data_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
         result.data_ = data_;
         result.fetchLastOffset_ = fetchLastOffset_;
         onBuilt();
@@ -2514,8 +2576,15 @@ public final class StorageApiResWrapper {
         if (other.getAlreadyLastOffset() != false) {
           setAlreadyLastOffset(other.getAlreadyLastOffset());
         }
-        if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
-          setData(other.getData());
+        if (!other.data_.isEmpty()) {
+          if (data_.isEmpty()) {
+            data_ = other.data_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureDataIsMutable();
+            data_.addAll(other.data_);
+          }
+          onChanged();
         }
         if (other.getFetchLastOffset() != 0L) {
           setFetchLastOffset(other.getFetchLastOffset());
@@ -2548,6 +2617,7 @@ public final class StorageApiResWrapper {
         }
         return this;
       }
+      private int bitField0_;
 
       private boolean alreadyLastOffset_ ;
       /**
@@ -2592,34 +2662,66 @@ public final class StorageApiResWrapper {
         return this;
       }
 
-      private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
-      /**
-       * <pre>
-       * 拉取到的数据
-       * </pre>
-       *
-       * <code>bytes data = 2;</code>
-       * @return The data.
-       */
-      @Override
-      public com.google.protobuf.ByteString getData() {
-        return data_;
+      private java.util.List<com.google.protobuf.ByteString> data_ = java.util.Collections.emptyList();
+      private void ensureDataIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          data_ = new java.util.ArrayList<com.google.protobuf.ByteString>(data_);
+          bitField0_ |= 0x00000001;
+         }
       }
       /**
        * <pre>
        * 拉取到的数据
        * </pre>
        *
-       * <code>bytes data = 2;</code>
+       * <code>repeated bytes data = 2;</code>
+       * @return A list containing the data.
+       */
+      public java.util.List<com.google.protobuf.ByteString>
+          getDataList() {
+        return ((bitField0_ & 0x00000001) != 0) ?
+                 java.util.Collections.unmodifiableList(data_) : data_;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>repeated bytes data = 2;</code>
+       * @return The count of data.
+       */
+      public int getDataCount() {
+        return data_.size();
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>repeated bytes data = 2;</code>
+       * @param index The index of the element to return.
+       * @return The data at the given index.
+       */
+      public com.google.protobuf.ByteString getData(int index) {
+        return data_.get(index);
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>repeated bytes data = 2;</code>
+       * @param index The index to set the value at.
        * @param value The data to set.
        * @return This builder for chaining.
        */
-      public Builder setData(com.google.protobuf.ByteString value) {
+      public Builder setData(
+          int index, com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  
-        data_ = value;
+  ensureDataIsMutable();
+        data_.set(index, value);
         onChanged();
         return this;
       }
@@ -2628,12 +2730,47 @@ public final class StorageApiResWrapper {
        * 拉取到的数据
        * </pre>
        *
-       * <code>bytes data = 2;</code>
+       * <code>repeated bytes data = 2;</code>
+       * @param value The data to add.
+       * @return This builder for chaining.
+       */
+      public Builder addData(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDataIsMutable();
+        data_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>repeated bytes data = 2;</code>
+       * @param values The data to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllData(
+          Iterable<? extends com.google.protobuf.ByteString> values) {
+        ensureDataIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, data_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 拉取到的数据
+       * </pre>
+       *
+       * <code>repeated bytes data = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearData() {
-        
-        data_ = getDefaultInstance().getData();
+        data_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
@@ -2762,7 +2899,7 @@ public final class StorageApiResWrapper {
       "utMsgRes\030\003 \001(\0132\n.PutMsgRes\022!\n\013fetchMsgRe" +
       "s\030\004 \001(\0132\014.FetchMsgRes\"*\n\tPutMsgRes\022\016\n\006of" +
       "fset\030\001 \001(\003\022\r\n\005msgId\030\002 \001(\t\"O\n\013FetchMsgRes" +
-      "\022\031\n\021alreadyLastOffset\030\001 \001(\010\022\014\n\004data\030\002 \001(" +
+      "\022\031\n\021alreadyLastOffset\030\001 \001(\010\022\014\n\004data\030\002 \003(" +
       "\014\022\027\n\017fetchLastOffset\030\003 \001(\003B\026B\024StorageApi" +
       "ResWrapperb\006proto3"
     };

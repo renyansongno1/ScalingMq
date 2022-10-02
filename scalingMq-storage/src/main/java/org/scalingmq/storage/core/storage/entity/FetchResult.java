@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 拉取消息数据结果
  * @author renyansong
@@ -21,7 +23,7 @@ public class FetchResult {
     /**
      * 拉取到的数据
      */
-    private byte[] fetchData;
+    private List<byte[]> fetchDataList;
 
     /**
      * 拉取最后的offset
