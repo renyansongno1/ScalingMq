@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_outer_classname = "ProduceResWrapper";
+
+// 生产消息响应
+message ProduceMsgRes {
+
+  // 错误码
+  string errorCode = 1;
+
+  // 错误信息
+  string errorMsg = 2;
+
+  // 消息偏移量
+  int64 offset = 3;
+
+  // 消息ID
+  string msgId = 4;
+
+}

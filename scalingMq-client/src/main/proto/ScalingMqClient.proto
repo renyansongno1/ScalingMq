@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_outer_classname = "ProducerWrapper";
+
+import "ProduceMsgReq.proto";
+import "ProduceMsgRes.proto";
+
+service ScalingmqService {
+
+  // 生产消息
+  rpc Produce(ProduceMsgReq) returns (ProduceMsgRes) {}
+
+  // 消费消息
+
+
+}

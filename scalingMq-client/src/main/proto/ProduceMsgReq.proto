@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_outer_classname = "ProduceReqWrapper";
+
+// 生产消息请求
+message ProduceMsgReq {
+
+  // 发送消息的数据
+  bytes message = 1;
+
+  // 要发送到哪个topic
+  string topic = 2;
+
+  // 网络问题的时候 存储消息
+  bool storageMsgWhenFail = 3;
+
+}
