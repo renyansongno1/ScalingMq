@@ -18,6 +18,7 @@ include 'scalingMq-broker'
 include 'scalingMq-route'
 include 'scalingMq-kubernetes-api'
 include 'scalingMq-route-client'
-include 'ScalingMq-demo'
+include 'scalingMq-demo'
 include 'scalingMq-client'
+include 'scalingMq-client-sidecar'
 

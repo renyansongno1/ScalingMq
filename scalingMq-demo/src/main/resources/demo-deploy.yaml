@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: scalingmq-demo
+  namespace: scalingmq
+  labels:
+    app: scalingmq-demo
+spec:
+  initContainers:
+    - name: scalingmq-client-sidecar
+      image: scalingmq-client-sidecar:v1.0
+      volumeMounts:
+        - mountPath: /sidecar
+          name: sidercar-workspace
+  containers:
+    - name: scalingmq-demo
+      image: scalingmq-demo:v1.0
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+  volumes:
+    - name: sidercar-workspace
+      hostPath:
+        path: /Users/renyansong/scalingmq/sidecar

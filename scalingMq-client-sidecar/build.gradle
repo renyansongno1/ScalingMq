@@ -1,0 +1,32 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath('com.bmuschko:gradle-docker-plugin:7.4.0')
+    }
+}
+
+apply plugin: 'com.bmuschko.docker-java-application'
+
+dependencies {
+    implementation(
+            'io.grpc:grpc-stub:1.40.2',
+            'io.grpc:grpc-protobuf:1.40.2',
+            'io.netty:netty-all:4.1.80.Final',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
+            'com.google.code.gson:gson:2.9.1'
+    )
+}
+
+docker {
+    javaApplication {
+        baseImage = 'folioci/alpine-jre-openjdk17:2.0.2'
+        ports = [9999,35555]
+        images = ['scalingmq-client-sidecar:v1.0', 'scalingmq-client-sidecar:latest']
+        jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:35555', '-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
+    }
+}
