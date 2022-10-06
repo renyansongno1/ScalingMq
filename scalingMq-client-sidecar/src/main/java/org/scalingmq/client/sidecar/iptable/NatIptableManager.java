@@ -40,11 +40,15 @@ public class NatIptableManager {
                 // iptables -t nat -A PREROUTING -p tcp --dport ${目标端口} -j DNAT --to-destination ${本地IP}:${本地端口}
                 try {
                     // 获取Broker的端口
-                    String brokerPort = System.getProperty(BROKER_PORT);
-
-                    Process process = Runtime.getRuntime().exec(new String[]{"iptables",
-                            "-t", "nat", "-A", "PREROUTING", "-p", "tcp", "--dport", brokerPort, "-j", "--to-destination",
-                    "127.0.0.1:9999"});
+                    String brokerPort = System.getenv(BROKER_PORT);
+                    if (log.isDebugEnabled()) {
+                        log.debug("获取到broker的端口为:{}", brokerPort);
+                    }
+                    if (brokerPort == null || "".equals(brokerPort)) {
+                        brokerPort = "6543";
+                    }
+                    Process process = Runtime.getRuntime().exec("iptables -t nat -A PREROUTING -p tcp --dport "
+                            + brokerPort + " -j DNAT --to-destination 127.0.0.1:9999");
                     InputStream inputStream = process.getInputStream();
                     BufferedReader read = new BufferedReader(new InputStreamReader(inputStream));
                     String result = read.readLine();

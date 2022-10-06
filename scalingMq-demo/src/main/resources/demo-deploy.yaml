@@ -12,9 +12,21 @@ spec:
       volumeMounts:
         - mountPath: /sidecar
           name: sidercar-workspace
+      securityContext:
+        privileged: true
+      env:
+        - name: BROKER_PORT
+          value: "6543"
+        - name: LANG
+          value: C.utf8
   containers:
     - name: scalingmq-demo
       image: scalingmq-demo:v1.0
+      env:
+        - name: BROKER_PORT
+          value: "6543"
+        - name: BROKER_HOST
+          value: "scalingmq-broker-service"
       imagePullPolicy: IfNotPresent
   restartPolicy: Always
   volumes:
