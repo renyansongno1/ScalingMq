@@ -1,6 +1,8 @@
 package org.scalingmq.demo;
 
 import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.common.ioc.IocContainer;
+import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.demo.server.EndpointProcessor;
 import org.scalingmq.demo.server.HttpEndpoint;
 import org.scalingmq.demo.server.HttpNetEventHandler;
@@ -20,6 +22,15 @@ public class DemoApplication {
     private static volatile boolean STOP = false;
 
     public static void main(String[] args) {
+        // 启动所有组件
+        ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
+        for (Lifecycle lifecycle : serviceLoader) {
+            IocContainer.getInstance().add(lifecycle);
+        }
+        for (Lifecycle lifecycle : serviceLoader) {
+            lifecycle.componentStart();
+        }
+
         // 加载http的endpoint
         for (EndpointProcessor endpointProcessor : ServiceLoader.load(EndpointProcessor.class)) {
             // 注册endpoint

@@ -19,9 +19,9 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class ProducerDemo implements EndpointProcessor {
 
-    private static final String BROKER_HOST = System.getProperty("BROKER_HOST");
+    private static final String BROKER_HOST = System.getenv("BROKER_HOST");
 
-    private static final String BROKER_PORT = System.getProperty("BROKER_PORT");
+    private static final String BROKER_PORT = System.getenv("BROKER_PORT");
 
     private final ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(BROKER_HOST, Integer.parseInt(BROKER_PORT))
             // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
@@ -39,7 +39,7 @@ public class ProducerDemo implements EndpointProcessor {
                 .setTopic(produceMsg.getTopic())
                 .setStorageMsgWhenFail(true)
                 .build();
-
+        log.info("开始发送消息:{}", req);
         ProduceResWrapper.ProduceMsgRes produceMsgRes = scalingmqServiceBlockingStub.produce(req);
         log.info("发送消息响应:{}", produceMsgRes);
         return "ok";

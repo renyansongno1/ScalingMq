@@ -26,7 +26,7 @@ public class ScalingMqBrokerApplication {
     public static void main(String[] args) {
         // 加载配置文件
         ConfigParseUtil.getInstance().parse(BrokerConfig.getInstance());
-        log.debug("broker 加载的配置信息:{}", BrokerConfig.getInstance().toString());
+        log.debug("broker 加载的配置信息:{}", BrokerConfig.getInstance());
 
         // 启动所有组件
         ServiceLoader<Lifecycle> serviceLoader  = ServiceLoader.load(Lifecycle.class);
