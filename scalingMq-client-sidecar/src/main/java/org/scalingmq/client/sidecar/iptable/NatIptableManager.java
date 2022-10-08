@@ -47,7 +47,7 @@ public class NatIptableManager {
                     if (brokerPort == null || "".equals(brokerPort)) {
                         brokerPort = "6543";
                     }
-                    Process process = Runtime.getRuntime().exec("iptables -t nat -A PREROUTING -p tcp --dport "
+                    Process process = Runtime.getRuntime().exec("iptables -t nat -A OUTPUT -p tcp --dport "
                             + brokerPort + " -j DNAT --to-destination 127.0.0.1:9999");
                     InputStream inputStream = process.getInputStream();
                     BufferedReader read = new BufferedReader(new InputStreamReader(inputStream));

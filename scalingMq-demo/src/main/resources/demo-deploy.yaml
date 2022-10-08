@@ -33,7 +33,7 @@ spec:
         - name: BROKER_PORT
           value: "6543"
         - name: LANG
-          value: C.utf8
+          value: en_US.UTF-8
     - name: scalingmq-demo
       image: scalingmq-demo:v1.0
       env:

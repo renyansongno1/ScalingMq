@@ -15,4 +15,6 @@ spec:
       env:
         - name: BROKER_PORT
           value: "6543"
+        - name: LANG
+          value: en_US.UTF-8
   restartPolicy: Always

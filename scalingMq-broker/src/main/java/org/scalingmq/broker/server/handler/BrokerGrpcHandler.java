@@ -21,7 +21,15 @@ public class BrokerGrpcHandler extends ScalingmqServiceGrpc.ScalingmqServiceImpl
     @Override
     public void produce(ProduceReqWrapper.ProduceMsgReq request,
                         StreamObserver<ProduceResWrapper.ProduceMsgRes> responseObserver) {
+        if (log.isDebugEnabled()) {
+            log.debug("收到请求:{}", request);
+        }
 
+        ProduceResWrapper.ProduceMsgRes res = ProduceResWrapper.ProduceMsgRes.newBuilder()
+                .setOffset(1)
+                .build();
+        responseObserver.onNext(res);
+        responseObserver.onCompleted();
     }
 
 }
