@@ -1,4 +1,4 @@
-package org.scalingmq.demo.grpc;
+package org.scalingmq.client.grpc;
 
 import javax.annotation.processing.Generated;
 

@@ -32,6 +32,8 @@ spec:
       env:
         - name: BROKER_PORT
           value: "6543"
+        - name: BROKER_HOST
+          value: "scalingmq-broker-service"
         - name: LANG
           value: en_US.UTF-8
     - name: scalingmq-demo
