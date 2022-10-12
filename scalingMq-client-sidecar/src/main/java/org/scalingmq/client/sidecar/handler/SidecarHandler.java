@@ -33,7 +33,15 @@ public class SidecarHandler extends ScalingmqServiceGrpc.ScalingmqServiceImplBas
         }
 
         // 访问远端broker
-        ProduceResWrapper.ProduceMsgRes msgRes = scalingmqServiceBlockingStub.produce(request);
+        ProduceResWrapper.ProduceMsgRes msgRes = null;
+        try {
+            msgRes = scalingmqServiceBlockingStub.produce(request);
+        } catch (Exception e) {
+            log.error("访问broker异常", e);
+            if (request.getStorageMsgWhenFail()) {
+                // todo 存储文件到本地
+            }
+        }
         responseObserver.onNext(msgRes);
         responseObserver.onCompleted();
     }

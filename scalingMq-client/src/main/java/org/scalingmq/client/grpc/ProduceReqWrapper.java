@@ -55,6 +55,26 @@ public final class ProduceReqWrapper {
      * @return The storageMsgWhenFail.
      */
     boolean getStorageMsgWhenFail();
+
+    /**
+     * <pre>
+     * 按照key分区和搜索索引
+     * </pre>
+     *
+     * <code>string msgKey = 4;</code>
+     * @return The msgKey.
+     */
+    String getMsgKey();
+    /**
+     * <pre>
+     * 按照key分区和搜索索引
+     * </pre>
+     *
+     * <code>string msgKey = 4;</code>
+     * @return The bytes for msgKey.
+     */
+    com.google.protobuf.ByteString
+        getMsgKeyBytes();
   }
   /**
    * <pre>
@@ -75,6 +95,7 @@ public final class ProduceReqWrapper {
     private ProduceMsgReq() {
       message_ = com.google.protobuf.ByteString.EMPTY;
       topic_ = "";
+      msgKey_ = "";
     }
 
     @Override
@@ -121,6 +142,12 @@ public final class ProduceReqWrapper {
             case 24: {
 
               storageMsgWhenFail_ = input.readBool();
+              break;
+            }
+            case 34: {
+              String s = input.readStringRequireUtf8();
+
+              msgKey_ = s;
               break;
             }
             default: {
@@ -231,6 +258,52 @@ public final class ProduceReqWrapper {
       return storageMsgWhenFail_;
     }
 
+    public static final int MSGKEY_FIELD_NUMBER = 4;
+    private volatile Object msgKey_;
+    /**
+     * <pre>
+     * 按照key分区和搜索索引
+     * </pre>
+     *
+     * <code>string msgKey = 4;</code>
+     * @return The msgKey.
+     */
+    @Override
+    public String getMsgKey() {
+      Object ref = msgKey_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        msgKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 按照key分区和搜索索引
+     * </pre>
+     *
+     * <code>string msgKey = 4;</code>
+     * @return The bytes for msgKey.
+     */
+    @Override
+    public com.google.protobuf.ByteString
+        getMsgKeyBytes() {
+      Object ref = msgKey_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (String) ref);
+        msgKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -254,6 +327,9 @@ public final class ProduceReqWrapper {
       if (storageMsgWhenFail_ != false) {
         output.writeBool(3, storageMsgWhenFail_);
       }
+      if (!getMsgKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, msgKey_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -273,6 +349,9 @@ public final class ProduceReqWrapper {
       if (storageMsgWhenFail_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(3, storageMsgWhenFail_);
+      }
+      if (!getMsgKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, msgKey_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -295,6 +374,8 @@ public final class ProduceReqWrapper {
           .equals(other.getTopic())) return false;
       if (getStorageMsgWhenFail()
           != other.getStorageMsgWhenFail()) return false;
+      if (!getMsgKey()
+          .equals(other.getMsgKey())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -313,6 +394,8 @@ public final class ProduceReqWrapper {
       hash = (37 * hash) + STORAGEMSGWHENFAIL_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getStorageMsgWhenFail());
+      hash = (37 * hash) + MSGKEY_FIELD_NUMBER;
+      hash = (53 * hash) + getMsgKey().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -456,6 +539,8 @@ public final class ProduceReqWrapper {
 
         storageMsgWhenFail_ = false;
 
+        msgKey_ = "";
+
         return this;
       }
 
@@ -485,6 +570,7 @@ public final class ProduceReqWrapper {
         result.message_ = message_;
         result.topic_ = topic_;
         result.storageMsgWhenFail_ = storageMsgWhenFail_;
+        result.msgKey_ = msgKey_;
         onBuilt();
         return result;
       }
@@ -542,6 +628,10 @@ public final class ProduceReqWrapper {
         }
         if (other.getStorageMsgWhenFail() != false) {
           setStorageMsgWhenFail(other.getStorageMsgWhenFail());
+        }
+        if (!other.getMsgKey().isEmpty()) {
+          msgKey_ = other.msgKey_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -756,6 +846,102 @@ public final class ProduceReqWrapper {
         onChanged();
         return this;
       }
+
+      private Object msgKey_ = "";
+      /**
+       * <pre>
+       * 按照key分区和搜索索引
+       * </pre>
+       *
+       * <code>string msgKey = 4;</code>
+       * @return The msgKey.
+       */
+      public String getMsgKey() {
+        Object ref = msgKey_;
+        if (!(ref instanceof String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          String s = bs.toStringUtf8();
+          msgKey_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 按照key分区和搜索索引
+       * </pre>
+       *
+       * <code>string msgKey = 4;</code>
+       * @return The bytes for msgKey.
+       */
+      public com.google.protobuf.ByteString
+          getMsgKeyBytes() {
+        Object ref = msgKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (String) ref);
+          msgKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 按照key分区和搜索索引
+       * </pre>
+       *
+       * <code>string msgKey = 4;</code>
+       * @param value The msgKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMsgKey(
+          String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        msgKey_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 按照key分区和搜索索引
+       * </pre>
+       *
+       * <code>string msgKey = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMsgKey() {
+        
+        msgKey_ = getDefaultInstance().getMsgKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 按照key分区和搜索索引
+       * </pre>
+       *
+       * <code>string msgKey = 4;</code>
+       * @param value The bytes for msgKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMsgKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        msgKey_ = value;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -823,10 +1009,10 @@ public final class ProduceReqWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\023ProduceMsgReq.proto\"K\n\rProduceMsgReq\022\017" +
+      "\n\023ProduceMsgReq.proto\"[\n\rProduceMsgReq\022\017" +
       "\n\007message\030\001 \001(\014\022\r\n\005topic\030\002 \001(\t\022\032\n\022storag" +
-      "eMsgWhenFail\030\003 \001(\010B\023B\021ProduceReqWrapperb" +
-      "\006proto3"
+      "eMsgWhenFail\030\003 \001(\010\022\016\n\006msgKey\030\004 \001(\tB\023B\021Pr" +
+      "oduceReqWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -837,7 +1023,7 @@ public final class ProduceReqWrapper {
     internal_static_ProduceMsgReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ProduceMsgReq_descriptor,
-        new String[] { "Message", "Topic", "StorageMsgWhenFail", });
+        new String[] { "Message", "Topic", "StorageMsgWhenFail", "MsgKey", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

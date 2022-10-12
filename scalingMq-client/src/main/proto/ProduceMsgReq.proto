@@ -14,4 +14,7 @@ message ProduceMsgReq {
   // 网络问题的时候 存储消息
   bool storageMsgWhenFail = 3;
 
+  // 按照key分区和搜索索引
+  string msgKey = 4;
+
 }

@@ -1,6 +1,7 @@
 package org.scalingmq.route.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.common.cache.LocalCache;
 import org.scalingmq.common.net.NetworkClient;
 import org.scalingmq.route.client.conf.RouteClientConfig;
 import org.scalingmq.route.client.entity.*;
@@ -23,6 +24,9 @@ public class RouteAppClient {
     private ThreadPoolExecutor netThreadPool;
 
     private volatile boolean init = false;
+
+    private LocalCache<FetchTopicMetadataReqWrapper.FetchTopicMetadataReq,
+            FetchTopicMetadataResultWrapper.FetchTopicMetadataResult> localCache;
 
     private RouteAppClient() {
         if (INSTANCE != null) {
@@ -60,6 +64,13 @@ public class RouteAppClient {
                                 return new Thread(r, "route-client-net-thread-" + index.getAndIncrement());
                             }
                         });
+                localCache = LocalCache.<FetchTopicMetadataReqWrapper.FetchTopicMetadataReq,
+                                FetchTopicMetadataResultWrapper.FetchTopicMetadataResult>builder()
+                        .cacheCount(100)
+                        .expireTime(300L)
+                        .timeUnit(TimeUnit.SECONDS)
+                        .cacheLoader(key -> fetchTopicMetadataFromRemote((FetchTopicMetadataReqWrapper.FetchTopicMetadataReq) key))
+                        .build();
                 init = true;
             }
         }
@@ -74,6 +85,13 @@ public class RouteAppClient {
      */
     public FetchTopicMetadataResultWrapper.FetchTopicMetadataResult fetchTopicMetadata(
             FetchTopicMetadataReqWrapper.FetchTopicMetadataReq req) throws Exception {
+        // 先查询缓存 cache 不存在会查询远端
+        return localCache.get(req);
+    }
+
+    private FetchTopicMetadataResultWrapper.FetchTopicMetadataResult
+    fetchTopicMetadataFromRemote(FetchTopicMetadataReqWrapper.FetchTopicMetadataReq req)
+            throws InterruptedException, ExecutionException {
         RouteReqWrapper.RouteReq routeReq = RouteReqWrapper.RouteReq.newBuilder()
                 .setReqType(RouteReqWrapper.RouteReq.ReqType.FETCH_TOPIC_METADATA)
                 .setFetchTopicMetadataReq(req)
@@ -136,7 +154,9 @@ public class RouteAppClient {
 
         @Override
         public RouteResWrapper.RouteApiRes call() {
-            log.debug("开始请求网络....");
+            if (log.isDebugEnabled()) {
+                log.debug("开始请求网络....");
+            }
             return (RouteResWrapper.RouteApiRes) NetworkClient.getInstance().sendReq(req,
                     routeClientConfig.getServerAddr(),
                     routeClientConfig.getServerPort(),

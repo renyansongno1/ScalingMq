@@ -53,4 +53,9 @@ public class BrokerConfig {
      */
     private Integer routeClientThreadCount = 10;
 
+    /**
+     * storage client的线程数量
+     */
+    private Integer storageClientThreadCount = 10;
+
 }

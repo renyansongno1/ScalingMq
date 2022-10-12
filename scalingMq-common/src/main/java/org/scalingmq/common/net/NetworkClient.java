@@ -53,6 +53,9 @@ public class NetworkClient {
      * @return 响应
      */
     public MessageLite sendReq(Object req, String addr, int port, MessageLite messageLite) {
+        if (port == 0) {
+            port = Integer.parseInt(addr.split(":")[1]);
+        }
         String connection = addr + ":" + port;
         log.debug("network client 收到发送请求到:{}", connection);
         Channel channel = CHANNEL_MAP.get(connection);
@@ -62,9 +65,10 @@ public class NetworkClient {
             Object obj = new Object();
             RES_MAP.put(channel.id().toString(), obj);
             synchronized (obj) {
+                int finalPort = port;
                 channel.writeAndFlush(req).addListener((ChannelFutureListener) f -> {
                     if (!f.isSuccess()) {
-                        log.warn("发送数据失败.., addr:{}, port:{}", addr, port);
+                        log.warn("发送数据失败.., addr:{}, port:{}", addr, finalPort);
                         RES_MAP.remove(channel.id().toString());
                     }
                 });
