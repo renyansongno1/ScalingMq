@@ -17,7 +17,8 @@ import org.scalingmq.storage.api.StorageApiReqWrapper;
 import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.replicate.raft.entity.RaftReqWrapper;
-import org.scalingmq.storage.request.handler.NetworkHandler;
+import org.scalingmq.storage.request.handler.NetworkInBoundHandler;
+import org.scalingmq.storage.request.handler.NetworkOutBoundHandler;
 import org.scalingmq.storage.request.handler.RaftHandler;
 
 /**
@@ -129,9 +130,9 @@ public class StorageNettyServer implements Lifecycle {
                     // 用于在序列化的字节数组前加上一个简单的包头，只包含序列化的字节长度。
                     p.addLast("frameEncoder",new ProtobufVarint32LengthFieldPrepender());
                     //配置Protobuf编码器，发送的消息会先经过编码
-                    p.addLast("protobufEncoder", new ProtobufEncoder());
+                    p.addLast("protobufEncoder", new NetworkOutBoundHandler());
                     // ----Protobuf处理器END----
-                    p.addLast("handler", new NetworkHandler());
+                    p.addLast("handler", new NetworkInBoundHandler());
                 }
                 default -> throw new RuntimeException("unknown netty server port");
             }

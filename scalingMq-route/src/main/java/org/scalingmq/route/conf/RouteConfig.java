@@ -87,4 +87,9 @@ public class RouteConfig {
     @EnvironmentVariable("SCHEDULE_STORAGE_COORDINATOR_RATIO")
     private String scheduleStorageCoordinatorRatio;
 
+    /**
+     * 业务处理线程数量
+     */
+    private Integer serviceThreadCount = 10;
+
 }

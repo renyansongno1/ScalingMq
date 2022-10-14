@@ -76,4 +76,18 @@ public class StoragePodTemplate {
         ENV_MAP.put("COORDINATOR_NUMS", str);
     }
 
+    /**
+     * 添加topicName的环境变量
+     */
+    public void addTopicConfig(String topicName) {
+        ENV_MAP.put("TOPIC_NAME", topicName);
+    }
+
+    /**
+     * 添加分区号的环境变量
+     */
+    public void addPartitionNumConfig(Integer partitionNum) {
+        ENV_MAP.put("PARTITION_NUM", String.valueOf(partitionNum));
+    }
+
 }

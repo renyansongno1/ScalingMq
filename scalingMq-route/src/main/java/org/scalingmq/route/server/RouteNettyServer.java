@@ -16,7 +16,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.scalingmq.common.lifecycle.Lifecycle;
 import org.scalingmq.route.client.entity.RouteReqWrapper;
 import org.scalingmq.route.conf.RouteConfig;
-import org.scalingmq.route.server.handler.NetworkHandler;
+import org.scalingmq.route.server.handler.NetworkInboundHandler;
 
 /**
  * route模块的Netty server
@@ -45,7 +45,7 @@ public class RouteNettyServer implements Lifecycle {
                             //配置Protobuf编码器，发送的消息会先经过编码
                             p.addLast("protobufEncoder", new ProtobufEncoder());
                             // ----Protobuf处理器END----
-                            p.addLast("handler", new NetworkHandler());
+                            p.addLast("handler", new NetworkInboundHandler());
                         }
                     })
                     .childOption(ChannelOption.TCP_NODELAY, true);

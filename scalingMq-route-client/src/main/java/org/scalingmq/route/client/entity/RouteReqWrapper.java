@@ -115,6 +115,33 @@ public final class RouteReqWrapper {
      * <code>.SchedStoragePodReq schedStoragePodReq = 4;</code>
      */
     SchedStoragePodReqWrapper.SchedStoragePodReqOrBuilder getSchedStoragePodReqOrBuilder();
+
+    /**
+     * <pre>
+     * isr更新的请求
+     * </pre>
+     *
+     * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+     * @return Whether the isrUpdateReq field is set.
+     */
+    boolean hasIsrUpdateReq();
+    /**
+     * <pre>
+     * isr更新的请求
+     * </pre>
+     *
+     * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+     * @return The isrUpdateReq.
+     */
+    IsrUpdateReqWrapper.IsrUpdateReq getIsrUpdateReq();
+    /**
+     * <pre>
+     * isr更新的请求
+     * </pre>
+     *
+     * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+     */
+    IsrUpdateReqWrapper.IsrUpdateReqOrBuilder getIsrUpdateReqOrBuilder();
   }
   /**
    * Protobuf type {@code RouteReq}
@@ -207,6 +234,19 @@ public final class RouteReqWrapper {
 
               break;
             }
+            case 42: {
+              IsrUpdateReqWrapper.IsrUpdateReq.Builder subBuilder = null;
+              if (isrUpdateReq_ != null) {
+                subBuilder = isrUpdateReq_.toBuilder();
+              }
+              isrUpdateReq_ = input.readMessage(IsrUpdateReqWrapper.IsrUpdateReq.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(isrUpdateReq_);
+                isrUpdateReq_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
             default: {
               if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
@@ -268,6 +308,14 @@ public final class RouteReqWrapper {
        * <code>SCHED_STORAGE_POD = 2;</code>
        */
       SCHED_STORAGE_POD(2),
+      /**
+       * <pre>
+       * 更新ISR
+       * </pre>
+       *
+       * <code>ISR_UPDATE = 3;</code>
+       */
+      ISR_UPDATE(3),
       UNRECOGNIZED(-1),
       ;
 
@@ -295,6 +343,14 @@ public final class RouteReqWrapper {
        * <code>SCHED_STORAGE_POD = 2;</code>
        */
       public static final int SCHED_STORAGE_POD_VALUE = 2;
+      /**
+       * <pre>
+       * 更新ISR
+       * </pre>
+       *
+       * <code>ISR_UPDATE = 3;</code>
+       */
+      public static final int ISR_UPDATE_VALUE = 3;
 
 
       public final int getNumber() {
@@ -324,6 +380,7 @@ public final class RouteReqWrapper {
           case 0: return FETCH_TOPIC_METADATA;
           case 1: return PUT_TOPIC_METADATA;
           case 2: return SCHED_STORAGE_POD;
+          case 3: return ISR_UPDATE;
           default: return null;
         }
       }
@@ -521,6 +578,44 @@ public final class RouteReqWrapper {
       return getSchedStoragePodReq();
     }
 
+    public static final int ISRUPDATEREQ_FIELD_NUMBER = 5;
+    private IsrUpdateReqWrapper.IsrUpdateReq isrUpdateReq_;
+    /**
+     * <pre>
+     * isr更新的请求
+     * </pre>
+     *
+     * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+     * @return Whether the isrUpdateReq field is set.
+     */
+    @Override
+    public boolean hasIsrUpdateReq() {
+      return isrUpdateReq_ != null;
+    }
+    /**
+     * <pre>
+     * isr更新的请求
+     * </pre>
+     *
+     * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+     * @return The isrUpdateReq.
+     */
+    @Override
+    public IsrUpdateReqWrapper.IsrUpdateReq getIsrUpdateReq() {
+      return isrUpdateReq_ == null ? IsrUpdateReqWrapper.IsrUpdateReq.getDefaultInstance() : isrUpdateReq_;
+    }
+    /**
+     * <pre>
+     * isr更新的请求
+     * </pre>
+     *
+     * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+     */
+    @Override
+    public IsrUpdateReqWrapper.IsrUpdateReqOrBuilder getIsrUpdateReqOrBuilder() {
+      return getIsrUpdateReq();
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -547,6 +642,9 @@ public final class RouteReqWrapper {
       if (schedStoragePodReq_ != null) {
         output.writeMessage(4, getSchedStoragePodReq());
       }
+      if (isrUpdateReq_ != null) {
+        output.writeMessage(5, getIsrUpdateReq());
+      }
       unknownFields.writeTo(output);
     }
 
@@ -571,6 +669,10 @@ public final class RouteReqWrapper {
       if (schedStoragePodReq_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(4, getSchedStoragePodReq());
+      }
+      if (isrUpdateReq_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(5, getIsrUpdateReq());
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -603,6 +705,11 @@ public final class RouteReqWrapper {
         if (!getSchedStoragePodReq()
             .equals(other.getSchedStoragePodReq())) return false;
       }
+      if (hasIsrUpdateReq() != other.hasIsrUpdateReq()) return false;
+      if (hasIsrUpdateReq()) {
+        if (!getIsrUpdateReq()
+            .equals(other.getIsrUpdateReq())) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -627,6 +734,10 @@ public final class RouteReqWrapper {
       if (hasSchedStoragePodReq()) {
         hash = (37 * hash) + SCHEDSTORAGEPODREQ_FIELD_NUMBER;
         hash = (53 * hash) + getSchedStoragePodReq().hashCode();
+      }
+      if (hasIsrUpdateReq()) {
+        hash = (37 * hash) + ISRUPDATEREQ_FIELD_NUMBER;
+        hash = (53 * hash) + getIsrUpdateReq().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -781,6 +892,12 @@ public final class RouteReqWrapper {
           schedStoragePodReq_ = null;
           schedStoragePodReqBuilder_ = null;
         }
+        if (isrUpdateReqBuilder_ == null) {
+          isrUpdateReq_ = null;
+        } else {
+          isrUpdateReq_ = null;
+          isrUpdateReqBuilder_ = null;
+        }
         return this;
       }
 
@@ -822,6 +939,11 @@ public final class RouteReqWrapper {
           result.schedStoragePodReq_ = schedStoragePodReq_;
         } else {
           result.schedStoragePodReq_ = schedStoragePodReqBuilder_.build();
+        }
+        if (isrUpdateReqBuilder_ == null) {
+          result.isrUpdateReq_ = isrUpdateReq_;
+        } else {
+          result.isrUpdateReq_ = isrUpdateReqBuilder_.build();
         }
         onBuilt();
         return result;
@@ -882,6 +1004,9 @@ public final class RouteReqWrapper {
         }
         if (other.hasSchedStoragePodReq()) {
           mergeSchedStoragePodReq(other.getSchedStoragePodReq());
+        }
+        if (other.hasIsrUpdateReq()) {
+          mergeIsrUpdateReq(other.getIsrUpdateReq());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -1450,6 +1575,161 @@ public final class RouteReqWrapper {
         }
         return schedStoragePodReqBuilder_;
       }
+
+      private IsrUpdateReqWrapper.IsrUpdateReq isrUpdateReq_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          IsrUpdateReqWrapper.IsrUpdateReq, IsrUpdateReqWrapper.IsrUpdateReq.Builder, IsrUpdateReqWrapper.IsrUpdateReqOrBuilder> isrUpdateReqBuilder_;
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       * @return Whether the isrUpdateReq field is set.
+       */
+      public boolean hasIsrUpdateReq() {
+        return isrUpdateReqBuilder_ != null || isrUpdateReq_ != null;
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       * @return The isrUpdateReq.
+       */
+      public IsrUpdateReqWrapper.IsrUpdateReq getIsrUpdateReq() {
+        if (isrUpdateReqBuilder_ == null) {
+          return isrUpdateReq_ == null ? IsrUpdateReqWrapper.IsrUpdateReq.getDefaultInstance() : isrUpdateReq_;
+        } else {
+          return isrUpdateReqBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      public Builder setIsrUpdateReq(IsrUpdateReqWrapper.IsrUpdateReq value) {
+        if (isrUpdateReqBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          isrUpdateReq_ = value;
+          onChanged();
+        } else {
+          isrUpdateReqBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      public Builder setIsrUpdateReq(
+          IsrUpdateReqWrapper.IsrUpdateReq.Builder builderForValue) {
+        if (isrUpdateReqBuilder_ == null) {
+          isrUpdateReq_ = builderForValue.build();
+          onChanged();
+        } else {
+          isrUpdateReqBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      public Builder mergeIsrUpdateReq(IsrUpdateReqWrapper.IsrUpdateReq value) {
+        if (isrUpdateReqBuilder_ == null) {
+          if (isrUpdateReq_ != null) {
+            isrUpdateReq_ =
+              IsrUpdateReqWrapper.IsrUpdateReq.newBuilder(isrUpdateReq_).mergeFrom(value).buildPartial();
+          } else {
+            isrUpdateReq_ = value;
+          }
+          onChanged();
+        } else {
+          isrUpdateReqBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      public Builder clearIsrUpdateReq() {
+        if (isrUpdateReqBuilder_ == null) {
+          isrUpdateReq_ = null;
+          onChanged();
+        } else {
+          isrUpdateReq_ = null;
+          isrUpdateReqBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      public IsrUpdateReqWrapper.IsrUpdateReq.Builder getIsrUpdateReqBuilder() {
+        
+        onChanged();
+        return getIsrUpdateReqFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      public IsrUpdateReqWrapper.IsrUpdateReqOrBuilder getIsrUpdateReqOrBuilder() {
+        if (isrUpdateReqBuilder_ != null) {
+          return isrUpdateReqBuilder_.getMessageOrBuilder();
+        } else {
+          return isrUpdateReq_ == null ?
+              IsrUpdateReqWrapper.IsrUpdateReq.getDefaultInstance() : isrUpdateReq_;
+        }
+      }
+      /**
+       * <pre>
+       * isr更新的请求
+       * </pre>
+       *
+       * <code>.IsrUpdateReq isrUpdateReq = 5;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          IsrUpdateReqWrapper.IsrUpdateReq, IsrUpdateReqWrapper.IsrUpdateReq.Builder, IsrUpdateReqWrapper.IsrUpdateReqOrBuilder> 
+          getIsrUpdateReqFieldBuilder() {
+        if (isrUpdateReqBuilder_ == null) {
+          isrUpdateReqBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              IsrUpdateReqWrapper.IsrUpdateReq, IsrUpdateReqWrapper.IsrUpdateReq.Builder, IsrUpdateReqWrapper.IsrUpdateReqOrBuilder>(
+                  getIsrUpdateReq(),
+                  getParentForChildren(),
+                  isClean());
+          isrUpdateReq_ = null;
+        }
+        return isrUpdateReqBuilder_;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1519,15 +1799,17 @@ public final class RouteReqWrapper {
     String[] descriptorData = {
       "\n\025RouteApiRequest.proto\032\033FetchTopicMetad" +
       "ataReq.proto\032\031PutTopicMetadataReq.proto\032" +
-      "\030SchedStoragePodReq.proto\"\235\002\n\010RouteReq\022\"" +
-      "\n\007reqType\030\001 \001(\0162\021.RouteReq.ReqType\0225\n\025fe" +
-      "tchTopicMetadataReq\030\002 \001(\0132\026.FetchTopicMe" +
-      "tadataReq\0221\n\023putTopicMetadataReq\030\003 \001(\0132\024" +
-      ".PutTopicMetadataReq\022/\n\022schedStoragePodR" +
-      "eq\030\004 \001(\0132\023.SchedStoragePodReq\"R\n\007ReqType" +
-      "\022\030\n\024FETCH_TOPIC_METADATA\020\000\022\026\n\022PUT_TOPIC_" +
-      "METADATA\020\001\022\025\n\021SCHED_STORAGE_POD\020\002B\021B\017Rou" +
-      "teReqWrapperb\006proto3"
+      "\030SchedStoragePodReq.proto\032\022IsrUpdateReq." +
+      "proto\"\322\002\n\010RouteReq\022\"\n\007reqType\030\001 \001(\0162\021.Ro" +
+      "uteReq.ReqType\0225\n\025fetchTopicMetadataReq\030" +
+      "\002 \001(\0132\026.FetchTopicMetadataReq\0221\n\023putTopi" +
+      "cMetadataReq\030\003 \001(\0132\024.PutTopicMetadataReq" +
+      "\022/\n\022schedStoragePodReq\030\004 \001(\0132\023.SchedStor" +
+      "agePodReq\022#\n\014isrUpdateReq\030\005 \001(\0132\r.IsrUpd" +
+      "ateReq\"b\n\007ReqType\022\030\n\024FETCH_TOPIC_METADAT" +
+      "A\020\000\022\026\n\022PUT_TOPIC_METADATA\020\001\022\025\n\021SCHED_STO" +
+      "RAGE_POD\020\002\022\016\n\nISR_UPDATE\020\003B\021B\017RouteReqWr" +
+      "apperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -1535,16 +1817,18 @@ public final class RouteReqWrapper {
           FetchTopicMetadataReqWrapper.getDescriptor(),
           PutTopicMetadataReqWrapper.getDescriptor(),
           SchedStoragePodReqWrapper.getDescriptor(),
+          IsrUpdateReqWrapper.getDescriptor(),
         });
     internal_static_RouteReq_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_RouteReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RouteReq_descriptor,
-        new String[] { "ReqType", "FetchTopicMetadataReq", "PutTopicMetadataReq", "SchedStoragePodReq", });
+        new String[] { "ReqType", "FetchTopicMetadataReq", "PutTopicMetadataReq", "SchedStoragePodReq", "IsrUpdateReq", });
     FetchTopicMetadataReqWrapper.getDescriptor();
     PutTopicMetadataReqWrapper.getDescriptor();
     SchedStoragePodReqWrapper.getDescriptor();
+    IsrUpdateReqWrapper.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

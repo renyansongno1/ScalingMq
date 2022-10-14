@@ -331,6 +331,16 @@ public final class StorageApiReqWrapper {
        */
       PutMsgReq.MsgItemOrBuilder getMsgItemsOrBuilder(
           int index);
+
+      /**
+       * <pre>
+       * 最大等待时间秒
+       * </pre>
+       *
+       * <code>int32 maxWaitSec = 2;</code>
+       * @return The maxWaitSec.
+       */
+      int getMaxWaitSec();
     }
     /**
      * <pre>
@@ -390,6 +400,11 @@ public final class StorageApiReqWrapper {
                 }
                 msgItems_.add(
                     input.readMessage(MsgItem.parser(), extensionRegistry));
+                break;
+              }
+              case 16: {
+
+                maxWaitSec_ = input.readInt32();
                 break;
               }
               default: {
@@ -1007,6 +1022,21 @@ public final class StorageApiReqWrapper {
         return msgItems_.get(index);
       }
 
+      public static final int MAXWAITSEC_FIELD_NUMBER = 2;
+      private int maxWaitSec_;
+      /**
+       * <pre>
+       * 最大等待时间秒
+       * </pre>
+       *
+       * <code>int32 maxWaitSec = 2;</code>
+       * @return The maxWaitSec.
+       */
+      @Override
+      public int getMaxWaitSec() {
+        return maxWaitSec_;
+      }
+
       private byte memoizedIsInitialized = -1;
       @Override
       public final boolean isInitialized() {
@@ -1024,6 +1054,9 @@ public final class StorageApiReqWrapper {
         for (int i = 0; i < msgItems_.size(); i++) {
           output.writeMessage(1, msgItems_.get(i));
         }
+        if (maxWaitSec_ != 0) {
+          output.writeInt32(2, maxWaitSec_);
+        }
         unknownFields.writeTo(output);
       }
 
@@ -1036,6 +1069,10 @@ public final class StorageApiReqWrapper {
         for (int i = 0; i < msgItems_.size(); i++) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(1, msgItems_.get(i));
+        }
+        if (maxWaitSec_ != 0) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt32Size(2, maxWaitSec_);
         }
         size += unknownFields.getSerializedSize();
         memoizedSize = size;
@@ -1054,6 +1091,8 @@ public final class StorageApiReqWrapper {
 
         if (!getMsgItemsList()
             .equals(other.getMsgItemsList())) return false;
+        if (getMaxWaitSec()
+            != other.getMaxWaitSec()) return false;
         if (!unknownFields.equals(other.unknownFields)) return false;
         return true;
       }
@@ -1069,6 +1108,8 @@ public final class StorageApiReqWrapper {
           hash = (37 * hash) + MSGITEMS_FIELD_NUMBER;
           hash = (53 * hash) + getMsgItemsList().hashCode();
         }
+        hash = (37 * hash) + MAXWAITSEC_FIELD_NUMBER;
+        hash = (53 * hash) + getMaxWaitSec();
         hash = (29 * hash) + unknownFields.hashCode();
         memoizedHashCode = hash;
         return hash;
@@ -1213,6 +1254,8 @@ public final class StorageApiReqWrapper {
           } else {
             msgItemsBuilder_.clear();
           }
+          maxWaitSec_ = 0;
+
           return this;
         }
 
@@ -1249,6 +1292,7 @@ public final class StorageApiReqWrapper {
           } else {
             result.msgItems_ = msgItemsBuilder_.build();
           }
+          result.maxWaitSec_ = maxWaitSec_;
           onBuilt();
           return result;
         }
@@ -1322,6 +1366,9 @@ public final class StorageApiReqWrapper {
                 msgItemsBuilder_.addAllMessages(other.msgItems_);
               }
             }
+          }
+          if (other.getMaxWaitSec() != 0) {
+            setMaxWaitSec(other.getMaxWaitSec());
           }
           this.mergeUnknownFields(other.unknownFields);
           onChanged();
@@ -1663,6 +1710,49 @@ public final class StorageApiReqWrapper {
             msgItems_ = null;
           }
           return msgItemsBuilder_;
+        }
+
+        private int maxWaitSec_ ;
+        /**
+         * <pre>
+         * 最大等待时间秒
+         * </pre>
+         *
+         * <code>int32 maxWaitSec = 2;</code>
+         * @return The maxWaitSec.
+         */
+        @Override
+        public int getMaxWaitSec() {
+          return maxWaitSec_;
+        }
+        /**
+         * <pre>
+         * 最大等待时间秒
+         * </pre>
+         *
+         * <code>int32 maxWaitSec = 2;</code>
+         * @param value The maxWaitSec to set.
+         * @return This builder for chaining.
+         */
+        public Builder setMaxWaitSec(int value) {
+          
+          maxWaitSec_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <pre>
+         * 最大等待时间秒
+         * </pre>
+         *
+         * <code>int32 maxWaitSec = 2;</code>
+         * @return This builder for chaining.
+         */
+        public Builder clearMaxWaitSec() {
+          
+          maxWaitSec_ = 0;
+          onChanged();
+          return this;
         }
         @Override
         public final Builder setUnknownFields(
@@ -3225,17 +3315,17 @@ public final class StorageApiReqWrapper {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\023StorageApiReq.proto\"\333\002\n\rStorageApiReq\022" +
+      "\n\023StorageApiReq.proto\"\357\002\n\rStorageApiReq\022" +
       "\'\n\007apiType\030\001 \001(\0162\026.StorageApiReq.ApiType" +
       "\022+\n\tputMsgReq\030\002 \001(\0132\030.StorageApiReq.PutM" +
       "sgReq\022/\n\013fetchMsgReq\030\003 \001(\0132\032.StorageApiR" +
-      "eq.FetchMsgReq\032[\n\tPutMsgReq\0222\n\010msgItems\030" +
-      "\001 \003(\0132 .StorageApiReq.PutMsgReq.MsgItem\032" +
-      "\032\n\007MsgItem\022\017\n\007content\030\001 \001(\014\0327\n\013FetchMsgR" +
-      "eq\022\016\n\006offset\030\001 \001(\003\022\030\n\020followerHostname\030\002" +
-      " \001(\t\"-\n\007ApiType\022\013\n\007PRODUCT\020\000\022\t\n\005FETCH\020\001\022" +
-      "\n\n\006COMMIT\020\002B\026B\024StorageApiReqWrapperb\006pro" +
-      "to3"
+      "eq.FetchMsgReq\032o\n\tPutMsgReq\0222\n\010msgItems\030" +
+      "\001 \003(\0132 .StorageApiReq.PutMsgReq.MsgItem\022" +
+      "\022\n\nmaxWaitSec\030\002 \001(\005\032\032\n\007MsgItem\022\017\n\007conten" +
+      "t\030\001 \001(\014\0327\n\013FetchMsgReq\022\016\n\006offset\030\001 \001(\003\022\030" +
+      "\n\020followerHostname\030\002 \001(\t\"-\n\007ApiType\022\013\n\007P" +
+      "RODUCT\020\000\022\t\n\005FETCH\020\001\022\n\n\006COMMIT\020\002B\026B\024Stora" +
+      "geApiReqWrapperb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -3252,7 +3342,7 @@ public final class StorageApiReqWrapper {
     internal_static_StorageApiReq_PutMsgReq_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_StorageApiReq_PutMsgReq_descriptor,
-        new String[] { "MsgItems", });
+        new String[] { "MsgItems", "MaxWaitSec", });
     internal_static_StorageApiReq_PutMsgReq_MsgItem_descriptor =
       internal_static_StorageApiReq_PutMsgReq_descriptor.getNestedTypes().get(0);
     internal_static_StorageApiReq_PutMsgReq_MsgItem_fieldAccessorTable = new

@@ -5,16 +5,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.net.NetworkClient;
 import org.scalingmq.common.utils.Tuple;
+import org.scalingmq.route.client.RouteAppClient;
+import org.scalingmq.route.client.conf.RouteClientConfig;
+import org.scalingmq.route.client.entity.IsrUpdateReqWrapper;
 import org.scalingmq.storage.api.StorageApiReqWrapper;
 import org.scalingmq.storage.api.StorageApiResWrapper;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.replicate.entity.FollowerOffsetProgressReport;
+import org.scalingmq.storage.core.replicate.raft.PeerFinder;
 import org.scalingmq.storage.core.replicate.raft.RaftCore;
 import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -42,7 +48,36 @@ public class ReplicateController {
          *                tuple one long -> 复制offset
          *                tuple two long -> timestamp
          */
-        private static final Map<String, Tuple.TwoTuple<Long, Long>> FOLLOWER_PROGRESS_MAP = new ConcurrentHashMap<>();
+        private static final Map<String, Tuple.TwoTuple<Long, Long>> FOLLOWER_PROGRESS_MAP = new HashMap<>();
+
+        private static final ScheduledThreadPoolExecutor ISR_REPORT_SCHEDULE_POOL
+                = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "leader-check-isr-task-thread"));
+
+        /**
+         * isr列表
+         */
+        private static final Set<String> ISR_ADDR = new CopyOnWriteArraySet<>();
+
+        /**
+         * 元数据节点通信客户端
+         */
+        private static final RouteAppClient ROUTE_APP_CLIENT = RouteAppClient.getInstance();
+
+        static {
+            RouteAppClient.getInstance().initConfig(
+                    RouteClientConfig.builder()
+                            .serverAddr(StorageConfig.getInstance().getRouteServerAddr())
+                            .serverPort(Integer.valueOf(StorageConfig.getInstance().getRouteServerPort()))
+                            .threadCount(StorageConfig.getInstance().getRouteClientThreadCount())
+                            .build());
+        }
+
+        private static boolean SCHEDULED = false;
+
+        /**
+         * term
+         */
+        private static int TERM = 0;
 
         /**
          * 存储从节点的复制进度
@@ -54,7 +89,8 @@ public class ReplicateController {
             try {
                 Tuple.TwoTuple<Long, Long> tuple = FOLLOWER_PROGRESS_MAP.get(followerOffsetProgressReport.getFollowerHostname());
                 if (tuple == null) {
-                    FOLLOWER_PROGRESS_MAP.put(followerOffsetProgressReport.getFollowerHostname(),
+                    FOLLOWER_PROGRESS_MAP.put(IocContainer.getInstance().getObj(PeerFinder.class)
+                                    .returnPeerFullPath(followerOffsetProgressReport.getFollowerHostname()),
                             // 当前复制完成后的offset
                             Tuple.tuple(followerOffsetProgressReport.getLastFetchOffset(),
                                     // 时间戳
@@ -67,6 +103,89 @@ public class ReplicateController {
             }
         }
 
+        /**
+         * 定时检查isr的情况
+         */
+        public static void scheduleIsr(int term) {
+            synchronized (ReplicateController.class) {
+                if (SCHEDULED && TERM == term) {
+                    return;
+                }
+                SCHEDULED = true;
+                TERM = term;
+                // 添加上自己
+                ISR_ADDR.add(IocContainer.getInstance().getObj(PeerFinder.class)
+                        .returnPeerFullPath(StorageConfig.getInstance().getHostname()) + ":" + StorageConfig.MSG_PORT);
+            }
+            ISR_REPORT_SCHEDULE_POOL.scheduleWithFixedDelay(() -> {
+                Lock lock = FOLLOWER_OFFSET_RW_LOCK.readLock();
+                lock.lock();
+                try {
+                    for (Map.Entry<String, Tuple.TwoTuple<Long, Long>> hostnameOffsetEntry : FOLLOWER_PROGRESS_MAP.entrySet()) {
+                        Tuple.TwoTuple<Long, Long> offsetAndTimestamp = hostnameOffsetEntry.getValue();
+                        if (offsetAndTimestamp.second + StorageConfig.getInstance().getMaxPartitionBackwardTime() < System.currentTimeMillis()) {
+                            // 移除这个node
+                            if (log.isDebugEnabled()) {
+                                log.debug("isr列表中节点:{}拉取时间超过最大允许时间:{}ms, 最后拉取时间:{}, offset:{}",
+                                        hostnameOffsetEntry.getKey(),
+                                        StorageConfig.getInstance().getMaxPartitionBackwardTime(),
+                                        offsetAndTimestamp.second,
+                                        offsetAndTimestamp.first);
+                            }
+                            ISR_ADDR.remove(hostnameOffsetEntry.getKey());
+                            continue;
+                        }
+                        boolean add = ISR_ADDR.add(hostnameOffsetEntry.getKey());
+                        if (add && log.isDebugEnabled()) {
+                            log.debug("isr列表新增加节点:{}, 最后拉取时间:{}, offset:{}",
+                                    hostnameOffsetEntry.getKey(), offsetAndTimestamp.second, offsetAndTimestamp.first);
+                        }
+                    }
+                    // 上报ISR列表
+                    IsrUpdateReqWrapper.IsrUpdateReq isrUpdateReq = IsrUpdateReqWrapper.IsrUpdateReq.newBuilder()
+                            .setTopicName(StorageConfig.getInstance().getTopicName())
+                            .setPartitionNum(Integer.parseInt(StorageConfig.getInstance().getPartitionNum()))
+                            .addAllIsrAddrs(ISR_ADDR.stream().map(
+                                    addr -> addr + ":" + StorageConfig.MSG_PORT
+                            ).toList())
+                            .setTerm(TERM)
+                            .build();
+                    try {
+                        ROUTE_APP_CLIENT.reportIsrData(isrUpdateReq);
+                    } catch (Exception e) {
+                        log.error("上报元数据异常", e);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }, 10L, 3L, TimeUnit.SECONDS);
+        }
+
+        /**
+         * 检查ISR的复制进度
+         * @param offset 检查点
+         * @return 是否都复制超过
+         */
+        public static boolean checkIsrOffset(long offset) {
+            Lock lock = FOLLOWER_OFFSET_RW_LOCK.readLock();
+            lock.lock();
+            try {
+                int count = ISR_ADDR.size();
+                int replicatedCount = 0;
+                for (String isr : ISR_ADDR) {
+                    Tuple.TwoTuple<Long, Long> offsetAndTimestamp = FOLLOWER_PROGRESS_MAP.get(isr);
+                    if (offsetAndTimestamp != null) {
+                        if (offsetAndTimestamp.first >= offset) {
+                            replicatedCount++;
+                        }
+                    }
+                }
+                return (replicatedCount >= count);
+            } finally {
+                lock.unlock();
+            }
+
+        }
     }
 
     /**

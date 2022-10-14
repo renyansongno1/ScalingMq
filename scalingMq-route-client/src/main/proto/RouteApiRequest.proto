@@ -5,6 +5,7 @@ option java_outer_classname = "RouteReqWrapper";
 import 'FetchTopicMetadataReq.proto';
 import 'PutTopicMetadataReq.proto';
 import 'SchedStoragePodReq.proto';
+import 'IsrUpdateReq.proto';
 
 message RouteReq {
 
@@ -15,6 +16,8 @@ message RouteReq {
     PUT_TOPIC_METADATA = 1;
     // 调度生成存储pod
     SCHED_STORAGE_POD = 2;
+    // 更新ISR
+    ISR_UPDATE = 3;
   }
 
   // 请求类型
@@ -28,5 +31,8 @@ message RouteReq {
 
   // 调度创建存储pod请求
   SchedStoragePodReq schedStoragePodReq = 4;
+
+  // isr更新的请求
+    IsrUpdateReq isrUpdateReq = 5;
 
 }

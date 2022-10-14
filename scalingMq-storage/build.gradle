@@ -28,7 +28,8 @@ dependencies {
             'dnsjava:dnsjava:3.5.1',
 
             project(":scalingMq-storage-api"),
-            project(":scalingMq-common")
+            project(":scalingMq-common"),
+            project(":scalingMq-route-client")
     )
 }
 

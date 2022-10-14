@@ -1,9 +1,12 @@
 package org.scalingmq.storage.aggr;
 
 import com.google.protobuf.ByteString;
+import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.common.net.NetworkClient;
+import org.scalingmq.common.timer.Timer;
+import org.scalingmq.common.timer.TimerTask;
 import org.scalingmq.storage.api.StorageApiReqWrapper;
 import org.scalingmq.storage.api.StorageApiResWrapper;
 import org.scalingmq.storage.conf.StorageConfig;
@@ -26,6 +29,8 @@ public class MsgAggrService {
 
     private static final MsgAggrService INSTANCE = new MsgAggrService();
 
+    private static final Timer TIMER = new Timer(20, 1024);
+
     private MsgAggrService() {
         if (INSTANCE != null) {
             throw new RuntimeException("not support reflect invoke");
@@ -39,9 +44,8 @@ public class MsgAggrService {
     /**
      * 追加消息
      * @param req 追加消息请求
-     * @return 追加响应
      */
-    public StorageApiResWrapper.PutMsgRes putMsg(StorageApiReqWrapper.StorageApiReq.PutMsgReq req) {
+    public void putMsg(StorageApiReqWrapper.StorageApiReq.PutMsgReq req, Channel channel) {
         // 1. 判断当前节点是不是leader
         RaftCore raftCore = IocContainer.getInstance().getObj(RaftCore.class);
         if (!raftCore.isLeader()) {
@@ -70,7 +74,8 @@ public class MsgAggrService {
                 ExceptionCodeEnum exceptionCodeEnum = ExceptionCodeEnum.getCodeByStr(res.getErrorCode());
                 throw new StorageBaseException(exceptionCodeEnum, res.getErrorMsg());
             }
-            return res.getPutMsgRes();
+            channel.writeAndFlush(res.getPutMsgRes());
+            return;
         }
         // 2. 本地追加
         List<StorageApiReqWrapper.StorageApiReq.PutMsgReq.MsgItem> msgItemsList = req.getMsgItemsList();
@@ -81,12 +86,24 @@ public class MsgAggrService {
         if (offset == 0L) {
             throw new StorageBaseException(ExceptionCodeEnum.UNKNOWN, "未知错误 append null");
         }
+        // 挂起响应 等待消息复制
+        long finalOffset = offset;
+        TIMER.addTask(new TimerTask(req.getMaxWaitSec(), () -> {
+            // 检查复制的位点
+            boolean result = ReplicateController.LeaderController.checkIsrOffset(finalOffset);
+            if (!result) {
+                // 返回超时异常
+                throw new StorageBaseException(ExceptionCodeEnum.PRODUCE_TIMEOUT, "wait follower fetch timeout");
+            }
 
-        return StorageApiResWrapper.PutMsgRes.newBuilder()
-                // TODO: 2022/9/27 MSG ID  生成策略
-                .setMsgId("null")
-                .setOffset(offset)
-                .build();
+            StorageApiResWrapper.PutMsgRes msgRes = StorageApiResWrapper.PutMsgRes.newBuilder()
+                    // TODO: 2022/9/27 MSG ID  生成策略
+                    .setMsgId("null")
+                    .setOffset(finalOffset)
+                    .build();
+            channel.writeAndFlush(msgRes);
+        }));
+
     }
 
     /**

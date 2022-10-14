@@ -3,6 +3,7 @@ package org.scalingmq.route.manager;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.kubernetes.api.K8sApiClient;
+import org.scalingmq.route.client.entity.IsrUpdateReqWrapper;
 import org.scalingmq.route.conf.RouteConfig;
 import org.scalingmq.route.manager.template.StoragePodTemplate;
 import org.scalingmq.route.manager.template.StorageServiceTemplate;
@@ -32,6 +33,11 @@ public class RouteManager {
      */
     private static final String SRV_NAME_SUFFIX = ".svc.cluster.local";
 
+    /**
+     * isr更新的term缓存
+     */
+    private static int CACHED_ISR_UPDATE_TERM = 0;
+
     private RouteManager() {
         if (INSTANCE != null) {
             throw new RuntimeException("not support reflect invoke");
@@ -48,11 +54,15 @@ public class RouteManager {
      * @param topicName topic名
      */
     public boolean scheduleStoragePods(String topicName) {
-        log.debug("开始为:{}, 调用存储pod", topicName);
+        if (log.isDebugEnabled()) {
+            log.debug("开始为:{}, 调用存储pod", topicName);
+        }
         // 查询topic元数据
         TopicMetadata topicMetadata = MetaDataManager.getInstance().getTopicMetadata(topicName);
         if (topicMetadata == null) {
-            log.debug("topic元数据为空, 跳过调度pods");
+            if (log.isDebugEnabled()) {
+                log.debug("topic元数据为空, 跳过调度pods");
+            }
             return false;
         }
         // 调出创建存储节点的pod
@@ -69,6 +79,30 @@ public class RouteManager {
             return MetaDataManager.getInstance().updateTopicMetadata(topicName, jsonPatch);
         }
         return false;
+    }
+
+    /**
+     * 更新ISR操作
+     * @param req isr更新请求
+     */
+    public void updateIsrMetadata(IsrUpdateReqWrapper.IsrUpdateReq req) {
+        // TODO: 2022/10/14 元数据的更新 需要使用raft协议支持 不然集群后的route节点没有leader 数据不一致
+        if (log.isDebugEnabled()) {
+            log.debug("收到isr的更新请求:{}", req);
+        }
+        if (req.getTerm() < CACHED_ISR_UPDATE_TERM) {
+            log.warn("收到了小于上次更新的isr元数据的term:{}, 上次term:{}, 忽略更新", req.getTerm(), CACHED_ISR_UPDATE_TERM);
+            return;
+        }
+        CACHED_ISR_UPDATE_TERM = req.getTerm();
+        // 更新元数据
+        String jsonPatch =
+                """
+                [
+                 { "op": "replace", "path": "/partitionMetadataList/%s/isrStoragePodNums", "value": %s}
+                ]
+                """.formatted(req.getPartitionNum(), GSON.toJson(req.getIsrAddrsList()));
+        MetaDataManager.getInstance().updateTopicMetadata(req.getTopicName(), jsonPatch);
     }
 
     private List<PartitionMetadata> scheduleStoragePods0(String topicName, Integer partitions, Integer replicatorFactor) {
@@ -104,6 +138,11 @@ public class RouteManager {
             }
 
             StoragePodTemplate storagePodTemplate = new StoragePodTemplate(storageServiceTemplate);
+
+            // 设置topic的一些元数据环境变量 传递下去
+            storagePodTemplate.addPartitionNumConfig(partition);
+            storagePodTemplate.addTopicConfig(topicName);
+            // 继续添加其他的数据
             storagePodTemplate.getContainerPorts().add(Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodPort()));
             storagePodTemplate.getContainerPorts().add(Integer.valueOf(RouteConfig.getInstance().getScheduleStoragePodRaftPort()));
             storagePodTemplate.getContainerPortNames().add(RouteConfig.getInstance().getScheduleStoragePodPortName());
@@ -154,6 +193,7 @@ public class RouteManager {
             PartitionMetadata partitionMetadata = PartitionMetadata.builder()
                     .partitionNum(partition)
                     .storagePodNums(partitionPodNameStrList)
+                    .isrStoragePodNums(new ArrayList<>(0))
                     .build();
 
             partitionMetadataList.add(partitionMetadata);

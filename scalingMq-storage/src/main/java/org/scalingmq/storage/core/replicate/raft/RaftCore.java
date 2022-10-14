@@ -469,6 +469,9 @@ public class RaftCore implements Lifecycle {
                     0L,
                     HEARTBEAT_INTERVAL_MS,
                     TimeUnit.MILLISECONDS);
+
+            // 开启检查ISR的任务，上报ISR的信息到元数据里面
+            ReplicateController.LeaderController.scheduleIsr(Math.toIntExact(concurrentTerm));
         }
     }
 
@@ -622,6 +625,7 @@ public class RaftCore implements Lifecycle {
                     RaftResWrapper.RaftRes raftRes = raftResFuture.get(1000L, TimeUnit.MILLISECONDS);
                     // 处理请求
                     if (raftRes != null) {
+                        // TODO: 2022/10/13 少于半数的心跳回应 需要先暂停使用 防止网络分区
                         RaftHeartbeatResWrapper.RaftHeartbeatRes raftHeartbeatRes = raftRes.getRaftHeartbeatRes();
                         if (raftHeartbeatRes.getResType().equals(RaftHeartbeatResWrapper.RaftHeartbeatRes.ResponseType.TERM_EXPIRED)) {
                             synchronized (STATE_LOCK) {

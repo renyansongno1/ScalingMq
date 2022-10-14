@@ -96,4 +96,43 @@ public class StorageConfig {
      */
     private String maxFetchMsgMb = "1";
 
+    /**
+     * 分区副本最大允许落后的时间
+     */
+    private Integer maxPartitionBackwardTime = 10 * 1000;
+
+    /**
+     * 业务线程数
+     */
+    private Integer serviceThreadCount = 10;
+
+    /**
+     * 元数据节点的地址
+     */
+    @EnvironmentVariable("ROUTE_SERVER_ADDR")
+    private String routeServerAddr;
+
+    /**
+     * 元数据节点的端口
+     */
+    @EnvironmentVariable("ROUTE_SERVER_PORT")
+    private String routeServerPort;
+
+    /**
+     * 元数据通信客户端线程数
+     */
+    private Integer routeClientThreadCount = 2;
+
+    /**
+     * topic
+     */
+    @EnvironmentVariable("TOPIC_NAME")
+    private String topicName;
+
+    /**
+     * 分区号
+     */
+    @EnvironmentVariable("PARTITION_NUM")
+    private String partitionNum;
+
 }

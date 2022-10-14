@@ -15,6 +15,9 @@ public enum ExceptionCodeEnum {
 
     // 没有找到对应的数据
     FETCH_MISS("fetch miss"),
+
+    // 发送消息等待复制超时
+    PRODUCE_TIMEOUT("produce timeout")
     ;
 
     private final String code;

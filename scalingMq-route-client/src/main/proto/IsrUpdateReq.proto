@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_outer_classname = "IsrUpdateReqWrapper";
+
+message IsrUpdateReq {
+
+  // 所属topic
+  string topicName = 1;
+
+  // 分区号
+  int32 partitionNum = 2;
+
+  // isr列表
+  repeated string isrAddrs = 3;
+
+  // 当前leader的term
+  int32 term = 4;
+}

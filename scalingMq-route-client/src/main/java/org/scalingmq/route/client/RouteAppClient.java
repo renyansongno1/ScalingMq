@@ -142,6 +142,22 @@ public class RouteAppClient {
     }
 
     /**
+     * 上报isr元数据
+     * @param req isr更新请求
+     * @throws Exception 异常信息
+     */
+    public void reportIsrData(IsrUpdateReqWrapper.IsrUpdateReq req) throws Exception {
+        RouteReqWrapper.RouteReq routeReq = RouteReqWrapper.RouteReq.newBuilder()
+                .setReqType(RouteReqWrapper.RouteReq.ReqType.ISR_UPDATE)
+                .setIsrUpdateReq(req)
+                .build();
+        RouteResWrapper.RouteApiRes res = netThreadPool.submit(new NetCallTask(routeReq)).get();
+        if (!"".equals(res.getErrorMsg())) {
+            log.error("上报isr元数据异常:{}", res.getErrorMsg());
+        }
+    }
+
+    /**
      * 异步调用任务
      */
     private class NetCallTask implements Callable<RouteResWrapper.RouteApiRes> {

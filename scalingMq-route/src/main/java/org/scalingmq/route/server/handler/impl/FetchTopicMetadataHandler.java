@@ -2,6 +2,7 @@ package org.scalingmq.route.server.handler.impl;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.route.client.entity.FetchTopicMetadataReqWrapper;
 import org.scalingmq.route.client.entity.FetchTopicMetadataResultWrapper;
@@ -18,17 +19,18 @@ import java.util.List;
  * @author renyansong
  */
 @Slf4j
-public class FetchTopicMetadataHandler implements RequestHandler<FetchTopicMetadataReqWrapper.FetchTopicMetadataReq, RouteResWrapper.RouteApiRes> {
+public class FetchTopicMetadataHandler implements RequestHandler<FetchTopicMetadataReqWrapper.FetchTopicMetadataReq> {
 
     private static final Gson GSON = new Gson();
 
     @Override
-    public RouteResWrapper.RouteApiRes handle(FetchTopicMetadataReqWrapper.FetchTopicMetadataReq fetchTopicMetadataReq) {
+    public void handle(FetchTopicMetadataReqWrapper.FetchTopicMetadataReq fetchTopicMetadataReq, Channel channel) {
         log.debug("查询topic元数据请求:{}", fetchTopicMetadataReq.toString());
         TopicMetadata topicMetadata = MetaDataManager.getInstance().getTopicMetadata(fetchTopicMetadataReq.getTopicName());
         RouteResWrapper.RouteApiRes.Builder builder = RouteResWrapper.RouteApiRes.newBuilder();
         if (topicMetadata == null) {
-            return builder.build();
+            channel.writeAndFlush(builder.build());
+            return;
         }
         FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.Builder fetchResultBuilder = FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.newBuilder()
                 .setTopicName(topicMetadata.getTopicName())
@@ -63,9 +65,9 @@ public class FetchTopicMetadataHandler implements RequestHandler<FetchTopicMetad
                         );
             }
         }
-        return builder.setFetchTopicMetadataResult(
+        channel.writeAndFlush(builder.setFetchTopicMetadataResult(
                 fetchResultBuilder
-                ).build();
+                ).build());
     }
 
 }

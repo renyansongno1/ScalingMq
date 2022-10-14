@@ -22,6 +22,9 @@ message StorageApiReq {
     // 消息集
     repeated PutMsgReq.MsgItem msgItems = 1;
 
+    // 最大等待时间秒
+    int32 maxWaitSec = 2;
+
     // 消息数据
     message MsgItem {
       // 数据 bytes
