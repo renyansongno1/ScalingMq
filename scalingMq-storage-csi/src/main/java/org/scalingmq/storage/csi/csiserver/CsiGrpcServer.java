@@ -17,7 +17,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.scalingmq.storage.csi.config.StorageConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.scalingmq.storage.csi.config.StorageCsiConfig;
 
 import java.nio.file.Path;
 
@@ -25,15 +26,16 @@ import java.nio.file.Path;
  * k8s CSI插件 服务端
  * @author renyansong
  */
+@Slf4j
 public class CsiGrpcServer {
 
-    private static final String PLUGIN_NAME = "org.scalingmq.storage";
+    private Server server;
 
     /**
      * 启动一个Server端 监听请求
      */
     public void start(String unixPath) throws Exception {
-        Server server = NettyServerBuilder
+        server = NettyServerBuilder
                 .forAddress(new DomainSocketAddress(Path.of(unixPath).toFile()))
                 .channelType(generateChannelType())
                 .workerEventLoopGroup(generateWorkGroup())
@@ -82,16 +84,23 @@ public class CsiGrpcServer {
         return NioServerSocketChannel.class;
     }
 
+    public void stop() {
+        if (server != null) {
+            server.shutdown();
+        }
+    }
+
     /**
      * 对于k8s来识别插件身份信息的接口实现
      */
     private static class IdentityService extends IdentityGrpc.IdentityImplBase {
         @Override
         public void getPluginInfo(Csi.GetPluginInfoRequest request, StreamObserver<Csi.GetPluginInfoResponse> responseObserver) {
+            log.info("收到plugin info请求:{}", request);
             Csi.GetPluginInfoResponse response = Csi.GetPluginInfoResponse.getDefaultInstance();
             response.toBuilder()
-                    .setName(PLUGIN_NAME)
-                    .setVendorVersion(StorageConfig.getCliVersion())
+                    .setName(StorageCsiConfig.CSI_PLUGIN_NAME)
+                    .setVendorVersion(StorageCsiConfig.getCliVersion())
                     .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -140,76 +149,91 @@ public class CsiGrpcServer {
 
     /**
      * 对于pv的一些能力控制
+     * 构建pv之后，会触发如何管理这些volume，还有扩容的时候
      */
     private static class ControllerService extends ControllerGrpc.ControllerImplBase {
         @Override
         public void createVolume(Csi.CreateVolumeRequest request, StreamObserver<Csi.CreateVolumeResponse> responseObserver) {
+            log.info("收到volume创建请求:{}", request);
             super.createVolume(request, responseObserver);
         }
 
         @Override
         public void deleteVolume(Csi.DeleteVolumeRequest request, StreamObserver<Csi.DeleteVolumeResponse> responseObserver) {
+            log.info("收到volume删除请求:{}", request);
             super.deleteVolume(request, responseObserver);
         }
 
         @Override
         public void controllerPublishVolume(Csi.ControllerPublishVolumeRequest request, StreamObserver<Csi.ControllerPublishVolumeResponse> responseObserver) {
+            log.info("收到volume publish请求, attach阶段:{}", request);
             super.controllerPublishVolume(request, responseObserver);
         }
 
         @Override
         public void controllerUnpublishVolume(Csi.ControllerUnpublishVolumeRequest request, StreamObserver<Csi.ControllerUnpublishVolumeResponse> responseObserver) {
+            log.info("收到volume unPublish请求:{}", request);
             super.controllerUnpublishVolume(request, responseObserver);
         }
 
         @Override
         public void validateVolumeCapabilities(Csi.ValidateVolumeCapabilitiesRequest request, StreamObserver<Csi.ValidateVolumeCapabilitiesResponse> responseObserver) {
+            log.info("收到volume 验证请求:{}", request);
             super.validateVolumeCapabilities(request, responseObserver);
         }
 
         @Override
         public void listVolumes(Csi.ListVolumesRequest request, StreamObserver<Csi.ListVolumesResponse> responseObserver) {
+            log.info("收到volume list请求:{}", request);
             super.listVolumes(request, responseObserver);
         }
 
         @Override
         public void getCapacity(Csi.GetCapacityRequest request, StreamObserver<Csi.GetCapacityResponse> responseObserver) {
+            log.info("收到capacity请求:{}", request);
             super.getCapacity(request, responseObserver);
         }
 
         @Override
         public void controllerGetCapabilities(Csi.ControllerGetCapabilitiesRequest request, StreamObserver<Csi.ControllerGetCapabilitiesResponse> responseObserver) {
+            log.info("收到get capacity请求:{}", request);
             super.controllerGetCapabilities(request, responseObserver);
         }
 
         @Override
         public void createSnapshot(Csi.CreateSnapshotRequest request, StreamObserver<Csi.CreateSnapshotResponse> responseObserver) {
+            log.info("收到创建快照请求:{}", request);
             super.createSnapshot(request, responseObserver);
         }
 
         @Override
         public void deleteSnapshot(Csi.DeleteSnapshotRequest request, StreamObserver<Csi.DeleteSnapshotResponse> responseObserver) {
+            log.info("收到删除快照请求:{}", request);
             super.deleteSnapshot(request, responseObserver);
         }
 
         @Override
         public void listSnapshots(Csi.ListSnapshotsRequest request, StreamObserver<Csi.ListSnapshotsResponse> responseObserver) {
+            log.info("收到查看快照列表请求:{}", request);
             super.listSnapshots(request, responseObserver);
         }
 
         @Override
         public void controllerExpandVolume(Csi.ControllerExpandVolumeRequest request, StreamObserver<Csi.ControllerExpandVolumeResponse> responseObserver) {
+            log.info("收到volume扩容请求:{}", request);
             super.controllerExpandVolume(request, responseObserver);
         }
 
         @Override
         public void controllerGetVolume(Csi.ControllerGetVolumeRequest request, StreamObserver<Csi.ControllerGetVolumeResponse> responseObserver) {
+            log.info("收到查看volume请求:{}", request);
             super.controllerGetVolume(request, responseObserver);
         }
     }
 
     /**
      * 对于节点的能力
+     * 主要处理mount阶段 将磁盘格式化并挂载
      */
     private static class NodeService extends NodeGrpc.NodeImplBase {
         @Override

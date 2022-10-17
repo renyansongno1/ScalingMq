@@ -1,0 +1,162 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: scalingmq-storage-csi
+  namespace: kube-system
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: org.scalingmq.csi
+---
+kind: DaemonSet
+apiVersion: apps/v1beta2
+metadata:
+  name: scalingmq-storage-csi-node
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: scalingmq-storage-csi-node
+  template:
+    metadata:
+      labels:
+        app: scalingmq-storage-csi-node
+        role: scalingmq-storage-csi
+    spec:
+      serviceAccount: scalingmq-storage-csi-sa
+      hostNetwork: true
+      containers:
+        - name: scalingmq-storage-csi
+          image: scalingmq-csi:v1.0
+          imagePullPolicy: "Always"
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+---
+kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+  name: csi-do-controller
+  namespace: kube-system
+spec:
+  serviceName: "csi-do"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: csi-do-controller
+        role: csi-do
+    spec:
+      priorityClassName: system-cluster-critical
+      serviceAccount: csi-do-controller-sa
+      containers:
+        - name: csi-provisioner
+          image: quay.io/k8scsi/csi-provisioner:v0.3.0
+          args:
+            - "--provisioner=org.scalingmq.csi"
+            - "--csi-address=$(ADDRESS)"
+            - "--v=5"
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/org.scalingmq.csi/csi.sock
+          imagePullPolicy: "Always"
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy/
+        - name: csi-attacher
+          image: quay.io/k8scsi/csi-attacher:v0.3.0
+          args:
+            - "--v=5"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/org.scalingmq.csi/csi.sock
+          imagePullPolicy: "Always"
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/org.scalingmq.csi/
+        - name: scalingmq-storage-csi
+            image: scalingmq-csi:v1.0
+            imagePullPolicy: "Always"
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/org.scalingmq.csi/
+      volumes:
+        - name: socket-dir
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scalingmq-storage-csi-sa
+  namespace: kube-system
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-do-driver-registrar-binding
+  namespace: kube-system
+subjects:
+  - kind: ServiceAccount
+    name: scalingmq-storage-csi-sa
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: csi-do-driver-registrar-role
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-do-driver-registrar-role
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "update"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["list", "watch", "create", "update", "patch"]
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: csi-do-controller-sa
+  namespace: kube-system
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-do-controller-provisioner-binding
+  namespace: kube-system
+subjects:
+  - kind: ServiceAccount
+    name: csi-do-controller-sa
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: system:csi-external-provisioner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-do-controller-attacher-binding
+  namespace: kube-system
+subjects:
+  - kind: ServiceAccount
+    name: csi-do-controller-sa
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: system:csi-external-attacher
+  apiGroup: rbac.authorization.k8s.io
+
+---

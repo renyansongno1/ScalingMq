@@ -1,8 +1,15 @@
 apply plugin: "com.google.protobuf"
+apply plugin: 'com.bmuschko.docker-java-application'
 
 buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
     dependencies {
         classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+        classpath('com.bmuschko:gradle-docker-plugin:7.4.0')
     }
 }
 
@@ -12,6 +19,8 @@ dependencies {
             'io.grpc:grpc-protobuf:1.40.2',
             'io.grpc:grpc-netty:1.40.2',
             'io.netty:netty-all:4.1.80.Final',
+            'ch.qos.logback:logback-core:1.2.3',
+            'ch.qos.logback:logback-classic:1.2.3',
 
             project(':scalingMq-common')
     )
@@ -57,4 +66,14 @@ protobuf {
 
 clean {
     delete protobuf.generatedFilesBaseDir
+}
+
+
+docker {
+    javaApplication {
+        baseImage = 'jdk17-centos7:1.0'
+        ports = []
+        images = ['scalingmq-csi:v1.0', 'scalingmq-csi:latest']
+        jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']
+    }
 }
