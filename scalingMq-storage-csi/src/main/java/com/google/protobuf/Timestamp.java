@@ -483,7 +483,7 @@ private static final long serialVersionUID = 0L;
 
     @java.lang.Override
     public com.google.protobuf.Timestamp getDefaultInstanceForType() {
-      return getDefaultInstance();
+      return com.google.protobuf.Timestamp.getDefaultInstance();
     }
 
     @java.lang.Override
@@ -547,7 +547,7 @@ private static final long serialVersionUID = 0L;
     }
 
     public Builder mergeFrom(com.google.protobuf.Timestamp other) {
-      if (other == getDefaultInstance()) return this;
+      if (other == com.google.protobuf.Timestamp.getDefaultInstance()) return this;
       if (other.getSeconds() != 0L) {
         setSeconds(other.getSeconds());
       }

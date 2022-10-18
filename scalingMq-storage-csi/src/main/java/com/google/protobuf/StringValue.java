@@ -348,7 +348,7 @@ private static final long serialVersionUID = 0L;
 
     @java.lang.Override
     public com.google.protobuf.StringValue getDefaultInstanceForType() {
-      return getDefaultInstance();
+      return com.google.protobuf.StringValue.getDefaultInstance();
     }
 
     @java.lang.Override
@@ -411,7 +411,7 @@ private static final long serialVersionUID = 0L;
     }
 
     public Builder mergeFrom(com.google.protobuf.StringValue other) {
-      if (other == getDefaultInstance()) return this;
+      if (other == com.google.protobuf.StringValue.getDefaultInstance()) return this;
       if (!other.getValue().isEmpty()) {
         value_ = other.value_;
         onChanged();

@@ -2,6 +2,7 @@ package org.scalingmq.storage.csi;
 
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.lifecycle.Lifecycle;
+import org.scalingmq.common.utils.PropertiesUtil;
 import org.scalingmq.storage.csi.config.StorageCsiConfig;
 import org.scalingmq.storage.csi.csiserver.CsiGrpcServer;
 
@@ -16,6 +17,8 @@ public class StorageCSIApplication {
     private static volatile boolean STOP = false;
 
     public static void main(String[] args) {
+        // 加载配置文件
+        PropertiesUtil.generateProperties(StorageCSIApplication.class, "application.properties", StorageCsiConfig.CONF_NAME);
 
         // 启动unix socket 监听
         CsiGrpcServer csiGrpcServer = new CsiGrpcServer();

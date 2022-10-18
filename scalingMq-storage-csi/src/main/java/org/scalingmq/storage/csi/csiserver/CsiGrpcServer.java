@@ -12,14 +12,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollServerDomainSocketChannel;
+import io.netty.channel.kqueue.KQueueServerDomainSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.csi.config.StorageCsiConfig;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -35,14 +36,24 @@ public class CsiGrpcServer {
      * 启动一个Server端 监听请求
      */
     public void start(String unixPath) throws Exception {
+        Path path = Path.of(unixPath);
+        if (!Files.exists(path)) {
+            String[] split = unixPath.split("/");
+            String directory = unixPath.replaceAll(split[split.length-1],  "");
+            boolean mkdirs = Path.of(directory).toFile().mkdirs();
+            if (mkdirs) {
+                Files.createFile(path);
+            }
+        }
         server = NettyServerBuilder
-                .forAddress(new DomainSocketAddress(Path.of(unixPath).toFile()))
+                .forAddress(new DomainSocketAddress(path.toFile()))
                 .channelType(generateChannelType())
                 .workerEventLoopGroup(generateWorkGroup())
                 .bossEventLoopGroup(generateBossGroup())
                 .addService(new IdentityService())
                 .addService(new ControllerService())
                 .addService(new NodeService())
+                .directExecutor()
                 .build();
         server.start();
     }
@@ -79,9 +90,9 @@ public class CsiGrpcServer {
      */
     private Class<? extends ServerChannel> generateChannelType() {
         if (Epoll.isAvailable()) {
-            return EpollServerSocketChannel.class;
+            return EpollServerDomainSocketChannel.class;
         }
-        return NioServerSocketChannel.class;
+        return KQueueServerDomainSocketChannel.class;
     }
 
     public void stop() {
@@ -98,11 +109,11 @@ public class CsiGrpcServer {
         public void getPluginInfo(Csi.GetPluginInfoRequest request, StreamObserver<Csi.GetPluginInfoResponse> responseObserver) {
             log.info("收到plugin info请求:{}", request);
             Csi.GetPluginInfoResponse response = Csi.GetPluginInfoResponse.getDefaultInstance();
-            response.toBuilder()
-                    .setName(StorageCsiConfig.CSI_PLUGIN_NAME)
+            Csi.GetPluginInfoResponse.Builder builder = response.toBuilder();
+            builder.setName(StorageCsiConfig.CSI_PLUGIN_NAME)
                     .setVendorVersion(StorageCsiConfig.getCliVersion())
                     .build();
-            responseObserver.onNext(response);
+            responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
         }
 
@@ -112,6 +123,7 @@ public class CsiGrpcServer {
         @Override
         public void getPluginCapabilities(Csi.GetPluginCapabilitiesRequest request,
                                           StreamObserver<Csi.GetPluginCapabilitiesResponse> responseObserver) {
+            log.info("收到 plugin capabilities请求:{}", request);
             Csi.GetPluginCapabilitiesResponse.Builder response = Csi.GetPluginCapabilitiesResponse.getDefaultInstance().toBuilder();
             // 声明是一个Controller
             response.addCapabilities(
@@ -136,10 +148,13 @@ public class CsiGrpcServer {
                                             .setType(Csi.PluginCapability.Service.Type.VOLUME_ACCESSIBILITY_CONSTRAINTS)
                             )
                             .build());
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
         }
 
         @Override
         public void probe(Csi.ProbeRequest request, StreamObserver<Csi.ProbeResponse> responseObserver) {
+            log.info("收到plugin probe请求:{}", request);
             Csi.ProbeResponse.Builder builder = Csi.ProbeResponse.getDefaultInstance().toBuilder();
             Csi.ProbeResponse response = builder.setReady(BoolValue.newBuilder().setValue(true)).build();
             responseObserver.onNext(response);
@@ -197,7 +212,47 @@ public class CsiGrpcServer {
         @Override
         public void controllerGetCapabilities(Csi.ControllerGetCapabilitiesRequest request, StreamObserver<Csi.ControllerGetCapabilitiesResponse> responseObserver) {
             log.info("收到get capacity请求:{}", request);
-            super.controllerGetCapabilities(request, responseObserver);
+            Csi.ControllerGetCapabilitiesResponse.Builder builder = Csi.ControllerGetCapabilitiesResponse.getDefaultInstance().toBuilder();
+            Csi.ControllerGetCapabilitiesResponse response = builder
+                    .addCapabilities(Csi.ControllerServiceCapability.newBuilder()
+                            .setRpc(Csi.ControllerServiceCapability.RPC.newBuilder()
+                                    .setType(
+                                            Csi.ControllerServiceCapability.RPC.Type.EXPAND_VOLUME
+                                    )
+                                    .build())
+                            .build())
+                    .addCapabilities(Csi.ControllerServiceCapability.newBuilder()
+                            .setRpc(Csi.ControllerServiceCapability.RPC.newBuilder()
+                                    .setType(
+                                            Csi.ControllerServiceCapability.RPC.Type.CREATE_DELETE_VOLUME
+                                    )
+                                    .build())
+                            .build())
+                    .addCapabilities(Csi.ControllerServiceCapability.newBuilder()
+                            .setRpc(Csi.ControllerServiceCapability.RPC.newBuilder()
+                                    .setType(
+                                            Csi.ControllerServiceCapability.RPC.Type.GET_VOLUME
+                                    )
+                                    .build())
+                            .build())
+                    .addCapabilities(Csi.ControllerServiceCapability.newBuilder()
+                            .setRpc(Csi.ControllerServiceCapability.RPC.newBuilder()
+                                    .setType(
+                                            Csi.ControllerServiceCapability.RPC.Type.LIST_VOLUMES
+                                    )
+                                    .build())
+                            .build())
+                    .addCapabilities(Csi.ControllerServiceCapability.newBuilder()
+                            .setRpc(Csi.ControllerServiceCapability.RPC.newBuilder()
+                                    .setType(
+                                            Csi.ControllerServiceCapability.RPC.Type.PUBLISH_UNPUBLISH_VOLUME
+                                    )
+                                    .build())
+                            .build())
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
 
         @Override

@@ -1,4 +1,4 @@
-apply plugin: "com.google.protobuf"
+/*apply plugin: "com.google.protobuf"*/
 apply plugin: 'com.bmuschko.docker-java-application'
 
 buildscript {
@@ -17,7 +17,7 @@ dependencies {
     implementation(
             'io.grpc:grpc-stub:1.40.2',
             'io.grpc:grpc-protobuf:1.40.2',
-            'io.grpc:grpc-netty:1.40.2',
+            'io.grpc:grpc-netty:1.50.0',
             'io.netty:netty-all:4.1.80.Final',
             'ch.qos.logback:logback-core:1.2.3',
             'ch.qos.logback:logback-classic:1.2.3',
@@ -37,6 +37,7 @@ tasks.register('cliVersion', Copy) {
     filteringCharset = 'UTF-8'
 }
 
+/*
 protobuf {
     protoc {
         if (osdetector.os == "osx") {
@@ -67,6 +68,7 @@ protobuf {
 clean {
     delete protobuf.generatedFilesBaseDir
 }
+*/
 
 
 docker {
