@@ -32,6 +32,7 @@ import java.util.UUID;
  * k8s CSI插件 服务端
  * @author renyansong
  */
+@SuppressWarnings("ALL")
 @Slf4j
 public class CsiGrpcServer {
 
@@ -289,9 +290,9 @@ public class CsiGrpcServer {
             // 获取当前环境
             StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
             switch (cloudType) {
-                case ALI_YUN -> log.info("使用阿里云环境创建volume");
-                case TENCENT_YUN -> log.info("使用腾讯云环境创建volume");
-                case HUAWEI_YUN -> log.info("使用华为云环境创建volume");
+                case ALI_YUN -> log.info("使用阿里云环境attach volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境attach volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境attach volume");
                 case LOCAL -> {
                     // 本地环境挂载
                     Csi.ControllerPublishVolumeResponse response = builder.putPublishContext("local", publishVolume.toString()).build();
@@ -308,10 +309,31 @@ public class CsiGrpcServer {
             }
         }
 
+        @SuppressWarnings("AlibabaSwitchStatement")
         @Override
         public void controllerUnpublishVolume(Csi.ControllerUnpublishVolumeRequest request, StreamObserver<Csi.ControllerUnpublishVolumeResponse> responseObserver) {
             log.info("收到volume unPublish请求:{}", request);
-            super.controllerUnpublishVolume(request, responseObserver);
+            Csi.ControllerUnpublishVolumeResponse.Builder builder = Csi.ControllerUnpublishVolumeResponse.getDefaultInstance().toBuilder();
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境取消attach volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境取消attach volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境取消attach volume");
+                case LOCAL -> {
+                    // 本地环境挂载
+                    Csi.ControllerUnpublishVolumeResponse response = builder.build();
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的云环境");
+                    responseObserver.onError(Status.INTERNAL
+                            .withDescription(String.format("Method %s is not support cloud env",
+                                    "controllerUnpublishVolume"))
+                            .asRuntimeException());
+                }
+            }
         }
 
         @Override
@@ -417,7 +439,28 @@ public class CsiGrpcServer {
         @Override
         public void nodeStageVolume(Csi.NodeStageVolumeRequest request, StreamObserver<Csi.NodeStageVolumeResponse> responseObserver) {
             log.info("收到node stage volume请求:{}", request);
-            super.nodeStageVolume(request, responseObserver);
+            // 格式化
+            Csi.NodeStageVolumeResponse.Builder builder = Csi.NodeStageVolumeResponse.getDefaultInstance().toBuilder();
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境格式化volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境格式化volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境格式化volume");
+                case LOCAL -> {
+                    // 本地环境挂载
+                    Csi.NodeStageVolumeResponse response = builder.build();
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的云环境");
+                    responseObserver.onError(Status.INTERNAL
+                            .withDescription(String.format("Method %s is not support cloud env",
+                                    "nodeStageVolume"))
+                            .asRuntimeException());
+                }
+            }
         }
 
         @Override
@@ -429,7 +472,28 @@ public class CsiGrpcServer {
         @Override
         public void nodePublishVolume(Csi.NodePublishVolumeRequest request, StreamObserver<Csi.NodePublishVolumeResponse> responseObserver) {
             log.info("收到node publish volume请求:{}", request);
-            super.nodePublishVolume(request, responseObserver);
+            // 挂载阶段
+            Csi.NodePublishVolumeResponse.Builder builder = Csi.NodePublishVolumeResponse.getDefaultInstance().toBuilder();
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境挂载volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境挂载volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境挂载volume");
+                case LOCAL -> {
+                    // 本地环境挂载
+                    Csi.NodePublishVolumeResponse response = builder.build();
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的云环境");
+                    responseObserver.onError(Status.INTERNAL
+                            .withDescription(String.format("Method %s is not support cloud env",
+                                    "nodeStageVolume"))
+                            .asRuntimeException());
+                }
+            }
         }
 
         @Override
@@ -441,7 +505,53 @@ public class CsiGrpcServer {
         @Override
         public void nodeGetVolumeStats(Csi.NodeGetVolumeStatsRequest request, StreamObserver<Csi.NodeGetVolumeStatsResponse> responseObserver) {
             log.info("收到node get volume stats请求:{}", request);
-            super.nodeGetVolumeStats(request, responseObserver);
+            VolumeEntry publishVolume = null;
+            for (VolumeEntry volumeEntry : Metadata.getInstance().getPvcVolumeRelation().values()) {
+                if (volumeEntry.getVolumeId().equals(request.getVolumeId())) {
+                    publishVolume = volumeEntry;
+                    break;
+                }
+            }
+            // 挂载之后 获取挂载的结果
+            Csi.NodeGetVolumeStatsResponse.Builder builder = Csi.NodeGetVolumeStatsResponse.getDefaultInstance().toBuilder();
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境挂载volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境挂载volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境挂载volume");
+                case LOCAL -> {
+                    // 本地环境挂载
+                    Csi.NodeGetVolumeStatsResponse response = builder
+                            .addUsage(
+                                    Csi.VolumeUsage.newBuilder()
+                                            .setAvailable(publishVolume == null ? 0L : publishVolume.getCapacityBytes())
+                                            .setTotal(publishVolume == null ? 0L : publishVolume.getCapacityBytes())
+                                            .setUsed(0L)
+                                            .setUnit(Csi.VolumeUsage.Unit.BYTES)
+                                            .build()
+                            )
+                            .addUsage(
+                                    Csi.VolumeUsage.newBuilder()
+                                            // 文件系统节点的信息
+                                            .setAvailable(publishVolume == null ? 0L : publishVolume.getCapacityBytes())
+                                            .setTotal(publishVolume == null ? 0L : publishVolume.getCapacityBytes())
+                                            .setUsed(0L)
+                                            .setUnit(Csi.VolumeUsage.Unit.INODES)
+                                            .build()
+                            )
+                            .build();
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的云环境");
+                    responseObserver.onError(Status.INTERNAL
+                            .withDescription(String.format("Method %s is not support cloud env",
+                                    "nodeStageVolume"))
+                            .asRuntimeException());
+                }
+            }
         }
 
         @Override
@@ -453,7 +563,25 @@ public class CsiGrpcServer {
         @Override
         public void nodeGetCapabilities(Csi.NodeGetCapabilitiesRequest request, StreamObserver<Csi.NodeGetCapabilitiesResponse> responseObserver) {
             log.info("收到node get capabilities 请求:{}", request);
-            super.nodeGetCapabilities(request, responseObserver);
+            Csi.NodeGetCapabilitiesResponse.Builder builder = Csi.NodeGetCapabilitiesResponse.getDefaultInstance().toBuilder();
+            Csi.NodeGetCapabilitiesResponse response = builder.addCapabilities(Csi.NodeServiceCapability.newBuilder()
+                            .setRpc(Csi.NodeServiceCapability.RPC.newBuilder()
+                                    .setType(Csi.NodeServiceCapability.RPC.Type.EXPAND_VOLUME)
+                                    .build())
+                            .build())
+                    .addCapabilities(Csi.NodeServiceCapability.newBuilder()
+                            .setRpc(Csi.NodeServiceCapability.RPC.newBuilder()
+                                    .setType(Csi.NodeServiceCapability.RPC.Type.STAGE_UNSTAGE_VOLUME)
+                                    .build())
+                            .build())
+                    .addCapabilities(Csi.NodeServiceCapability.newBuilder()
+                            .setRpc(Csi.NodeServiceCapability.RPC.newBuilder()
+                                    .setType(Csi.NodeServiceCapability.RPC.Type.GET_VOLUME_STATS)
+                                    .build())
+                            .build())
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
 
         @SuppressWarnings("AlibabaSwitchStatement")
@@ -464,9 +592,9 @@ public class CsiGrpcServer {
             // 获取当前环境
             StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
             switch (cloudType) {
-                case ALI_YUN -> log.info("使用阿里云环境创建volume");
-                case TENCENT_YUN -> log.info("使用腾讯云环境创建volume");
-                case HUAWEI_YUN -> log.info("使用华为云环境创建volume");
+                case ALI_YUN -> log.info("使用阿里云环境获取node的信息");
+                case TENCENT_YUN -> log.info("使用腾讯云环境获取node的信息");
+                case HUAWEI_YUN -> log.info("使用华为云环境获取node的信息");
                 case LOCAL -> {
                     Csi.NodeGetInfoResponse response = builder.setNodeId(Metadata.getInstance().getNodeId())
                             .setMaxVolumesPerNode(7)
