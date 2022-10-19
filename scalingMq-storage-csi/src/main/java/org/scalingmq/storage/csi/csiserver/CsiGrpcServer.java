@@ -22,6 +22,9 @@ import org.scalingmq.storage.csi.config.StorageCsiConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * k8s CSI插件 服务端
@@ -29,6 +32,8 @@ import java.nio.file.Path;
  */
 @Slf4j
 public class CsiGrpcServer {
+
+    private static final Map<String, VolumeEntry> PVC_VOLUME_RELATION = new ConcurrentHashMap<>();
 
     private Server server;
 
@@ -167,10 +172,60 @@ public class CsiGrpcServer {
      * 构建pv之后，会触发如何管理这些volume，还有扩容的时候
      */
     private static class ControllerService extends ControllerGrpc.ControllerImplBase {
+        @SuppressWarnings("AlibabaSwitchStatement")
         @Override
         public void createVolume(Csi.CreateVolumeRequest request, StreamObserver<Csi.CreateVolumeResponse> responseObserver) {
             log.info("收到volume创建请求:{}", request);
-            super.createVolume(request, responseObserver);
+            Csi.CreateVolumeResponse.Builder builder = Csi.CreateVolumeResponse.getDefaultInstance().toBuilder();
+
+            VolumeEntry volumeEntry = PVC_VOLUME_RELATION.get(request.getName());
+            if (volumeEntry != null) {
+                // 已经创建过了
+                Csi.CreateVolumeResponse response = builder.setVolume(Csi.Volume.newBuilder()
+                                .setVolumeId(volumeEntry.getVolumeId())
+                                .setCapacityBytes(volumeEntry.getCapacityBytes())
+                                .build())
+                        .build();
+
+                responseObserver.onNext(response);
+                responseObserver.onCompleted();
+                return;
+            }
+
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境创建volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境创建volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境创建volume");
+                case LOCAL -> {
+                    log.info("使用本地创建volume");
+                    String volumeId = UUID.randomUUID().toString();
+                    VolumeEntry storageVolumeEntry = new VolumeEntry();
+                    storageVolumeEntry.setVolumeId(volumeId);
+                    storageVolumeEntry.setCapacityBytes(request.getCapacityRange().getRequiredBytes());
+                    // 保存在本地
+                    PVC_VOLUME_RELATION.put(request.getName(), storageVolumeEntry);
+
+                    Csi.CreateVolumeResponse response = builder.setVolume(Csi.Volume.newBuilder()
+                                    .setVolumeId(volumeId)
+                                    .setCapacityBytes(storageVolumeEntry.getCapacityBytes())
+                                    .addAccessibleTopology(
+                                            Csi.Topology.newBuilder()
+                                            .putSegments("local", storageVolumeEntry.toString())
+                                            .build())
+                                    .build())
+                            .build();
+
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的集群环境");
+                    responseObserver.onNext(null);
+                    responseObserver.onCompleted();
+                }
+            }
         }
 
         @Override
@@ -293,41 +348,49 @@ public class CsiGrpcServer {
     private static class NodeService extends NodeGrpc.NodeImplBase {
         @Override
         public void nodeStageVolume(Csi.NodeStageVolumeRequest request, StreamObserver<Csi.NodeStageVolumeResponse> responseObserver) {
+            log.info("收到node stage volume请求:{}", request);
             super.nodeStageVolume(request, responseObserver);
         }
 
         @Override
         public void nodeUnstageVolume(Csi.NodeUnstageVolumeRequest request, StreamObserver<Csi.NodeUnstageVolumeResponse> responseObserver) {
+            log.info("收到node unstage volume请求:{}", request);
             super.nodeUnstageVolume(request, responseObserver);
         }
 
         @Override
         public void nodePublishVolume(Csi.NodePublishVolumeRequest request, StreamObserver<Csi.NodePublishVolumeResponse> responseObserver) {
+            log.info("收到node publish volume请求:{}", request);
             super.nodePublishVolume(request, responseObserver);
         }
 
         @Override
         public void nodeUnpublishVolume(Csi.NodeUnpublishVolumeRequest request, StreamObserver<Csi.NodeUnpublishVolumeResponse> responseObserver) {
+            log.info("收到node un publish volume请求:{}", request);
             super.nodeUnpublishVolume(request, responseObserver);
         }
 
         @Override
         public void nodeGetVolumeStats(Csi.NodeGetVolumeStatsRequest request, StreamObserver<Csi.NodeGetVolumeStatsResponse> responseObserver) {
+            log.info("收到node get volume stats请求:{}", request);
             super.nodeGetVolumeStats(request, responseObserver);
         }
 
         @Override
         public void nodeExpandVolume(Csi.NodeExpandVolumeRequest request, StreamObserver<Csi.NodeExpandVolumeResponse> responseObserver) {
+            log.info("收到node expand volume 请求:{}", request);
             super.nodeExpandVolume(request, responseObserver);
         }
 
         @Override
         public void nodeGetCapabilities(Csi.NodeGetCapabilitiesRequest request, StreamObserver<Csi.NodeGetCapabilitiesResponse> responseObserver) {
+            log.info("收到node get capabilities 请求:{}", request);
             super.nodeGetCapabilities(request, responseObserver);
         }
 
         @Override
         public void nodeGetInfo(Csi.NodeGetInfoRequest request, StreamObserver<Csi.NodeGetInfoResponse> responseObserver) {
+            log.info("收到node get info 请求:{}", request);
             super.nodeGetInfo(request, responseObserver);
         }
     }

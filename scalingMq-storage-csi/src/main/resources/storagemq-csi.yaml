@@ -38,12 +38,65 @@ spec:
           env:
             - name: LANG
               value: en_US.UTF-8
+            - name: CLOUD_ENV
+              value: "LOCAL"
           imagePullPolicy: "IfNotPresent"
           securityContext:
             privileged: true
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet
+              # needed so that any mounts setup inside this container are
+              # propagated back to the host machine.
+              mountPropagation: "Bidirectional"
+            - name: device-dir
+              mountPath: /dev
+        - name: csi-node-driver-registrar
+          image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
+          args:
+              - "--v=5"
+              - "--csi-address=$(ADDRESS)"
+              - "--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)"
+          lifecycle:
+              preStop:
+                exec:
+                  command: [ "/bin/sh", "-c", "rm -rf /registration/org.scalingmq.csi /registration/org.scalingmq.csi-reg.sock" ]
+          env:
+              - name: ADDRESS
+                value: /csi/csi.sock
+              - name: DRIVER_REG_SOCK_PATH
+                value: /var/lib/kubelet/plugins/org.scalingmq.csi/csi.sock
+              - name: KUBE_NODE_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+          volumeMounts:
+              - name: plugin-dir
+                mountPath: /csi/
+              - name: registration-dir
+                mountPath: /registration/
+      volumes:
+        - name: registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry/
+            type: DirectoryOrCreate
+        - name: plugin-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/org.scalingmq.csi
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+        - name: device-dir
+          hostPath:
+            path: /dev
+
 ---
 ##############################################
 ###########                       ############
@@ -121,6 +174,8 @@ spec:
           env:
             - name: LANG
               value: en_US.UTF-8
+            - name: CLOUD_ENV
+              value: "LOCAL"
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/kubelet/plugins/org.scalingmq.csi/
