@@ -54,8 +54,8 @@ spec:
               # needed so that any mounts setup inside this container are
               # propagated back to the host machine.
               mountPropagation: "Bidirectional"
-            - name: device-dir
-              mountPath: /dev
+            - name: metadata-dir
+              mountPath: /metadata
         - name: csi-node-driver-registrar
           image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
           args:
@@ -93,9 +93,10 @@ spec:
           hostPath:
             path: /var/lib/kubelet
             type: Directory
-        - name: device-dir
+        - name: metadata-dir
           hostPath:
-            path: /dev
+            type: DirectoryOrCreate
+            path: /Users/renyansong/software/scalingmq/csi/node
 
 ---
 ##############################################
@@ -179,9 +180,15 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/kubelet/plugins/org.scalingmq.csi/
+            - name: metadata-dir
+              mountPath: /metadata
       volumes:
         - name: socket-dir
           emptyDir: {}
+        - name: metadata-dir
+          hostPath:
+              type: DirectoryOrCreate
+              path: /Users/renyansong/software/scalingmq/csi
 
 ---
 

@@ -1,11 +1,13 @@
 package org.scalingmq.storage.csi.csiserver;
 
+import com.google.gson.Gson;
 import com.google.protobuf.BoolValue;
 import csi.v1.Csi;
 import grpc.ControllerGrpc;
 import grpc.IdentityGrpc;
 import grpc.NodeGrpc;
 import io.grpc.Server;
+import io.grpc.Status;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.channel.EventLoopGroup;
@@ -20,11 +22,11 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.csi.config.StorageCsiConfig;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * k8s CSI插件 服务端
@@ -33,7 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class CsiGrpcServer {
 
-    private static final Map<String, VolumeEntry> PVC_VOLUME_RELATION = new ConcurrentHashMap<>();
+    private static final String METADATA_PATH = "/metadata";
+
+    private static final String METADATA_FILE_PATH = METADATA_PATH + "/storage-csi-metadata.json";
+
+    private static final Gson GSON = new Gson();
 
     private Server server;
 
@@ -41,6 +47,26 @@ public class CsiGrpcServer {
      * 启动一个Server端 监听请求
      */
     public void start(String unixPath) throws Exception {
+        // 启动加载数据
+        Path metadataPath = Path.of(METADATA_PATH);
+        if (!Files.exists(metadataPath)) {
+            metadataPath.toFile().mkdirs();
+            Path jsonFilePath = Path.of(METADATA_FILE_PATH);
+            if (!Files.exists(jsonFilePath)) {
+                Files.createFile(jsonFilePath);
+            }
+        } else {
+            // 读取数据
+            String jsonStr = Files.readString(Path.of(METADATA_FILE_PATH));
+            if (jsonStr != null && !"".equals(jsonStr)) {
+                Metadata metadata = GSON.fromJson(jsonStr, Metadata.class);
+                if (metadata.getNodeId() != null && !"".equals(metadata.getNodeId())) {
+                    Metadata.getInstance().setNodeId(metadata.getNodeId());
+                }
+                Map<String, VolumeEntry> pvcVolumeRelation = Metadata.getInstance().getPvcVolumeRelation();
+                pvcVolumeRelation.putAll(metadata.getPvcVolumeRelation());
+            }
+        }
         Path path = Path.of(unixPath);
         if (!Files.exists(path)) {
             String[] split = unixPath.split("/");
@@ -178,7 +204,7 @@ public class CsiGrpcServer {
             log.info("收到volume创建请求:{}", request);
             Csi.CreateVolumeResponse.Builder builder = Csi.CreateVolumeResponse.getDefaultInstance().toBuilder();
 
-            VolumeEntry volumeEntry = PVC_VOLUME_RELATION.get(request.getName());
+            VolumeEntry volumeEntry = Metadata.getInstance().getPvcVolumeRelation().get(request.getName());
             if (volumeEntry != null) {
                 // 已经创建过了
                 Csi.CreateVolumeResponse response = builder.setVolume(Csi.Volume.newBuilder()
@@ -205,8 +231,12 @@ public class CsiGrpcServer {
                     storageVolumeEntry.setVolumeId(volumeId);
                     storageVolumeEntry.setCapacityBytes(request.getCapacityRange().getRequiredBytes());
                     // 保存在本地
-                    PVC_VOLUME_RELATION.put(request.getName(), storageVolumeEntry);
-
+                    Metadata.getInstance().getPvcVolumeRelation().put(request.getName(), storageVolumeEntry);
+                    try {
+                        Files.writeString(Path.of(METADATA_FILE_PATH), GSON.toJson(Metadata.getInstance()));
+                    } catch (IOException e) {
+                        log.error("写入元数据异常:{}", Metadata.getInstance(), e);
+                    }
                     Csi.CreateVolumeResponse response = builder.setVolume(Csi.Volume.newBuilder()
                                     .setVolumeId(volumeId)
                                     .setCapacityBytes(storageVolumeEntry.getCapacityBytes())
@@ -234,10 +264,48 @@ public class CsiGrpcServer {
             super.deleteVolume(request, responseObserver);
         }
 
+        @SuppressWarnings("AlibabaSwitchStatement")
         @Override
         public void controllerPublishVolume(Csi.ControllerPublishVolumeRequest request, StreamObserver<Csi.ControllerPublishVolumeResponse> responseObserver) {
             log.info("收到volume publish请求, attach阶段:{}", request);
-            super.controllerPublishVolume(request, responseObserver);
+            boolean createdVolume = false;
+            VolumeEntry publishVolume = null;
+            for (VolumeEntry volumeEntry : Metadata.getInstance().getPvcVolumeRelation().values()) {
+                if (volumeEntry.getVolumeId().equals(request.getVolumeId())) {
+                    createdVolume = true;
+                    publishVolume = volumeEntry;
+                    break;
+                }
+            }
+            if (!createdVolume) {
+                log.error("publish阶段收到没有创建过的volume:{}", request);
+                responseObserver.onError(Status.INTERNAL
+                        .withDescription("not created volume")
+                        .asRuntimeException());
+                return;
+            }
+            // 这个阶段就是将前端创建的存储卷 挂载到对应的主机上去了
+            Csi.ControllerPublishVolumeResponse.Builder builder = Csi.ControllerPublishVolumeResponse.getDefaultInstance().toBuilder();
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境创建volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境创建volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境创建volume");
+                case LOCAL -> {
+                    // 本地环境挂载
+                    Csi.ControllerPublishVolumeResponse response = builder.putPublishContext("local", publishVolume.toString()).build();
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的云环境");
+                    responseObserver.onError(Status.INTERNAL
+                            .withDescription(String.format("Method %s is not support cloud env",
+                                    "controllerPublishVolume"))
+                            .asRuntimeException());
+                }
+            }
         }
 
         @Override
@@ -388,10 +456,30 @@ public class CsiGrpcServer {
             super.nodeGetCapabilities(request, responseObserver);
         }
 
+        @SuppressWarnings("AlibabaSwitchStatement")
         @Override
         public void nodeGetInfo(Csi.NodeGetInfoRequest request, StreamObserver<Csi.NodeGetInfoResponse> responseObserver) {
             log.info("收到node get info 请求:{}", request);
-            super.nodeGetInfo(request, responseObserver);
+            Csi.NodeGetInfoResponse.Builder builder = Csi.NodeGetInfoResponse.getDefaultInstance().toBuilder();
+            // 获取当前环境
+            StorageCsiConfig.CloudType cloudType = StorageCsiConfig.CloudType.valueOf(StorageCsiConfig.getInstance().getCloudEnv());
+            switch (cloudType) {
+                case ALI_YUN -> log.info("使用阿里云环境创建volume");
+                case TENCENT_YUN -> log.info("使用腾讯云环境创建volume");
+                case HUAWEI_YUN -> log.info("使用华为云环境创建volume");
+                case LOCAL -> {
+                    Csi.NodeGetInfoResponse response = builder.setNodeId(Metadata.getInstance().getNodeId())
+                            .setMaxVolumesPerNode(7)
+                            .build();
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                }
+                default -> {
+                    log.error("不支持的云环境");
+                    responseObserver.onNext(null);
+                    responseObserver.onCompleted();
+                }
+            }
         }
     }
 
