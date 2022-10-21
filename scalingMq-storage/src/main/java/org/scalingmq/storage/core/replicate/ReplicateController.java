@@ -16,11 +16,9 @@ import org.scalingmq.storage.core.replicate.raft.PeerFinder;
 import org.scalingmq.storage.core.replicate.raft.RaftCore;
 import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -115,7 +113,10 @@ public class ReplicateController {
                 TERM = term;
                 // 添加上自己
                 ISR_ADDR.add(IocContainer.getInstance().getObj(PeerFinder.class)
-                        .returnPeerFullPath(StorageConfig.getInstance().getHostname()) + ":" + StorageConfig.MSG_PORT);
+                        .returnPeerFullPath(StorageConfig.getInstance().getHostname()));
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("开始更新isr");
             }
             ISR_REPORT_SCHEDULE_POOL.scheduleWithFixedDelay(() -> {
                 Lock lock = FOLLOWER_OFFSET_RW_LOCK.readLock();
@@ -140,6 +141,9 @@ public class ReplicateController {
                             log.debug("isr列表新增加节点:{}, 最后拉取时间:{}, offset:{}",
                                     hostnameOffsetEntry.getKey(), offsetAndTimestamp.second, offsetAndTimestamp.first);
                         }
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("更新isr 开始上报ISR:{}", Arrays.toString(ISR_ADDR.toArray()));
                     }
                     // 上报ISR列表
                     IsrUpdateReqWrapper.IsrUpdateReq isrUpdateReq = IsrUpdateReqWrapper.IsrUpdateReq.newBuilder()
@@ -198,8 +202,13 @@ public class ReplicateController {
         private static final ScheduledThreadPoolExecutor FETCH_LEADER_MSG_THREAD_POOL =
                 new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "follower-fetch-leader-sched-thread"));
 
+        private static final ScheduledFuture<?> SCHEDULED_FUTURE;
+
         static {
-            FETCH_LEADER_MSG_THREAD_POOL.scheduleWithFixedDelay(() -> {
+            SCHEDULED_FUTURE = FETCH_LEADER_MSG_THREAD_POOL.scheduleWithFixedDelay(() -> {
+                if (log.isDebugEnabled()) {
+                    log.debug("从节点开始拉取消息...");
+                }
                 while (true) {
                     long nowLeaderMaxOffset = leaderMaxOffset;
                     if (nowLeaderMaxOffset != -1) {
@@ -216,6 +225,9 @@ public class ReplicateController {
                                 .setOffset(globalIndexWrote)
                                 .build();
                         RaftCore raftCore = IocContainer.getInstance().getObj(RaftCore.class);
+                        if (log.isDebugEnabled()) {
+                            log.debug("开始向Leader:{}, 发送拉取消息请求:{}", raftCore.getLeaderAddr(), req);
+                        }
                         StorageApiResWrapper.StorageApiRes res = (StorageApiResWrapper.StorageApiRes) NetworkClient.getInstance()
                                 .sendReq(req,
                                         raftCore.getLeaderAddr(),
@@ -252,6 +264,13 @@ public class ReplicateController {
          */
         public static void acceptLeaderOffset(long leaderOffset) {
             leaderMaxOffset = leaderOffset;
+        }
+
+        /**
+         * 停止拉取任务 一般是follower变leader
+         */
+        public static void stopFetch() {
+            SCHEDULED_FUTURE.cancel(true);
         }
 
     }

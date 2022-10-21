@@ -36,6 +36,9 @@ public class StoragePodTemplate {
         ENV_MAP.put("AFT_PORT", RouteConfig.getInstance().getScheduleStoragePodPort());
         ENV_MAP.put("TZ", "Asia/Shanghai");
         ENV_MAP.put("LANG", "C.utf8");
+        // 设置route本身的地址信息
+        ENV_MAP.put("ROUTE_SERVER_ADDR", "scalingmq-route-service");
+        ENV_MAP.put("ROUTE_SERVER_PORT", "5432");
 
         this.serviceName = storageServiceTemplate.getStorageServiceName();
         this.templateMetadataName = storageServiceTemplate.getStoragePodName();

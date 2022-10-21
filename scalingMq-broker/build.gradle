@@ -66,7 +66,7 @@ protobuf {
 
 docker {
     javaApplication {
-        baseImage = 'folioci/alpine-jre-openjdk17:2.0.2'
+        baseImage = 'openjdk:17.0.2-jdk'
         ports = [7654,6543]
         images = ['scalingmq-broker-component:v1.0', 'scalingmq-broker-component:latest']
         jvmArgs = ['-XX:InitialRAMPercentage=60', '-XX:MaxRAMPercentage=60']

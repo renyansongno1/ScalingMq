@@ -117,7 +117,7 @@ public class RouteManager {
             return;
         }
         PartitionMetadata partitionMetadata = GSON.fromJson(topicMetadata.getPartitionMetadataList(), PartitionMetadata.class);
-        partitionMetadata.getIsrStoragePodNums().set(req.getPartitionNum(), GSON.toJson(req.getIsrAddrsList()));
+        partitionMetadata.getIsrStoragePodNums().set(req.getPartitionNum() - 1, GSON.toJson(req.getIsrAddrsList()));
 
         topicMetadata.setPartitionMetadataList(GSON.toJson(partitionMetadata));
         // 更新元数据

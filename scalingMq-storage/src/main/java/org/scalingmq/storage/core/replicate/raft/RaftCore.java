@@ -419,7 +419,7 @@ public class RaftCore implements Lifecycle {
                     )
                     .build();
         }
-        log.debug("收到leader:{}, term:{}, 正常心跳, 重置心跳时间", req.getLeaderId(), req.getTerm());
+        log.debug("收到leader:{}, term:{}, offset:{} 正常心跳, 重置心跳时间", req.getLeaderId(), req.getTerm(), req.getMaxOffset());
         if (req.getLeaderId() != leaderPeerId) {
             log.error("脑裂... 本节点认定Leader:{}, 任期:{}, 收到req:{}", leaderPeerId, concurrentTerm, req);
             return RaftResWrapper.RaftRes.newBuilder()
@@ -457,6 +457,7 @@ public class RaftCore implements Lifecycle {
                 if (heartbeatCheckFuture != null) {
                     heartbeatCheckFuture.cancel(true);
                 }
+                ReplicateController.FollowerController.stopFetch();
             }
             state = RaftStateEnum.LEADER;
             // Leader 心跳逻辑 检查数据逻辑

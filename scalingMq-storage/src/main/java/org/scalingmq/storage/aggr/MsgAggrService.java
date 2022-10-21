@@ -109,9 +109,11 @@ public class MsgAggrService {
     /**
      * 拉取消息
      * @param req 拉取消息请求
-     * @return 响应
      */
-    public StorageApiResWrapper.FetchMsgRes fetchMsg(StorageApiReqWrapper.StorageApiReq.FetchMsgReq req) {
+    public void fetchMsg(StorageApiReqWrapper.StorageApiReq.FetchMsgReq req, Channel channel) {
+        if (log.isDebugEnabled()) {
+            log.debug("收到拉取消息请求:{}", req);
+        }
         // 拉取数据
         PartitionMsgStorage partitionMsgStorage = IocContainer.getInstance().getObj(PartitionMsgStorage.class);
         FetchResult fetchResult = partitionMsgStorage.fetchMsg(req.getOffset());
@@ -136,7 +138,7 @@ public class MsgAggrService {
                 builder.setData(i, ByteString.copyFrom(data));
             }
         }
-        return builder.build();
+        channel.writeAndFlush(builder.build());
     }
 
 }

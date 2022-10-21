@@ -15,7 +15,7 @@ public class FetchMsgHandler implements RequestHandler<StorageApiReqWrapper.Stor
 
     @Override
     public void handle(StorageApiReqWrapper.StorageApiReq.FetchMsgReq fetchMsgReq, Channel channel) {
-        MsgAggrService.getInstance().fetchMsg(fetchMsgReq);
+        MsgAggrService.getInstance().fetchMsg(fetchMsgReq, channel);
     }
 
 }

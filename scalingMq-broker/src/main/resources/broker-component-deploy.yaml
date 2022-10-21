@@ -38,7 +38,7 @@ spec:
             - name: TZ
               value: Asia/Shanghai
             - name: LANG
-              value: en_US.UTF-8
+              value: C.UTF-8
       restartPolicy: Always
   selector:
     matchLabels:
