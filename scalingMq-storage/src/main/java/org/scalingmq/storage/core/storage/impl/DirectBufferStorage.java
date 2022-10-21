@@ -83,7 +83,7 @@ public class DirectBufferStorage implements StorageClass {
                 containerRemainingMemory * StorageConfig.getInstance().getMsgUseMaxDirectMemoryCapacity() / 100
         );
         // 计算索引文件能够使用的内存
-        maxIndexCapacity = maxAllCapacity * StorageConfig.getInstance().getIndexSpaceRatio() / 100;
+        maxIndexCapacity = maxAllCapacity / 100 * StorageConfig.getInstance().getIndexSpaceRatio();
         // 消息数据能够使用的就是剩下的
         maxCapacity = maxAllCapacity - maxIndexCapacity;
 
@@ -122,7 +122,7 @@ public class DirectBufferStorage implements StorageClass {
         long index = physicalOffset/msgSize;
         int msgCount = 0;
         List<byte[]> resultList = new ArrayList<>();
-        while (appendMsgBytes < maxFetchMsgBytes) {
+        while (appendMsgBytes < maxFetchMsgBytes && index < MSG_DATA_MEMORY_BUFFER_POOL.size()) {
             ByteBuffer buffer = MSG_DATA_MEMORY_BUFFER_POOL.get(Math.toIntExact(index));
             int limit = buffer.limit();
             byte[] data =  new byte[limit];
@@ -161,6 +161,8 @@ public class DirectBufferStorage implements StorageClass {
         }
         if (!index) {
             ByteBuffer byteBuffer = ByteBuffer.allocateDirect(body.length).put(body);
+            // 回归原位 方便读取
+            byteBuffer.position(0);
             MSG_DATA_MEMORY_BUFFER_POOL.add(byteBuffer);
         }
         return StorageAppendResult.builder()

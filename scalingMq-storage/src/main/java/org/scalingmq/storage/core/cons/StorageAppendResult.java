@@ -3,6 +3,7 @@ package org.scalingmq.storage.core.cons;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 追加数据到存储的结果
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@ToString
 public class StorageAppendResult {
 
     /**

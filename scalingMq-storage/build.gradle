@@ -31,6 +31,21 @@ dependencies {
             project(":scalingMq-common"),
             project(":scalingMq-route-client")
     )
+    testImplementation(
+            'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    )
+    testRuntimeOnly(
+            'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    )
+    testCompileClasspath (
+            'org.junit.jupiter:junit-jupiter:5.8.1'
+    )
+}
+
+test {
+    useJUnitPlatform()
+    failFast(true)
+    jvmArgs('--enable-preview', '-XX:InitialRAMPercentage=10', '-XX:MaxRAMPercentage=10')
 }
 
 shadowJar {
