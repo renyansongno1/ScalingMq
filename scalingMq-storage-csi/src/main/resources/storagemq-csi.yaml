@@ -38,6 +38,8 @@ spec:
           env:
             - name: LANG
               value: en_US.UTF-8
+            - name: TZ
+              value: Asia/Shanghai
             - name: CLOUD_ENV
               value: "LOCAL"
           imagePullPolicy: "IfNotPresent"
@@ -75,6 +77,8 @@ spec:
                 valueFrom:
                   fieldRef:
                     fieldPath: spec.nodeName
+              - name: TZ
+                value: Asia/Shanghai
           volumeMounts:
               - name: plugin-dir
                 mountPath: /csi/
@@ -136,6 +140,8 @@ spec:
           env:
             - name: ADDRESS
               value: /var/lib/kubelet/plugins/org.scalingmq.csi/csi.sock
+            - name: TZ
+              value: Asia/Shanghai
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
             - name: socket-dir
@@ -150,6 +156,8 @@ spec:
           env:
             - name: ADDRESS
               value: /var/lib/kubelet/plugins/org.scalingmq.csi/csi.sock
+            - name: TZ
+              value: Asia/Shanghai
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
             - name: socket-dir
@@ -165,6 +173,8 @@ spec:
           env:
             - name: ADDRESS
               value: /var/lib/kubelet/plugins/org.scalingmq.csi/csi.sock
+            - name: TZ
+              value: Asia/Shanghai
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
             - name: socket-dir
@@ -177,6 +187,8 @@ spec:
               value: en_US.UTF-8
             - name: CLOUD_ENV
               value: "LOCAL"
+            - name: TZ
+              value: Asia/Shanghai
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/kubelet/plugins/org.scalingmq.csi/

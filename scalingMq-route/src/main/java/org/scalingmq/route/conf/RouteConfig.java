@@ -92,4 +92,28 @@ public class RouteConfig {
      */
     private Integer serviceThreadCount = 10;
 
+    /**
+     * pvc类型
+     * LOCAL会直接创建pv和pvc 使用默认的manual storage classname
+     * 其他的会创建使用 org.scalingmq.csi.storage.class 这个csi driver
+     */
+    @EnvironmentVariable("SCHEDULE_STORAGE_PVC_TYPE")
+    private String scheduleStoragePvcType;
+
+    /**
+     * 存储节点初始化默认大小
+     * 单位Gi
+     */
+    private Integer defaultStorageInitSize = 5;
+
+    /**
+     * 本地pvc的host path
+     */
+    private String localPvcHostPath = "/Users/renyansong/software/scalingmq/storage";
+
+    /**
+     * 容器挂载目录前缀
+     */
+    private String storagePodMountPathPrefix = "/data/";
+
 }

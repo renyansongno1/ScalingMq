@@ -14,6 +14,7 @@ import org.scalingmq.route.meta.schema.TopicMetadata;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 路由管理
@@ -32,6 +33,21 @@ public class RouteManager {
      * <service name>.<namespace>.svc.cluster.local
      */
     private static final String SRV_NAME_SUFFIX = ".svc.cluster.local";
+
+    /**
+     * 本地创建pv标识
+     */
+    private static final String LOCAL_PV_FLAG = "LOCAL";
+
+    /**
+     * 默认的本地创建storage classname
+     */
+    private static final String MANUAL_STORAGE_CLASS = "hostpath";
+
+    /**
+     * scalingmq csi
+     */
+    private static final String SCALINGMQ_STORAGE_CLASS = "org.scalingmq.csi.storage.class";
 
     /**
      * isr更新的term缓存
@@ -70,12 +86,11 @@ public class RouteManager {
         if (partitionMetadataList != null && partitionMetadataList.size() > 0) {
             String value = GSON.toJson(partitionMetadataList);
             // 更新元数据
-            String jsonPatch =
-                    """
-                    [
-                     { "op": "add", "path": "/partitionMetadataList", "value": %s}
-                    ]
-                    """.formatted(value);
+            topicMetadata.setPartitionMetadataList(GSON.toJson(partitionMetadataList));
+            String jsonPatch = GSON.toJson(topicMetadata);
+            if (log.isDebugEnabled()) {
+                log.debug("开始patch configmap :{}", jsonPatch);
+            }
             return MetaDataManager.getInstance().updateTopicMetadata(topicName, jsonPatch);
         }
         return false;
@@ -95,13 +110,18 @@ public class RouteManager {
             return;
         }
         CACHED_ISR_UPDATE_TERM = req.getTerm();
+        // 查询元数据
+        TopicMetadata topicMetadata = MetaDataManager.getInstance().getTopicMetadata(req.getTopicName());
+        if (topicMetadata == null) {
+            log.error("查询topic:{} 元数据为空, 上报isr元数据:{} 失败", req.getTopicName(), req);
+            return;
+        }
+        PartitionMetadata partitionMetadata = GSON.fromJson(topicMetadata.getPartitionMetadataList(), PartitionMetadata.class);
+        partitionMetadata.getIsrStoragePodNums().set(req.getPartitionNum(), GSON.toJson(req.getIsrAddrsList()));
+
+        topicMetadata.setPartitionMetadataList(GSON.toJson(partitionMetadata));
         // 更新元数据
-        String jsonPatch =
-                """
-                [
-                 { "op": "replace", "path": "/partitionMetadataList/%s/isrStoragePodNums", "value": %s}
-                ]
-                """.formatted(req.getPartitionNum(), GSON.toJson(req.getIsrAddrsList()));
+        String jsonPatch = GSON.toJson(topicMetadata);
         MetaDataManager.getInstance().updateTopicMetadata(req.getTopicName(), jsonPatch);
     }
 
@@ -161,6 +181,11 @@ public class RouteManager {
                     storagePodTemplate.addCoordinatorConfig(coordinatorStr.toString());
                 }
             }
+
+            // pod的存储卷挂载
+            mountVolume(storagePodTemplate, topicName, partition, instance);
+
+            // 开始创建pod
             boolean podCreate = instance.createPods(
                     RouteConfig.getInstance().getNamespace(),
                     storagePodTemplate.getPodName(),
@@ -176,7 +201,10 @@ public class RouteManager {
                     storagePodTemplate.getContainerPortNames(),
                     StoragePodTemplate.ENV_MAP,
                     storagePodTemplate.getCpuResource(),
-                    storagePodTemplate.getMemoryResource()
+                    storagePodTemplate.getMemoryResource(),
+                    storagePodTemplate.getInitStorageSize(),
+                    storagePodTemplate.getMountPath(),
+                    storagePodTemplate.getStorageClassName()
             );
             if (!podCreate) {
                 return null;
@@ -200,6 +228,33 @@ public class RouteManager {
         }
 
         return partitionMetadataList;
+    }
+
+    /**
+     * 给storage pod挂载volume
+     */
+    private void mountVolume(StoragePodTemplate storagePodTemplate, String topicName, Integer partition, K8sApiClient client) {
+        String storageClassName;
+        if (RouteConfig.getInstance().getScheduleStoragePvcType().equals(LOCAL_PV_FLAG)) {
+            storageClassName = MANUAL_STORAGE_CLASS;
+            // 创建pv
+            String pvId = UUID.randomUUID().toString().replaceAll("-", "");
+            boolean createPvRes = client.createPv(RouteConfig.getInstance().getNamespace(),
+                    storagePodTemplate.getPodName() + "-" + pvId,
+                    RouteConfig.getInstance().getDefaultStorageInitSize() * storagePodTemplate.getReplicas() + "Gi",
+                    storageClassName,
+                    RouteConfig.getInstance().getLocalPvcHostPath());
+            if (!createPvRes) {
+                // 创建失败
+                throw new RuntimeException("create local pv fail");
+            }
+        } else {
+            // 使用 csi driver
+            storageClassName = SCALINGMQ_STORAGE_CLASS;
+        }
+        storagePodTemplate.setStorageClassName(storageClassName);
+        storagePodTemplate.setInitStorageSize(RouteConfig.getInstance().getDefaultStorageInitSize() + "Gi");
+        storagePodTemplate.setMountPath(RouteConfig.getInstance().getStoragePodMountPathPrefix() + topicName + "/" + partition);
     }
 
 }

@@ -1,5 +1,7 @@
 package org.scalingmq.kubernetes.api;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.openapi.ApiCallback;
@@ -9,7 +11,9 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
+import io.kubernetes.client.proto.V1;
 import io.kubernetes.client.util.ClientBuilder;
+import io.kubernetes.client.util.PatchUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.common.utils.StopWatch;
 
@@ -30,6 +34,8 @@ public class K8sApiClient {
     private static final CoreV1Api CORE_V1_API = new CoreV1Api();
 
     private static final AppsV1Api APPS_V_1_API = new AppsV1Api();
+
+    private static final Gson GSON = new Gson();
 
     private static final int NOT_FOUND = 404;
 
@@ -163,8 +169,30 @@ public class K8sApiClient {
      */
     public boolean updateConfigMap(String namespace, String name, String patchJsonValue) {
         try {
-            V1Patch v1Patch = new V1Patch(patchJsonValue);
-            CORE_V1_API.patchNamespacedConfigMap(name, namespace, v1Patch, Boolean.TRUE.toString(), null, V1Patch.PATCH_FORMAT_JSON_PATCH, null, false);
+            // V1Patch v1Patch = new V1Patch(patchJsonValue);
+            // CORE_V1_API.patchNamespacedConfigMap(name, namespace, v1Patch, Boolean.TRUE.toString(), null, null, V1Patch.PATCH_FORMAT_JSON_MERGE_PATCH, null);
+            /*PatchUtils.patch(
+                    V1.ConfigMap.class,
+                    () -> CORE_V1_API.patchNamespacedConfigMapCall(
+                            name,
+                            namespace,
+                            new V1Patch(patchJsonValue),
+                            Boolean.TRUE.toString(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                    ),
+                    V1Patch.PATCH_FORMAT_JSON_MERGE_PATCH,
+                    CLIENT
+            );*/
+            V1ConfigMap v1ConfigMap = new V1ConfigMap();
+            v1ConfigMap.setData(GSON.fromJson(patchJsonValue, new TypeToken<Map<String,String>>(){}.getType()));
+            V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
+            v1ObjectMeta.setName(name);
+            v1ConfigMap.setMetadata(v1ObjectMeta);
+            CORE_V1_API.replaceNamespacedConfigMap(name, namespace, v1ConfigMap, Boolean.TRUE.toString(), null, null, null);
             return true;
         } catch (ApiException e) {
             log.error("更新:{}.{} configmap 异常信息:{}", namespace, name, e.getResponseBody(), e);
@@ -190,7 +218,10 @@ public class K8sApiClient {
                               List<String> containerNames,
                               Map<String, String> envMap,
                               String cpuResource,
-                              String memoryResource) {
+                              String memoryResource,
+                              String storageSize,
+                              String mountPath,
+                              String storageClassName) {
         try {
             V1StatefulSet statefulSet = new V1StatefulSet();
             // header
@@ -220,6 +251,7 @@ public class K8sApiClient {
             templateMetadata.setLabels(templateMetadataLabelMap);
             v1PodTemplateSpec.setMetadata(templateMetadata);
 
+            // pod and container
             V1PodSpec v1PodSpec = new V1PodSpec();
             V1Container v1Container = new V1Container();
             v1Container.setName(containerName);
@@ -245,6 +277,7 @@ public class K8sApiClient {
                 v1EnvVar.setValue(stringStringEntry.getValue());
                 envVarList.add(v1EnvVar);
             }
+
             // 补充默认env
             V1EnvVar v1EnvVar = new V1EnvVar();
             v1EnvVar.setName("POD_NAMESPACE");
@@ -266,6 +299,12 @@ public class K8sApiClient {
 
             v1Container.setResources(v1ResourceRequirements);
 
+            // mount
+            V1VolumeMount v1VolumeMount = new V1VolumeMount();
+            v1VolumeMount.setName("pvc");
+            v1VolumeMount.setMountPath(mountPath);
+            v1Container.setVolumeMounts(Collections.singletonList(v1VolumeMount));
+
             v1PodSpec.setContainers(
                     Collections.singletonList(
                             v1Container
@@ -276,6 +315,23 @@ public class K8sApiClient {
 
             v1StatefulSetSpec.setTemplate(v1PodTemplateSpec);
 
+            // volumeTemplate
+            V1PersistentVolumeClaim v1PersistentVolumeClaim = new V1PersistentVolumeClaim();
+            // metadata
+            V1ObjectMeta meta = new V1ObjectMeta();
+            meta.setName("pvc");
+            v1PersistentVolumeClaim.setMetadata(meta);
+            // spec
+            V1PersistentVolumeClaimSpec v1PersistentVolumeClaimSpec = new V1PersistentVolumeClaimSpec();
+            // resource
+            V1ResourceRequirements resourceRequirements = new V1ResourceRequirements();
+            resourceRequirements.setRequests(Map.of("storage", Quantity.fromString(storageSize)));
+            v1PersistentVolumeClaimSpec.setResources(resourceRequirements);
+            v1PersistentVolumeClaimSpec.setStorageClassName(storageClassName);
+            v1PersistentVolumeClaimSpec.setAccessModes(Collections.singletonList("ReadWriteOnce"));
+
+            v1PersistentVolumeClaim.setSpec(v1PersistentVolumeClaimSpec);
+            v1StatefulSetSpec.setVolumeClaimTemplates(Collections.singletonList(v1PersistentVolumeClaim));
             statefulSet.setSpec(v1StatefulSetSpec);
             APPS_V_1_API.createNamespacedStatefulSet(namespace, statefulSet, Boolean.TRUE.toString(), null, null, null);
             return true;
@@ -332,6 +388,68 @@ public class K8sApiClient {
             log.error("创建:{}.{} service 异常信息:{}", namespace, name, e.getResponseBody(), e);
             return false;
         }
+    }
+
+    /**
+     * 创建PV
+     */
+    public boolean createPv(String namespace, String pvName, String storageSize, String storageClassName, String hostPath) {
+        V1PersistentVolume v1PersistentVolume = new V1PersistentVolume();
+        v1PersistentVolume.setApiVersion("v1");
+        v1PersistentVolume.setKind("PersistentVolume");
+        // metadata
+        V1ObjectMeta meta = new V1ObjectMeta();
+        meta.setName(pvName);
+        meta.setNamespace(namespace);
+        v1PersistentVolume.setMetadata(meta);
+        // spec
+        V1PersistentVolumeSpec v1PersistentVolumeSpec = new V1PersistentVolumeSpec();
+        v1PersistentVolumeSpec.setCapacity(Map.of("storage", Quantity.fromString(storageSize)));
+        v1PersistentVolumeSpec.setAccessModes(Collections.singletonList("ReadWriteMany"));
+        v1PersistentVolumeSpec.setStorageClassName(storageClassName);
+        // host path
+        V1HostPathVolumeSource v1HostPathVolumeSource = new V1HostPathVolumeSource();
+        v1HostPathVolumeSource.setPath(hostPath);
+        v1HostPathVolumeSource.setType("DirectoryOrCreate");
+        v1PersistentVolumeSpec.setHostPath(v1HostPathVolumeSource);
+        v1PersistentVolume.setSpec(v1PersistentVolumeSpec);
+        try {
+            CORE_V1_API.createPersistentVolume(v1PersistentVolume, Boolean.TRUE.toString(), null, null, null);
+        } catch (ApiException e) {
+            log.error("创建:{}.{} pv 异常信息:{}", namespace, pvName, e.getResponseBody(), e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 创建PVC
+     */
+    public boolean createPvc(String namespace, String pvcName, String storageSize, String storageClassName) {
+        V1PersistentVolumeClaim v1PersistentVolumeClaim = new V1PersistentVolumeClaim();
+        v1PersistentVolumeClaim.setApiVersion("v1");
+        v1PersistentVolumeClaim.setKind("PersistentVolumeClaim");
+        // metadata
+        V1ObjectMeta meta = new V1ObjectMeta();
+        meta.setName(pvcName);
+        meta.setNamespace(namespace);
+        v1PersistentVolumeClaim.setMetadata(meta);
+        // spec
+        V1PersistentVolumeClaimSpec v1PersistentVolumeClaimSpec = new V1PersistentVolumeClaimSpec();
+        v1PersistentVolumeClaimSpec.storageClassName(storageClassName);
+        // resource
+        V1ResourceRequirements v1ResourceRequirements = new V1ResourceRequirements();
+        v1ResourceRequirements.setRequests(Map.of("storage", Quantity.fromString(storageSize)));
+        v1PersistentVolumeClaimSpec.setResources(v1ResourceRequirements);
+        v1PersistentVolumeClaimSpec.setAccessModes(Collections.singletonList("ReadWriteOnce"));
+        v1PersistentVolumeClaim.setSpec(v1PersistentVolumeClaimSpec);
+        try {
+            CORE_V1_API.createNamespacedPersistentVolumeClaim(namespace, v1PersistentVolumeClaim, Boolean.TRUE.toString(), null, null, null);
+        } catch (ApiException e) {
+            log.error("创建:{}.{} pvc 异常信息:{}", namespace, pvcName, e.getResponseBody(), e);
+            return false;
+        }
+        return true;
     }
 
 }

@@ -11,7 +11,7 @@ metadata:
   name: k8s-api-role
 rules:
 - apiGroups: [""]
-  resources: ["namespaces", "pods", "configmaps", "services"]
+  resources: ["namespaces", "pods", "configmaps", "services", "persistentvolumeclaims"]
   verbs: ["get", "watch", "list", "create", "update", "patch", "delete"]
 
 - apiGroups: ["apps"]
@@ -37,6 +37,28 @@ roleRef:
   kind: Role
   name: k8s-api-role
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8s-api-cluster-role
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-api-cluster-role-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: k8s-api-cluster-role
+subjects:
+  - kind: ServiceAccount
+    name: k8s-api-sa
+    namespace: scalingmq
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -73,7 +95,7 @@ spec:
             - name: TZ
               value: Asia/Shanghai
             - name: LANG
-              value: en_US.UTF-8
+              value: C.utf8
             - name: SCHEDULE_STORAGE_POD_PORT
               value: "9876"
             - name: SCHEDULE_STORAGE_POD_PORT_NAME
@@ -90,6 +112,8 @@ spec:
               value: "1Gi"
             - name: SCHEDULE_STORAGE_COORDINATOR_RATIO
               value: "30"
+            - name: SCHEDULE_STORAGE_PVC_TYPE
+              value: "LOCAL"
           resources:
             requests:
               cpu: "500m"

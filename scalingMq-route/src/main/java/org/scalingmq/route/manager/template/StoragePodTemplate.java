@@ -35,7 +35,7 @@ public class StoragePodTemplate {
         ENV_MAP.put("SERVICE_NAME", storageServiceTemplate.getStorageServiceName());
         ENV_MAP.put("AFT_PORT", RouteConfig.getInstance().getScheduleStoragePodPort());
         ENV_MAP.put("TZ", "Asia/Shanghai");
-        ENV_MAP.put("LANG", "en_US.UTF-8");
+        ENV_MAP.put("LANG", "C.utf8");
 
         this.serviceName = storageServiceTemplate.getStorageServiceName();
         this.templateMetadataName = storageServiceTemplate.getStoragePodName();
@@ -68,6 +68,12 @@ public class StoragePodTemplate {
     private String cpuResource = RouteConfig.getInstance().getScheduleStoragePodCpu();
 
     private String memoryResource = RouteConfig.getInstance().getScheduleStoragePodMem();
+
+    private String storageClassName;
+
+    private String mountPath;
+
+    private String initStorageSize;
 
     /**
      * 添加coordinator的环境变量配置
