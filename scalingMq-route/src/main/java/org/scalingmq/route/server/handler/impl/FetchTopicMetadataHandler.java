@@ -2,6 +2,7 @@ package org.scalingmq.route.server.handler.impl;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.route.client.entity.FetchTopicMetadataReqWrapper;
@@ -25,49 +26,46 @@ public class FetchTopicMetadataHandler implements RequestHandler<FetchTopicMetad
 
     @Override
     public void handle(FetchTopicMetadataReqWrapper.FetchTopicMetadataReq fetchTopicMetadataReq, Channel channel) {
-        log.debug("查询topic元数据请求:{}", fetchTopicMetadataReq.toString());
-        TopicMetadata topicMetadata = MetaDataManager.getInstance().getTopicMetadata(fetchTopicMetadataReq.getTopicName());
-        RouteResWrapper.RouteApiRes.Builder builder = RouteResWrapper.RouteApiRes.newBuilder();
-        if (topicMetadata == null) {
-            channel.writeAndFlush(builder.build());
-            return;
-        }
-        FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.Builder fetchResultBuilder = FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.newBuilder()
-                .setTopicName(topicMetadata.getTopicName())
-                .setPartitionNums(topicMetadata.getPartitionNums())
-                .setReplicateFactor(topicMetadata.getReplicateFactor());
-        // 构建数组
-        String partitionMetadataListStr = topicMetadata.getPartitionMetadataList();
-        List<PartitionMetadata> partitionMetadataList = null;
-        if (partitionMetadataListStr != null) {
-            partitionMetadataList = GSON.fromJson(partitionMetadataListStr, new TypeToken<List<PartitionMetadata>>(){}.getType());
-        }
-        if (partitionMetadataList != null && partitionMetadataList.size() > 0) {
-            for (int i = 0; i < partitionMetadataList.size(); i++) {
-                PartitionMetadata partitionMetadata = partitionMetadataList.get(i);
-
-                FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.PartitionMetadata.Builder partitionBuilder
-                        = FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.PartitionMetadata.newBuilder();
-                if (partitionMetadata.getIsrStoragePodNums() != null && partitionMetadata.getIsrStoragePodNums().size() > 0) {
-                    for (int j = 0; j < partitionMetadata.getIsrStoragePodNums().size(); j++) {
-                        partitionBuilder.setIsrStoragePodNums(j, partitionMetadata.getIsrStoragePodNums().get(j));
-                    }
-                }
-
-                if (partitionMetadata.getStoragePodNums() != null && partitionMetadata.getStoragePodNums().size() > 1) {
-                    for (int k = 0; k < partitionMetadata.getStoragePodNums().size(); k++) {
-                        partitionBuilder.setStoragePodNums(k, partitionMetadata.getStoragePodNums().get(k));
-                    }
-                }
-
-                fetchResultBuilder.setPartitionMetadataList(i,
-                        partitionBuilder
-                        );
+        try {
+            log.debug("查询topic元数据请求:{}", fetchTopicMetadataReq.toString());
+            TopicMetadata topicMetadata = MetaDataManager.getInstance().getTopicMetadata(fetchTopicMetadataReq.getTopicName());
+            RouteResWrapper.RouteApiRes.Builder builder = RouteResWrapper.RouteApiRes.newBuilder();
+            if (topicMetadata == null) {
+                channel.writeAndFlush(builder.build());
+                return;
             }
+            FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.Builder fetchResultBuilder = FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.newBuilder()
+                    .setTopicName(topicMetadata.getTopicName())
+                    .setPartitionNums(topicMetadata.getPartitionNums())
+                    .setReplicateFactor(topicMetadata.getReplicateFactor());
+            // 构建数组
+            String partitionMetadataListStr = topicMetadata.getPartitionMetadataList();
+            List<PartitionMetadata> partitionMetadataList = null;
+            if (partitionMetadataListStr != null) {
+                partitionMetadataList = GSON.fromJson(partitionMetadataListStr, new TypeToken<List<PartitionMetadata>>(){}.getType());
+            }
+            if (partitionMetadataList != null && partitionMetadataList.size() > 0) {
+                for (PartitionMetadata partitionMetadata : partitionMetadataList) {
+                    FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.PartitionMetadata.Builder partitionBuilder
+                            = FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.PartitionMetadata.newBuilder();
+                    partitionBuilder.setPartitionNum(partitionMetadata.getPartitionNum());
+                    partitionBuilder.addAllIsrStoragePodNums(partitionMetadata.getIsrStoragePodNums());
+                    partitionBuilder.addAllStoragePodNums(partitionMetadata.getStoragePodNums());
+
+                    fetchResultBuilder.addPartitionMetadataList(partitionBuilder);
+                }
+            }
+            channel.writeAndFlush(builder.setFetchTopicMetadataResult(
+                    fetchResultBuilder
+                    ).build());
+        } catch (Exception e) {
+            log.error("响应topic metadata获取失败, 请求:{}", fetchTopicMetadataReq, e);
+            RouteResWrapper.RouteApiRes res = RouteResWrapper.RouteApiRes.newBuilder()
+                    .setErrorCode(RouteResWrapper.RouteApiRes.ErrorCode.UNKNOWN)
+                    .setErrorMsg(e.getMessage())
+                    .build();
+            channel.writeAndFlush(res);
         }
-        channel.writeAndFlush(builder.setFetchTopicMetadataResult(
-                fetchResultBuilder
-                ).build());
     }
 
 }

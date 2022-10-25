@@ -17,6 +17,7 @@ import org.scalingmq.route.client.entity.RouteResWrapper;
 import org.scalingmq.storage.api.StorageApiReqWrapper;
 import org.scalingmq.storage.api.StorageApiResWrapper;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,6 +96,10 @@ public class BrokerGrpcHandler extends ScalingmqServiceGrpc.ScalingmqServiceImpl
         List<FetchTopicMetadataResultWrapper.FetchTopicMetadataResult.PartitionMetadata> partitionMetadataList
                 = fetchTopicMetadataResult.getPartitionMetadataListList();
 
+        if (log.isDebugEnabled()) {
+            log.debug("获取到的topic元数据:{}", Arrays.toString(partitionMetadataList.toArray()));
+        }
+
         String maybeLeaderAddr;
         if (!"".equals(request.getMsgKey())) {
             // 按照key来取模分配分区
@@ -117,7 +122,7 @@ public class BrokerGrpcHandler extends ScalingmqServiceGrpc.ScalingmqServiceImpl
         StorageApiReqWrapper.StorageApiReq storageApiReq = StorageApiReqWrapper.StorageApiReq.newBuilder()
                 .setApiType(StorageApiReqWrapper.StorageApiReq.ApiType.PRODUCT)
                 .setPutMsgReq(StorageApiReqWrapper.StorageApiReq.PutMsgReq.newBuilder()
-                        .setMsgItems(0, StorageApiReqWrapper.StorageApiReq.PutMsgReq.MsgItem.newBuilder()
+                        .addMsgItems(StorageApiReqWrapper.StorageApiReq.PutMsgReq.MsgItem.newBuilder()
                                 .setContent(request.getMessage()).build())
                         .build())
                 .build();

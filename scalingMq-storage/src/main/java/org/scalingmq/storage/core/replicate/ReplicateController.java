@@ -206,9 +206,6 @@ public class ReplicateController {
 
         static {
             SCHEDULED_FUTURE = FETCH_LEADER_MSG_THREAD_POOL.scheduleWithFixedDelay(() -> {
-                if (log.isDebugEnabled()) {
-                    log.debug("从节点开始拉取消息...");
-                }
                 while (true) {
                     long nowLeaderMaxOffset = leaderMaxOffset;
                     if (nowLeaderMaxOffset != -1) {

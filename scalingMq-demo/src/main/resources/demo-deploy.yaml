@@ -31,17 +31,19 @@ spec:
       securityContext:
         privileged: true
       env:
-        - name: BROKER_PORT
-          value: "6543"
+        - name: FLOW_PORT
+          value: "10001"
         - name: BROKER_HOST
           value: "scalingmq-broker-service"
+        - name: BROKER_PORT
+          value: "6543"
         - name: LANG
           value: en_US.UTF-8
     - name: scalingmq-demo
       image: scalingmq-demo:v1.0
       env:
-        - name: BROKER_PORT
-          value: "6543"
+        - name: FLOW_PORT
+          value: "10001"
         - name: BROKER_HOST
           value: "scalingmq-broker-service"
       ports:
@@ -54,5 +56,6 @@ spec:
   volumes:
     - name: sidercar-workspace
       hostPath:
+        type: DirectoryOrCreate
         path: /Users/renyansong/scalingmq/sidecar
 ---

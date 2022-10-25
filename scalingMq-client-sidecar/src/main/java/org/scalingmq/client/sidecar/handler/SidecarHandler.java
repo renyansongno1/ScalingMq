@@ -14,9 +14,9 @@ import org.scalingmq.client.grpc.ScalingmqServiceGrpc;
 @Slf4j
 public class SidecarHandler extends ScalingmqServiceGrpc.ScalingmqServiceImplBase {
 
-    private static final String BROKER_HOST = "BROKER_HOST";
+    private static final String BROKER_HOST = System.getenv("BROKER_HOST");
 
-    private static final String BROKER_PORT = "BROKER_PORT";
+    private static final String BROKER_PORT = System.getenv("BROKER_PORT");
 
     private final ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(BROKER_HOST, Integer.parseInt(BROKER_PORT))
             // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid

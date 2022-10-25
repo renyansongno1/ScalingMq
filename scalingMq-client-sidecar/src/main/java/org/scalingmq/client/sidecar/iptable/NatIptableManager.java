@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 @Slf4j
 public class NatIptableManager {
 
-    private static final String BROKER_PORT = "BROKER_PORT";
+    private static final String FLOW_PORT = "FLOW_PORT";
 
     private static final NatIptableManager INSTANCE = new NatIptableManager();
 
@@ -39,13 +39,13 @@ public class NatIptableManager {
                 // 初始化操作
                 // iptables -t nat -A PREROUTING -p tcp --dport ${目标端口} -j DNAT --to-destination ${本地IP}:${本地端口}
                 try {
-                    // 获取Broker的端口
-                    String brokerPort = System.getenv(BROKER_PORT);
+                    // 获取流量出口的端口
+                    String brokerPort = System.getenv(FLOW_PORT);
                     if (log.isDebugEnabled()) {
-                        log.debug("获取到broker的端口为:{}", brokerPort);
+                        log.debug("获取到flow的端口为:{}", brokerPort);
                     }
                     if (brokerPort == null || "".equals(brokerPort)) {
-                        brokerPort = "6543";
+                        brokerPort = "10001";
                     }
                     Process process = Runtime.getRuntime().exec("iptables -t nat -A OUTPUT -p tcp --dport "
                             + brokerPort + " -j DNAT --to-destination 127.0.0.1:9999");

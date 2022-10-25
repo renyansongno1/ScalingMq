@@ -57,10 +57,14 @@ public class NetworkClient {
             port = Integer.parseInt(addr.split(":")[1]);
         }
         String connection = addr + ":" + port;
-        log.debug("network client 收到发送请求到:{}", connection);
+        if (log.isDebugEnabled()) {
+            log.debug("network client 收到发送请求到:{}", connection);
+        }
         Channel channel = CHANNEL_MAP.get(connection);
         if (channel != null) {
-            log.debug("network client 已缓存连接:{}", connection);
+            if (log.isDebugEnabled()) {
+                log.debug("network client 已缓存连接:{}", connection);
+            }
             // 已经连接过了
             Object obj = new Object();
             RES_MAP.put(channel.id().toString(), obj);
@@ -73,7 +77,9 @@ public class NetworkClient {
                     }
                 });
                 try {
-                    log.debug("network client 开始等待remote响应:{}", connection);
+                    if (log.isDebugEnabled()) {
+                        log.debug("network client 开始等待remote响应:{}", connection);
+                    }
                     obj.wait();
                 } catch (InterruptedException e) {
                     // ignore
@@ -82,13 +88,17 @@ public class NetworkClient {
             }
             // v值被替换
             MessageLite rst = (MessageLite) RES_MAP.get(channel.id().toString());
-            log.debug("network client 收到远端:{},响应:{}", connection, rst.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("network client 收到远端:{},响应:{}", connection, rst.toString());
+            }
             // 清理map
             RES_MAP.remove(channel.id().toString());
             return rst;
         } else {
             // 建立连接
-            log.debug("network client 开始创建连接:{}", connection);
+            if (log.isDebugEnabled()) {
+                log.debug("network client 开始创建连接:{}", connection);
+            }
             CountDownLatch waitConnected = new CountDownLatch(1);
             connect(addr, port, messageLite, waitConnected);
             try {
@@ -180,6 +190,9 @@ public class NetworkClient {
          */
         @Override
         public void channelActive(ChannelHandlerContext ctx) {
+            if (log.isDebugEnabled()) {
+                log.debug("建立连接:{}", ctx.channel().id().toString());
+            }
             // 设置连接
             CHANNEL_MAP.put(connection, ctx.channel());
             connectionWait.countDown();
@@ -190,6 +203,9 @@ public class NetworkClient {
          */
         @Override
         public void channelInactive(ChannelHandlerContext ctx) {
+            if (log.isDebugEnabled()) {
+                log.debug("连接断开:{}", ctx.channel().id().toString());
+            }
             CHANNEL_MAP.remove(connection);
         }
 
@@ -203,6 +219,10 @@ public class NetworkClient {
             log.debug("客户端读取远端数据:{}, 类型:{}", msg, msg.getClass().getName());
             // 读取到服务端的返回值
             Object waitObj = RES_MAP.get(ctx.channel().id().toString());
+            if (waitObj == null) {
+                log.error("收到不在缓存连接中的channel id:{}, 数据:{}, 数据类型:{}", ctx.channel().id(), msg, msg.getClass().getName());
+                return;
+            }
             // 首先先上锁
             synchronized (waitObj) {
                 // 修改map的value为真实的响应值

@@ -151,9 +151,15 @@ public class RouteAppClient {
                 .setReqType(RouteReqWrapper.RouteReq.ReqType.ISR_UPDATE)
                 .setIsrUpdateReq(req)
                 .build();
-        RouteResWrapper.RouteApiRes res = netThreadPool.submit(new NetCallTask(routeReq)).get();
+        RouteResWrapper.RouteApiRes res = null;
+        try {
+            res = netThreadPool.submit(new NetCallTask(routeReq)).get(3000L, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            log.error("上报isr元数据异常:{}", req, e);
+            return;
+        }
         if (!"".equals(res.getErrorMsg())) {
-            log.error("上报isr元数据异常:{}", res.getErrorMsg());
+            log.error("上报isr元数据失败, route异常:{}", res.getErrorMsg());
         }
     }
 

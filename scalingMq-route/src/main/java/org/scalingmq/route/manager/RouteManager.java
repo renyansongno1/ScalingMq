@@ -1,6 +1,7 @@
 package org.scalingmq.route.manager;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.kubernetes.api.K8sApiClient;
 import org.scalingmq.route.client.entity.IsrUpdateReqWrapper;
@@ -86,7 +87,7 @@ public class RouteManager {
         if (partitionMetadataList != null && partitionMetadataList.size() > 0) {
             String value = GSON.toJson(partitionMetadataList);
             // 更新元数据
-            topicMetadata.setPartitionMetadataList(GSON.toJson(partitionMetadataList));
+            topicMetadata.setPartitionMetadataList(value);
             String jsonPatch = GSON.toJson(topicMetadata);
             if (log.isDebugEnabled()) {
                 log.debug("开始patch configmap :{}", jsonPatch);
@@ -116,10 +117,15 @@ public class RouteManager {
             log.error("查询topic:{} 元数据为空, 上报isr元数据:{} 失败", req.getTopicName(), req);
             return;
         }
-        PartitionMetadata partitionMetadata = GSON.fromJson(topicMetadata.getPartitionMetadataList(), PartitionMetadata.class);
-        partitionMetadata.getIsrStoragePodNums().set(req.getPartitionNum() - 1, GSON.toJson(req.getIsrAddrsList()));
+        List<PartitionMetadata> partitionMetadataList = GSON.fromJson(topicMetadata.getPartitionMetadataList(), new TypeToken<List<PartitionMetadata>>() {}.getType());
+        PartitionMetadata partitionMetadata = partitionMetadataList.get(req.getPartitionNum() - 1);
+        if (partitionMetadata == null) {
+            log.error("收到不存在的partition更新isr, 当前数据:{}, partition更新请求:{}", topicMetadata, req);
+            return;
+        }
+        partitionMetadata.setIsrStoragePodNums(req.getIsrAddrsList());
 
-        topicMetadata.setPartitionMetadataList(GSON.toJson(partitionMetadata));
+        topicMetadata.setPartitionMetadataList(GSON.toJson(partitionMetadataList));
         // 更新元数据
         String jsonPatch = GSON.toJson(topicMetadata);
         MetaDataManager.getInstance().updateTopicMetadata(req.getTopicName(), jsonPatch);

@@ -21,7 +21,7 @@ public class ProducerDemo implements EndpointProcessor {
 
     private static final String BROKER_HOST = System.getenv("BROKER_HOST");
 
-    private static final String BROKER_PORT = System.getenv("BROKER_PORT");
+    private static final String BROKER_PORT = System.getenv("FLOW_PORT");
 
     private final ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(BROKER_HOST, Integer.parseInt(BROKER_PORT))
             // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
