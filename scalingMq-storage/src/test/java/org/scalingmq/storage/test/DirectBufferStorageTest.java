@@ -27,6 +27,9 @@ class DirectBufferStorageTest {
         IocContainer.getInstance().add(new PartitionMsgStorage());
     }
 
+    /**
+     * 单条消息追加测试
+     */
     @Test
     void appendTest() {
         DirectBufferStorage directBufferStorage = new DirectBufferStorage();
@@ -53,6 +56,9 @@ class DirectBufferStorageTest {
         Assertions.assertArrayEquals(body, msgBody);
     }
 
+    /**
+     * 多条消息追加
+     */
     @Test
     void multiMsgAppendTest() {
         DirectBufferStorage directBufferStorage = new DirectBufferStorage();
@@ -68,6 +74,43 @@ class DirectBufferStorageTest {
 
         // 查询消息
         StorageFetchMsgResult storageFetchMsgResult = directBufferStorage.fetchFromMsg(0, 16, StorageConfig.getInstance().getMaxFetchMsgMb());
+        List<byte[]> msgDataList = storageFetchMsgResult.getMsgDataList();
+        Assertions.assertNotNull(msgDataList);
+        for (int i = 0; i < msgDataList.size(); i++) {
+            byte[] readResultBytes = msgDataList.get(i);
+            byte[] writeMsgBytes = appendMsgBodyList.get(i);
+
+            ByteBuffer result = ByteBuffer.wrap(readResultBytes);
+            Assertions.assertEquals(result.getInt(), writeMsgBytes.length);
+            byte[] magicByte = new byte[MAGIC.getBytes(StandardCharsets.UTF_8).length];
+            result.get(magicByte);
+            Assertions.assertArrayEquals(magicByte, MAGIC.getBytes(StandardCharsets.UTF_8));
+            byte[] body = new byte[writeMsgBytes.length];
+            result.get(body);
+            Assertions.assertArrayEquals(body, writeMsgBytes);
+        }
+    }
+
+    /**
+     * 多条消息追加 从中间读取
+     */
+    @Test
+    void multiAppendThenReadFromMidTest() {
+        DirectBufferStorage directBufferStorage = new DirectBufferStorage();
+        directBufferStorage.componentStart();
+
+        List<byte[]> appendMsgBodyList = new ArrayList<>(10);
+
+        for (int i = 0; i < 10; i++) {
+            String msgBody = "multiAppendReadFromMidTest-" + i;
+            byte[] msgBodyBytes = msgBody.getBytes(StandardCharsets.UTF_8);
+            appendTestMsg(msgBody, directBufferStorage);
+            if (i > 1) {
+                appendMsgBodyList.add(msgBodyBytes);
+            }
+        }
+        // 查询消息 忽略前面的两条消息
+        StorageFetchMsgResult storageFetchMsgResult = directBufferStorage.fetchFromMsg(16 * 2, 16, StorageConfig.getInstance().getMaxFetchMsgMb());
         List<byte[]> msgDataList = storageFetchMsgResult.getMsgDataList();
         Assertions.assertNotNull(msgDataList);
         for (int i = 0; i < msgDataList.size(); i++) {
@@ -101,7 +144,7 @@ class DirectBufferStorageTest {
         indexBuf.putInt(directBufferStorage.storagePriority());
         indexBuf.putLong(append.getOffset());
         indexBuf.putInt(msgBody.length);
-        StorageAppendResult appendIndex = directBufferStorage.appendIndex(indexBuf.array());
+        StorageAppendResult appendIndex = directBufferStorage.appendIndex(indexBuf.array(), 0);
         log.info("append index result:{}", appendIndex);
         Assertions.assertTrue(appendIndex.getSuccess());
     }

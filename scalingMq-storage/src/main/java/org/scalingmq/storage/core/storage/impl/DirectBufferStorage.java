@@ -6,13 +6,14 @@ import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 import org.scalingmq.storage.core.storage.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
+import org.scalingmq.storage.core.storage.StorageMapping;
 import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
 
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 直接内存存储实现
@@ -29,7 +30,7 @@ public class DirectBufferStorage implements StorageClass {
     /**
      * 消息数据内存池
      */
-    private static final List<ByteBuffer> MSG_DATA_MEMORY_BUFFER_POOL = new ArrayList<>(1024);
+    private final List<ByteBuffer> MSG_DATA_MEMORY_BUFFER_POOL = new CopyOnWriteArrayList<>();
 
     /**
      * 写位点
@@ -47,9 +48,19 @@ public class DirectBufferStorage implements StorageClass {
     private int maxCapacity = 0;
 
     /**
-     * 索引能够使用的最大容量
+     * 等待降级存储的数据
      */
-    private int maxIndexCapacity = 0;
+    private volatile Integer waitDemotionBufferEndIndex;
+
+    /**
+     * 降级刷数据开关
+     */
+    private volatile boolean demotion = false;
+
+    /**
+     * 组件状态
+     */
+    private static volatile boolean STOP = false;
 
 
     public DirectBufferStorage() {
@@ -59,7 +70,7 @@ public class DirectBufferStorage implements StorageClass {
         // 查询可以使用的空间
         int maxJvmUseMemoryPercentage = 0;
         List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
-        log.debug("当前系统的jvm参数: {}", Arrays.toString(new List[]{inputArguments}));
+        log.debug("当前系统的jvm参数: {}", Arrays.toString(inputArguments.toArray()));
         for (String vmArgument : inputArguments) {
             if (vmArgument.contains(MAX_RAM_PERCENTAGE)) {
                 String[] percentageSplit = vmArgument.split("=");
@@ -82,16 +93,13 @@ public class DirectBufferStorage implements StorageClass {
         int maxAllCapacity = Math.toIntExact(
                 containerRemainingMemory * StorageConfig.getInstance().getMsgUseMaxDirectMemoryCapacity() / 100
         );
-        // 计算索引文件能够使用的内存
-        maxIndexCapacity = maxAllCapacity / 100 * StorageConfig.getInstance().getIndexSpaceRatio();
-        // 消息数据能够使用的就是剩下的
-        maxCapacity = maxAllCapacity - maxIndexCapacity;
+        // 将可以使用的内存分为两部分，写满一半之后数据降级，使用另一部分来承接读写
+        maxCapacity = maxAllCapacity / 2;
 
-        log.debug("消息存储可以使用的内存:{} bytes", maxCapacity);
-        log.debug("索引存储可以使用的内存:{} bytes", maxIndexCapacity);
+        log.debug("消息存储可以使用的内存(half):{} bytes", maxCapacity);
 
         // 注册
-        IocContainer.getInstance().getObj(PartitionMsgStorage.class).addStorageClass(storagePriority(), this);
+        StorageMapping.addStorageClass(storagePriority(), this);
     }
 
     @Override
@@ -105,7 +113,11 @@ public class DirectBufferStorage implements StorageClass {
     }
 
     @Override
-    public StorageAppendResult appendIndex(byte[] indexBody) {
+    public StorageAppendResult appendIndex(byte[] indexBody, long globalIndexPosition) {
+        // index不会真实的存储在buffer pool中
+        // 因为index本身就是天然有序了，数据存储是一个个 entry组成的list，那么index就是需要找到在list中的位置
+        // 所以最终appendIndex的结果必然是 INDEX_SIZE * 已追加数量
+        // 那么再查询消息的时候 就拿这个index的Position来查询
         return appendBody(indexBody, true);
     }
 
@@ -118,7 +130,8 @@ public class DirectBufferStorage implements StorageClass {
     public StorageFetchMsgResult fetchFromMsg(long physicalOffset, int msgSize, String maxFetchMsgMb) {
         long maxFetchMsgBytes = Long.parseLong(maxFetchMsgMb) * 1024 * 1024;
         long appendMsgBytes = 0L;
-
+        // 直接内存模式下
+        // index来查询的时候，只要 index的Position 除以 index_size 就是数据的在List的index
         long index = physicalOffset/msgSize;
         int msgCount = 0;
         List<byte[]> resultList = new ArrayList<>();
@@ -143,15 +156,29 @@ public class DirectBufferStorage implements StorageClass {
         int maxMemCapacity;
         if (index) {
             position = indexWrote;
-            maxMemCapacity = maxIndexCapacity;
+            // 索引写入的时候 由于不会真实的存储到buffer pool中，所以只要数据存储下了 就不需要考虑index的存储
+            maxMemCapacity = Integer.MAX_VALUE;
         } else {
             position = wrote;
             maxMemCapacity = maxCapacity;
         }
         if (position + body.length > maxMemCapacity) {
-            return StorageAppendResult.builder()
-                    .success(false)
-                    .build();
+            if (waitDemotionBufferEndIndex != null) {
+                log.warn("all of direct double buffer full 检查是否需要调整参数MsgUseMaxDirectMemoryCapacity...");
+                // 等待降级动作完成
+                while (waitDemotionBufferEndIndex != null) {
+                    try {
+                        Thread.sleep(Duration.ofMillis(10));
+                    } catch (InterruptedException e) {
+                        // ignore...
+                    }
+                }
+            }
+            waitDemotionBufferEndIndex = MSG_DATA_MEMORY_BUFFER_POOL.size() - 1;
+            // 开始降级刷数据
+            wrote = 0L;
+            indexWrote = 0L;
+            demotion = true;
         }
         long beforeAppendPosition = position;
         if (index) {
@@ -171,13 +198,40 @@ public class DirectBufferStorage implements StorageClass {
                 .build();
     }
 
+    @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     @Override
     public void componentStart() {
         init();
+        new Thread(new DemotionRefreshTask(), "demotion-storage-direct-buffer-thread").start();
     }
 
     @Override
     public void componentStop() {
         // TODO: 2022/9/18 写数据到持久存储
+        STOP = true;
     }
+
+    private class DemotionRefreshTask implements Runnable {
+
+        @Override
+        public void run() {
+            while (!STOP) {
+                if (demotion &&
+                        waitDemotionBufferEndIndex != null) {
+                    // 获取下一级存储 整体刷到下一级存储
+                    Map.Entry<Integer, StorageClass> priorityStorageClassEntry = StorageMapping.getMapping().higherEntry(storagePriority());
+                    StorageClass nextStorage = priorityStorageClassEntry.getValue();
+                    PartitionMsgStorage partitionMsgStorage = IocContainer.getInstance().getObj(PartitionMsgStorage.class);
+                    for (int i = 0; i <= waitDemotionBufferEndIndex; i++) {
+                        ByteBuffer data = MSG_DATA_MEMORY_BUFFER_POOL.get(i);
+                        partitionMsgStorage.append(data.array(), nextStorage.storagePriority());
+                    }
+                    // 降级写完 需要同时更新当前存储indexStorageMap信息
+                    partitionMsgStorage.getIndexManager().updateIndexMetadata(waitDemotionBufferEndIndex + 1, storagePriority());
+                    MSG_DATA_MEMORY_BUFFER_POOL.removeAll(MSG_DATA_MEMORY_BUFFER_POOL.subList(0, waitDemotionBufferEndIndex));
+                }
+            }
+        }
+    }
+
 }

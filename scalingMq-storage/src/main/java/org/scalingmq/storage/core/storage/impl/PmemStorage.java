@@ -3,11 +3,10 @@ package org.scalingmq.storage.core.storage.impl;
 import com.intel.pmem.llpl.Transaction;
 import com.intel.pmem.llpl.TransactionalHeap;
 import com.intel.pmem.llpl.TransactionalMemoryBlock;
-import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 import org.scalingmq.storage.core.storage.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
+import org.scalingmq.storage.core.storage.StorageMapping;
 import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
 
 import java.io.File;
@@ -56,7 +55,8 @@ public class PmemStorage implements StorageClass {
                 : TransactionalHeap.createHeap(pmemMountPath, pmemIndexSize);
 
 
-        IocContainer.getInstance().getObj(PartitionMsgStorage.class).addStorageClass(storagePriority(), this);
+        // 注册
+        StorageMapping.addStorageClass(storagePriority(), this);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PmemStorage implements StorageClass {
     }
 
     @Override
-    public StorageAppendResult appendIndex(byte[] indexBody) {
+    public StorageAppendResult appendIndex(byte[] indexBody, long globalIndexPosition) {
         if (indexWrote + indexBody.length > pmemIndexSize) {
             return StorageAppendResult.builder()
                     .success(false)

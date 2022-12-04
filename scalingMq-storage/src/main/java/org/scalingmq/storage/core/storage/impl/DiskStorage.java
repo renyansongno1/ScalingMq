@@ -1,10 +1,9 @@
 package org.scalingmq.storage.core.storage.impl;
 
-import org.scalingmq.common.ioc.IocContainer;
 import org.scalingmq.storage.conf.StorageConfig;
-import org.scalingmq.storage.core.storage.PartitionMsgStorage;
 import org.scalingmq.storage.core.storage.StorageClass;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
+import org.scalingmq.storage.core.storage.StorageMapping;
 import org.scalingmq.storage.core.storage.entity.StorageFetchMsgResult;
 
 import java.io.File;
@@ -56,7 +55,8 @@ public class DiskStorage implements StorageClass {
             // ignore
             return;
         }
-        IocContainer.getInstance().getObj(PartitionMsgStorage.class).addStorageClass(storagePriority(), this);
+        // 注册
+        StorageMapping.addStorageClass(storagePriority(), this);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class DiskStorage implements StorageClass {
     }
 
     @Override
-    public StorageAppendResult appendIndex(byte[] indexBody) {
+    public StorageAppendResult appendIndex(byte[] indexBody, long globalIndexPosition) {
         if (indexWrote + indexBody.length > maxFileSize) {
             return StorageAppendResult.builder()
                     .success(false)

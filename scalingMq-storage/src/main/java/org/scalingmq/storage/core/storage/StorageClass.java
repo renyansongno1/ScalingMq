@@ -26,9 +26,10 @@ public interface StorageClass extends Lifecycle{
     /**
      * 追加索引数据
      * @param indexBody 索引内容
+     * @param globalIndexPosition 全局索引写位点
      * @return 追加结果
      */
-    StorageAppendResult appendIndex(byte[] indexBody);
+    StorageAppendResult appendIndex(byte[] indexBody, long globalIndexPosition);
 
     /**
      * 拉取Index数据

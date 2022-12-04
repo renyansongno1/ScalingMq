@@ -81,7 +81,7 @@ public class MsgAggrService {
         List<StorageApiReqWrapper.StorageApiReq.PutMsgReq.MsgItem> msgItemsList = req.getMsgItemsList();
         long offset = 0L;
         for (StorageApiReqWrapper.StorageApiReq.PutMsgReq.MsgItem msgItem : msgItemsList) {
-            offset = IocContainer.getInstance().getObj(PartitionMsgStorage.class).append(msgItem.getContent().toByteArray());
+            offset = IocContainer.getInstance().getObj(PartitionMsgStorage.class).append(msgItem.getContent().toByteArray(), null);
         }
         if (offset == 0L) {
             throw new StorageBaseException(ExceptionCodeEnum.UNKNOWN, "未知错误 append null");

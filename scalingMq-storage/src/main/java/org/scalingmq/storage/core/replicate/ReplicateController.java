@@ -245,7 +245,7 @@ public class ReplicateController {
                         // 存储到本地
                         List<ByteString> dataList = fetchMsgRes.getDataList();
                         for (ByteString bytes : dataList) {
-                            partitionMsgStorage.append(bytes.toByteArray());
+                            partitionMsgStorage.append(bytes.toByteArray(), null);
                         }
                         // 继续拉取
                         continue;

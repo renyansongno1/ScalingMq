@@ -1,6 +1,7 @@
 package org.scalingmq.storage.core.storage;
 
 import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
+import lombok.extern.slf4j.Slf4j;
 import org.scalingmq.storage.conf.StorageConfig;
 import org.scalingmq.storage.core.cons.PutIndexEntry;
 import org.scalingmq.storage.core.cons.StorageAppendResult;
@@ -12,13 +13,19 @@ import org.scalingmq.storage.exception.StorageBaseException;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * 分区消息存储实现
  * @author renyansong
  */
+@Slf4j
 public class PartitionMsgStorage implements Lifecycle {
 
     /**
@@ -42,12 +49,6 @@ public class PartitionMsgStorage implements Lifecycle {
 
     private static volatile boolean STOP = false;
 
-    /**
-     * k -> 存储优先级
-     * v -> 存储实现类
-     */
-    private static final Map<Integer, StorageClass> STORAGE_CLASS_MAP = new TreeMap<>();
-
     private long globalIndexWrote = 0L;
 
     public PartitionMsgStorage() {
@@ -55,41 +56,38 @@ public class PartitionMsgStorage implements Lifecycle {
     }
 
     /**
-     * 添加存储实现
-     * @param storagePriority 存储优先级
-     * @param storageClass 存储实现
-     */
-    public void addStorageClass(int storagePriority, StorageClass storageClass) {
-        synchronized (this) {
-            STORAGE_CLASS_MAP.put(storagePriority, storageClass);
-        }
-    }
-
-    /**
      * 追加消息到存储组件中
      * @param msgBody 消息数据
+     * @param storageComponentFlag 存储组件标识
      * @return 消息物理偏移量
      */
-    public long append(byte[] msgBody) {
+    public long append(byte[] msgBody, Integer storageComponentFlag) {
         // 拼接消息形成最终的落盘消息
         ByteBuffer buffer = ByteBuffer.allocate(MSG_LENGTH_SIZE + MAGIC_DATA_SIZE + msgBody.length);
         buffer.putInt(msgBody.length);
         buffer.put(MAGIC.getBytes(StandardCharsets.UTF_8));
         buffer.put(msgBody);
 
-        long appendOffset = 0L;
-        int storageFlag = 0;
+        long appendOffset;
+        int storageFlag;
         synchronized (this) {
-            for (Map.Entry<Integer, StorageClass> storageClassEntry : STORAGE_CLASS_MAP.entrySet()) {
-                StorageAppendResult appendResult = storageClassEntry.getValue().append(buffer.array());
-                if (!appendResult.getSuccess()) {
-                    continue;
-                }
-                // 成功
-                appendOffset = appendResult.getOffset();
+            StorageClass storageClass;
+            if (storageComponentFlag != null) {
+                storageClass = StorageMapping.getMapping().get(storageComponentFlag);
+                storageFlag = storageComponentFlag;
+            } else {
+                Map.Entry<Integer, StorageClass> storageClassEntry = StorageMapping.getMapping().firstEntry();
+                storageClass = storageClassEntry.getValue();
                 storageFlag = storageClassEntry.getKey();
-                break;
             }
+            StorageAppendResult appendResult = storageClass.append(buffer.array());
+            if (!appendResult.getSuccess()) {
+                // 存储组件保证写入数据必成
+                log.error("write data fail. storage class:{}", storageClass);
+                return 0L;
+            }
+            // 成功
+            appendOffset = appendResult.getOffset();
         }
         if (appendOffset == 0L) {
             return 0L;
@@ -121,6 +119,10 @@ public class PartitionMsgStorage implements Lifecycle {
         return globalIndexWrote;
     }
 
+    public MsgIndexManager getIndexManager() {
+        return indexManager;
+    }
+
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     @Override
     public void componentStart() {
@@ -135,7 +137,7 @@ public class PartitionMsgStorage implements Lifecycle {
     /**
      * index put的异步任务
      */
-    private class MsgIndexManager implements Runnable {
+    public class MsgIndexManager implements Runnable {
 
         private static final int STORAGE_PRIORITY_FLAG = 4;
 
@@ -146,6 +148,8 @@ public class PartitionMsgStorage implements Lifecycle {
         private static final int INDEX_SIZE = STORAGE_PRIORITY_FLAG + STORAGE_PHYSICAL_OFFSET + STORAGE_MSG_SIZE;
 
         private static final TreeMap<Long, Integer> INDEX_STORAGE_MAP = new TreeMap<>();
+
+        private static final ReadWriteLock INDEX_METADATA_LOCK = new ReentrantReadWriteLock();
 
         @Override
         public void run() {
@@ -178,7 +182,7 @@ public class PartitionMsgStorage implements Lifecycle {
          * @return 拉取结果
          */
         public FetchResult fetchMsgByIndex(long fetchIndex) {
-            long fetchOffset;
+            long fetchOffset = -1L;
             boolean noDataNew;
             if (fetchIndex >= globalIndexWrote) {
                 fetchOffset = globalIndexWrote;
@@ -187,43 +191,63 @@ public class PartitionMsgStorage implements Lifecycle {
                 noDataNew = false;
             }
 
+            if (noDataNew) {
+                return FetchResult.builder()
+                        .fetchLastOffset(fetchOffset)
+                        .noResult(true)
+                        .fetchDataList(Collections.emptyList())
+                        .build();
+            }
+
             // 查询数据
-            Map.Entry<Long, Integer> indexOffsetAndStorageFlagEntry = INDEX_STORAGE_MAP.lowerEntry(fetchIndex);
-            if (indexOffsetAndStorageFlagEntry == null ) {
-                throw new StorageBaseException(ExceptionCodeEnum.FETCH_MISS, "通过index offset 没有找到对应数据");
+            Lock lock = INDEX_METADATA_LOCK.readLock();
+            lock.lock();
+            try {
+                // 索引和存储组件的mapping
+                // 一开始是 1-100 在 Direct组件 1:directFlag
+                // 当出现降级的时候，1-100 就会写到 Disk组件, 这个就是 1:diskFlag
+                // 再写消息的时候 就会是 101:directFlag
+                //                     1:diskFlag
+                // 所以通过要查询的Index 取低于这个Index的存储组件Flag
+                Map.Entry<Long, Integer> indexOffsetAndStorageFlagEntry = INDEX_STORAGE_MAP.lowerEntry(fetchIndex);
+                if (indexOffsetAndStorageFlagEntry == null ) {
+                    throw new StorageBaseException(ExceptionCodeEnum.FETCH_MISS, "通过index offset 没有找到对应数据");
+                }
+                // 整个index是以 INDEX_SIZE 来增加的，而索引元数据的key是最早一条入当前存储类型的索引Position
+                // 那偏移量就是固定的了，比如 0-100写在第一个存储 100-200写到第二个存储，当需要找110的时候(假设index size = 10)
+                // 就会找到第二个存储，然后用110 - 100 = 10，就是第二个存储的当前索引开始的位点
+                long storagePosition = fetchIndex - indexOffsetAndStorageFlagEntry.getKey();
+                StorageClass storageClass = StorageMapping.getMapping().get(indexOffsetAndStorageFlagEntry.getValue());
+                byte[] indexData = storageClass.fetchDataFromIndex(storagePosition, INDEX_SIZE);
+
+                int storageFlag;
+                long physicalOffset;
+                int msgSize;
+                if (indexData == null) {
+                    storageFlag = -1;
+                    physicalOffset = storagePosition;
+                    msgSize = INDEX_SIZE;
+                } else {
+                    ByteBuffer indexBuffer = ByteBuffer.wrap(indexData);
+                    // 读取index数据
+                    storageFlag = indexBuffer.getInt();
+                    physicalOffset = indexBuffer.getLong();
+                    msgSize = indexBuffer.getInt();
+                }
+                // TODO: 2022/10/26 和写数据的并发问题
+                StorageFetchMsgResult storageFetchMsgResult
+                        = StorageMapping.getMapping().get(storageFlag)
+                        .fetchFromMsg(physicalOffset, msgSize, StorageConfig.getInstance().getMaxFetchMsgMb());
+                fetchOffset = fetchIndex + (long) INDEX_SIZE * storageFetchMsgResult.getFetchMsgItemCount();
+
+                return FetchResult.builder()
+                        .fetchLastOffset(fetchOffset)
+                        .noResult(noDataNew)
+                        .fetchDataList(storageFetchMsgResult.getMsgDataList())
+                        .build();
+            } finally {
+                lock.unlock();
             }
-            // 整个index是以 INDEX_SIZE 来增加的，而索引元数据的key是最早一条入当前存储类型的索引Position
-            // 那偏移量就是固定的了，比如 0-100写在第一个存储 100-200写到第二个存储，当需要找110的时候(假设index size = 10)
-            // 就会找到第二个存储，然后用110 - 100 = 10，就是第二个存储的当前索引开始的位点
-            long storagePosition = fetchIndex - indexOffsetAndStorageFlagEntry.getKey();
-            StorageClass storageClass = STORAGE_CLASS_MAP.get(indexOffsetAndStorageFlagEntry.getValue());
-            byte[] indexData = storageClass.fetchDataFromIndex(storagePosition, INDEX_SIZE);
-
-            int storageFlag;
-            long physicalOffset;
-            int msgSize;
-            if (indexData == null) {
-                storageFlag = -1;
-                physicalOffset = storagePosition;
-                msgSize = INDEX_SIZE;
-            } else {
-                ByteBuffer indexBuffer = ByteBuffer.wrap(indexData);
-                // 读取index数据
-                storageFlag = indexBuffer.getInt();
-                physicalOffset = indexBuffer.getLong();
-                msgSize = indexBuffer.getInt();
-            }
-
-            StorageFetchMsgResult storageFetchMsgResult
-                    = STORAGE_CLASS_MAP.get(storageFlag)
-                    .fetchFromMsg(physicalOffset, msgSize, StorageConfig.getInstance().getMaxFetchMsgMb());
-            fetchOffset = fetchIndex + (long) INDEX_SIZE * storageFetchMsgResult.getFetchMsgItemCount();
-
-            return FetchResult.builder()
-                    .fetchLastOffset(fetchOffset)
-                    .noResult(noDataNew)
-                    .fetchDataList(storageFetchMsgResult.getMsgDataList())
-                    .build();
         }
 
         /**
@@ -235,21 +259,53 @@ public class PartitionMsgStorage implements Lifecycle {
             indexBuf.putInt(putIndexEntry.getStoragePriorityFlag());
             indexBuf.putLong(putIndexEntry.getStorageOffset());
             indexBuf.putInt(putIndexEntry.getMsgSize());
-            for (Map.Entry<Integer, StorageClass> storageClassEntry : STORAGE_CLASS_MAP.entrySet()) {
-                StorageAppendResult appendResult = storageClassEntry.getValue().append(indexBuf.array());
-                if (!appendResult.getSuccess()) {
-                    continue;
+            StorageClass storageClass = StorageMapping.getMapping().get(putIndexEntry.getStoragePriorityFlag());
+            StorageAppendResult appendResult = storageClass.appendIndex(indexBuf.array(), globalIndexWrote);
+            if (!appendResult.getSuccess()) {
+                log.error("追加index失败...");
+                return;
+            }
+            globalIndexWrote += putIndexEntry.getMsgSize();
+            Lock lock = INDEX_METADATA_LOCK.writeLock();
+            lock.lock();
+            try {
+                boolean foundStorageFlag = false;
+                for (Map.Entry<Long, Integer> indexAndStorageFlagEntry : INDEX_STORAGE_MAP.entrySet()) {
+                    if (Objects.equals(indexAndStorageFlagEntry.getValue(), putIndexEntry.getStoragePriorityFlag())) {
+                        foundStorageFlag = true;
+                        break;
+                    }
                 }
-                globalIndexWrote += putIndexEntry.getMsgSize();
-                Map.Entry<Long, Integer> offsetStorageFlagEntry = INDEX_STORAGE_MAP.lastEntry();
-                if (offsetStorageFlagEntry == null) {
-                    INDEX_STORAGE_MAP.put(globalIndexWrote, storageClassEntry.getKey());
-                    break;
+                if (!foundStorageFlag) {
+                    INDEX_STORAGE_MAP.put(globalIndexWrote, putIndexEntry.getStoragePriorityFlag());
                 }
-                if (!offsetStorageFlagEntry.getValue().equals(storageClassEntry.getKey())) {
-                    INDEX_STORAGE_MAP.put(globalIndexWrote, storageClassEntry.getKey());
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public Map.Entry<Long, Integer> getIndexMetadataEntry(Long index) {
+            Lock lock = INDEX_METADATA_LOCK.readLock();
+            lock.lock();
+            try {
+                return INDEX_STORAGE_MAP.lowerEntry(index);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public void updateIndexMetadata(Integer indexCount, Integer storageClassFlag) {
+            Lock lock = INDEX_METADATA_LOCK.writeLock();
+            lock.lock();
+            try {
+                for (Map.Entry<Long, Integer> indexAndStorageFlagEntry : INDEX_STORAGE_MAP.entrySet()) {
+                    if (indexAndStorageFlagEntry.getValue().equals(storageClassFlag)) {
+                        INDEX_STORAGE_MAP.remove(indexAndStorageFlagEntry.getKey());
+                        INDEX_STORAGE_MAP.put(indexAndStorageFlagEntry.getKey() + indexCount * INDEX_SIZE, storageClassFlag);
+                    }
                 }
-                break;
+            } finally {
+                lock.unlock();
             }
         }
 
