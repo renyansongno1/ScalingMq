@@ -53,6 +53,11 @@ public class StorageConfig {
     private String ssdMountPath;
 
     /**
+     * 刷盘系数 4K的多少倍
+     */
+    private Integer flushDiskFactor = 1;
+
+    /**
      * 分区消息文件名称
      */
     private String partitionFileName;

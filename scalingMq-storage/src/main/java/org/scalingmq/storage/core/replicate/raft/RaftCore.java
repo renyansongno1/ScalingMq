@@ -481,11 +481,15 @@ public class RaftCore implements Lifecycle {
      */
     private void becomeFollower() {
         synchronized (STATE_LOCK) {
-            log.debug("当前节点:{}, 成为Follower, 期数:{}", peerId, concurrentTerm);
+            if (log.isDebugEnabled()) {
+                log.debug("当前节点:{}, 成为Follower, 期数:{}", peerId, concurrentTerm);
+            }
 
             // 检查是不是从Leader变过来的
             if (state == RaftStateEnum.LEADER) {
-                log.debug("节点:{}, 从Leader变为Follower", peerId);
+                if (log.isDebugEnabled()) {
+                    log.debug("节点:{}, 从Leader变为Follower", peerId);
+                }
                 if (heartbeatFuture != null) {
                     heartbeatFuture.cancel(true);
                 }
